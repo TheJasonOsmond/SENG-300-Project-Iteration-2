@@ -1,0 +1,63 @@
+commit c9db581a015368a635541b962e552b27f922c6fe
+Author: rosemuhammed <rose.muhammed0159@gmail.com>
+Date:   Wed Nov 2 10:28:15 2022 -0600
+
+    Error fix & update expected weight from bagging area
+
+commit 96449fa141f16f1968229ded0dd1f7d3179f203d
+Author: rosemuhammed <rose.muhammed0159@gmail.com>
+Date:   Tue Nov 1 19:00:19 2022 -0600
+
+    AddItemByScanning
+
+commit e63f56420ac6c62bd68f1159dfaf969b7decfca6
+Author: SajaAbufarha <109301045+SajaAbufarha@users.noreply.github.com>
+Date:   Tue Nov 1 17:46:37 2022 -0600
+
+    Create Payment.java
+    
+    Sample GUI for payment by card
+
+commit 1620d876b2e4b2cfbaf2d636736f8a225b58d057
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sun Oct 30 16:06:40 2022 -0600
+
+    Refactored System to DIYSystem
+    
+    Add conflicts with naming scheme, so I renamed them. Added statc main for system to begin launching the program
+
+commit ced6cd9cc093eac97cb2ebe7673ea609d86dc425
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sun Oct 30 13:35:27 2022 -0600
+
+    Starting Implementation
+    
+    PayByCard Use Case
+
+commit 1eb5b9c5b6193bb406d852eb8988804ad61020ec
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sun Oct 30 13:21:00 2022 -0600
+
+    Initial PayByCard setups
+
+commit 5a86fe2706b6cedd3da38d614c7d3c8bdef5c6c3
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Oct 29 23:56:58 2022 -0600
+
+    Deleted module-info.java
+    
+    Removed this to get referencing back to hardware classes working
+
+commit 0df84cb9984f82b590063bf8bab7ac10a8bd675e
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Oct 29 18:15:42 2022 -0600
+
+    Create DIY UC 1.pdf
+    
+    added copy of DIY UC
+
+commit bd7e21686d252f3455aba704cfed0b1c9e07fc19
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Fri Oct 28 21:30:48 2022 -0600
+
+    Initial commit

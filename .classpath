@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="com.diy.hardware_0.2/src"/>
+	<classpathentry kind="src" path="com.diy.software/src"/>
+	<classpathentry kind="output" path="com.diy.hardware_0.2/bin"/>
+</classpath>

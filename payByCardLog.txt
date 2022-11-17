@@ -1,0 +1,338 @@
+commit ee3ff2d54a90a090f7fb59f2c1567e67ea4d0f4a
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Nov 5 13:37:52 2022 -0600
+
+    Changes to get GIT back in order
+
+commit 42a6bc9950139a82dc57049ac535a2cad8d8ede2
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Nov 5 13:36:24 2022 -0600
+
+    Restoring stashed changes
+
+commit 60782fa00b876814e45ad771894839264127f2ba
+Merge: c2ad25a f9a2217
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Nov 5 13:34:54 2022 -0600
+
+    Merge branch 'pay-by-card' of https://github.com/Sjare/seng-300-proejct into pay-by-card
+
+commit c2ad25ae9370864d163425f07ab15b01f4814c44
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Nov 5 13:34:33 2022 -0600
+
+    Final merge for finishing work
+
+commit f9a22170fa80355c7db5b4900b45bdbd1cc79e7c
+Merge: 01ab93c 48956ff
+Author: HamiltonTD <46576376+HamiltonTD@users.noreply.github.com>
+Date:   Sat Nov 5 13:33:10 2022 -0600
+
+    Merge remote-tracking branch 'origin/pay-by-card' into pay-by-card
+    
+    rework test to use stub
+
+commit 01ab93c6469cecbef5eb7e9dce5a7cbd5f95102b
+Author: HamiltonTD <travis.hamilton@ucalgary.ca>
+Date:   Sat Nov 5 13:17:45 2022 -0600
+
+    rework tests to use stub
+
+commit 66c7b40ad0802060bb1d8a94374c66901dd81cea
+Merge: 48956ff 8b66b04
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Nov 5 13:15:09 2022 -0600
+
+    Merge branch 'main' into pay-by-card
+
+commit 8b66b04fda65e72904335130b671d2123d2f5981
+Author: DanielTangtakoune <117046185+DanielTangtakoune@users.noreply.github.com>
+Date:   Sat Nov 5 13:13:34 2022 -0600
+
+    DiyInterface1 RENAMED DiyInterface
+    
+    and some polishing to DiyInterface
+
+commit 48956ffc4808333a16c3d41593bb163521081f1b
+Merge: d923022 eaaded8
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Nov 5 12:42:31 2022 -0600
+
+    Merge branch 'main' into pay-by-card
+
+commit d923022eec1ab33d8a17361c75c66f84385f2998
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Nov 5 12:41:18 2022 -0600
+
+    Some changes inside CardReadObs
+
+commit eaaded818e0f43b943aaad28cb5c2e00e97036ea
+Author: DanielTangtakoune <117046185+DanielTangtakoune@users.noreply.github.com>
+Date:   Sat Nov 5 12:18:57 2022 -0600
+
+    DiyInterface1 initial commit
+    
+    DiyInterface1 is basically finished and the other one is there for backup USE DIYINTERFACE1!
+
+commit 4699c833a5a6c7e532002139a861fbba2ab98d9e
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Nov 5 00:34:23 2022 -0600
+
+    had to clean my repo
+
+commit 11d72605d9f6d0bcee7dbbf415a54a62ef7ad8c9
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Nov 5 00:32:32 2022 -0600
+
+    A few little changes...
+
+commit d7d850bcddb4eba69921c535169c7fe6a8ea2a4d
+Author: HamiltonTD <46576376+HamiltonTD@users.noreply.github.com>
+Date:   Sat Nov 5 00:32:30 2022 -0600
+
+    updated payByCredit Tests
+
+commit 3c92a5c452a903cb00f6036ff1ad3f3ac7c251af
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Nov 5 00:11:32 2022 -0600
+
+    Added a DIYWindow for testing
+    
+    Will replace with completed window from Daniel
+
+commit a4f968143e09ad6fc7bd68b7bcdbdcc96e3ae751
+Merge: c85534f 762526e
+Author: HamiltonTD <travis.hamilton@ucalgary.ca>
+Date:   Fri Nov 4 22:18:07 2022 -0600
+
+    Merge remote-tracking branch 'origin/main' into main
+
+commit 98f9af65cefe9c61d13bb91a0eecb858fb4354fe
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Fri Nov 4 22:02:40 2022 -0600
+
+    Changes in DIYSystem & Obs
+
+commit 5a23f99e09a904494b34700602cf43892ff4f347
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Fri Nov 4 21:41:54 2022 -0600
+
+    payByCredit seems to be finished..
+    
+    Need the main GUI to link it together
+
+commit 762526ef0ae2b8351641de16e38750dcb395eecb
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Fri Nov 4 20:16:11 2022 -0600
+
+    Finalzing the GUI tie in with payment by cards
+
+commit 7782d727fb2a49fea31d5b74d410eb5ee1211b0f
+Merge: 3f7dabb c9db581
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Fri Nov 4 19:06:08 2022 -0600
+
+    Merge branch 'AddItemByScanning'
+
+commit 3f7dabbf2fcd13ba6c5fe64727e470e948634d59
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Fri Nov 4 19:03:06 2022 -0600
+
+    Fixed a package error from merge
+
+commit 55fe496b6bcfbb9fc43f22c772d45d9cf0fb3468
+Merge: 46cd468 c88b4da
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Fri Nov 4 19:01:58 2022 -0600
+
+    Merge branch 'pay-by-card'
+
+commit c88b4da384779bfb6450709a9bb5480790a6c13c
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Fri Nov 4 18:58:53 2022 -0600
+
+    Last minute changes
+
+commit 18587c9ee2e868144d0be80a1b1bc7a9551e26b8
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Fri Nov 4 18:58:14 2022 -0600
+
+    Moved some classes around and made our DIYSystem not static anymore
+
+commit d3a62d54d5d7fd98631a2c88fb582133aa00c4d3
+Author: DanielTangtakoune <117046185+DanielTangtakoune@users.noreply.github.com>
+Date:   Fri Nov 4 16:58:40 2022 -0600
+
+    DiyInterface update code
+
+commit 16f2d55a601a5d8f53a43ad9b222f000f5d6ab9b
+Author: DanielTangtakoune <117046185+DanielTangtakoune@users.noreply.github.com>
+Date:   Fri Nov 4 16:48:06 2022 -0600
+
+    DiyInterface draft start
+
+commit 46cd468828285024225dac6b098274da4d9ede77
+Author: DanielTangtakoune <117046185+DanielTangtakoune@users.noreply.github.com>
+Date:   Fri Nov 4 15:22:46 2022 -0600
+
+    Initial pull and attendant window
+
+commit 77a3b7f0baa08219a5e3642200a29a53faa5ea20
+Author: HamiltonTD <46576376+HamiltonTD@users.noreply.github.com>
+Date:   Fri Nov 4 13:26:16 2022 -0600
+
+    test package for payByCredit started, minor payByCredit method changes
+
+commit ba5cf2c04034498f2c5ac25c9d5ff2fb05f8bce5
+Merge: 28f64e6 fb25702
+Author: HamiltonTD <travis.hamilton@ucalgary.ca>
+Date:   Fri Nov 4 11:50:06 2022 -0600
+
+    Merge remote-tracking branch 'origin/pay-by-card' into pay-by-card
+
+commit fb2570253c99f4b53b6a403546bf572e26e4d5f0
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Fri Nov 4 11:18:26 2022 -0600
+
+    Added other required observers
+    
+    BarcodeScannerObserver
+    ElectronicScaleObserver
+    Utility (mainly fills the store database)
+
+commit 28f64e6256bc3880bdf604875b7034c87726b20a
+Merge: 5959b3d bb2dfdc
+Author: HamiltonTD <travis.hamilton@ucalgary.ca>
+Date:   Thu Nov 3 14:17:35 2022 -0600
+
+    Merge remote-tracking branch 'origin/pay-by-card' into pay-by-card
+
+commit bb2dfdc279db60deed60965175eadf767c4799ac
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Thu Nov 3 14:00:52 2022 -0600
+
+    Setup ProductDatabase and the Customers Shopping Carts
+
+commit c9db581a015368a635541b962e552b27f922c6fe
+Author: rosemuhammed <rose.muhammed0159@gmail.com>
+Date:   Wed Nov 2 10:28:15 2022 -0600
+
+    Error fix & update expected weight from bagging area
+
+commit 7ccf58d73a30528b6bb07e89b5caeb9e45bd291f
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Tue Nov 1 20:57:28 2022 -0600
+
+    Refactored CustomerIO to CustomerData
+
+commit 2ae814244b3cbf93e983813908dcf04379cfcb66
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Tue Nov 1 20:53:20 2022 -0600
+
+    Create Payment.class
+
+commit 689bee363b22bdb80b2c8777afb563f5eb5a5657
+Merge: 6cf88b3 e63f564
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Tue Nov 1 20:52:44 2022 -0600
+
+    Merge branch 'main' into pay-by-card
+
+commit b5527500d12f48c3164f0d92aa96b06f030ea27b
+Author: Saianeesh Vinmani <imsaianeesh17@gmail.com>
+Date:   Tue Nov 1 20:04:17 2022 -0600
+
+    corrected package name
+    
+    -
+
+commit 96449fa141f16f1968229ded0dd1f7d3179f203d
+Author: rosemuhammed <rose.muhammed0159@gmail.com>
+Date:   Tue Nov 1 19:00:19 2022 -0600
+
+    AddItemByScanning
+
+commit c85534f8024fb6735e5a03fced8c50f9ca0b7562
+Merge: 6cf88b3 e63f564
+Author: HamiltonTD <travis.hamilton@ucalgary.ca>
+Date:   Tue Nov 1 18:12:04 2022 -0600
+
+    Merge remote-tracking branch 'origin/main' into main
+
+commit e63f56420ac6c62bd68f1159dfaf969b7decfca6
+Author: SajaAbufarha <109301045+SajaAbufarha@users.noreply.github.com>
+Date:   Tue Nov 1 17:46:37 2022 -0600
+
+    Create Payment.java
+    
+    Sample GUI for payment by card
+
+commit 5959b3d2d05148def033b6f0ab79eb52b043dbb9
+Author: HamiltonTD <travis.hamilton@ucalgary.ca>
+Date:   Mon Oct 31 20:52:13 2022 -0600
+
+    test suite project setup (no tests)
+
+commit 6cf88b3e5f322baa6680476b048facb1fce75479
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Mon Oct 31 17:29:50 2022 -0600
+
+    Added Exception list associated with Card
+
+commit 09560ab383f02173a135fc7b6fa1953f4195b5e8
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Mon Oct 31 16:34:42 2022 -0600
+
+    Restructured CustomerIO
+    
+    Changed layout of CustomerIO to take out the init of the customer and bank and put them into methods
+
+commit 017cc1d7cb126e0897ee84fd0c12ce2c45695cec
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sun Oct 30 17:30:21 2022 -0600
+
+    Testing blocking a card
+
+commit 1620d876b2e4b2cfbaf2d636736f8a225b58d057
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sun Oct 30 16:06:40 2022 -0600
+
+    Refactored System to DIYSystem
+    
+    Add conflicts with naming scheme, so I renamed them. Added statc main for system to begin launching the program
+
+commit ced6cd9cc093eac97cb2ebe7673ea609d86dc425
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sun Oct 30 13:35:27 2022 -0600
+
+    Starting Implementation
+    
+    PayByCard Use Case
+
+commit 1eb5b9c5b6193bb406d852eb8988804ad61020ec
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sun Oct 30 13:21:00 2022 -0600
+
+    Initial PayByCard setups
+
+commit 5a86fe2706b6cedd3da38d614c7d3c8bdef5c6c3
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Oct 29 23:56:58 2022 -0600
+
+    Deleted module-info.java
+    
+    Removed this to get referencing back to hardware classes working
+
+commit 0df84cb9984f82b590063bf8bab7ac10a8bd675e
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Sat Oct 29 18:15:42 2022 -0600
+
+    Create DIY UC 1.pdf
+    
+    added copy of DIY UC
+
+commit bd7e21686d252f3455aba704cfed0b1c9e07fc19
+Author: Brandon Greene <54947977+Sjare@users.noreply.github.com>
+Date:   Fri Oct 28 21:30:48 2022 -0600
+
+    Initial commit
