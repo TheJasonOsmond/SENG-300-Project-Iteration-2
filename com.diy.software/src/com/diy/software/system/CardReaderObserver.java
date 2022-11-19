@@ -46,6 +46,7 @@ public class CardReaderObserver implements CardReaderListener {
 	public void cardInserted(CardReader reader) {
 		//Will probably post to the GUI that a card has been inserted once implemented
 		sys.payWindowMessage("Validating the pin...");
+		System.out.println("Validating the pin...");
 	}
 
 	@Override
@@ -77,5 +78,17 @@ public class CardReaderObserver implements CardReaderListener {
 			sys.payWindowMessage("Your card has been charged: " + sys.getReceiptPrice());
 			sys.resetReceiptPrice();
 		}
+	}
+
+	@Override
+	public void cardTapped(CardReader reader) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void cardSwiped(CardReader reader) {
+		// TODO Auto-generated method stub
+		
 	}
 }

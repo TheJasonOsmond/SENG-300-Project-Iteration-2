@@ -22,6 +22,7 @@ public class Start {
 		
 		//Make the station and go into it
 		DIYSystem diy = new DIYSystem(c);
+		
 	}
 }
 	

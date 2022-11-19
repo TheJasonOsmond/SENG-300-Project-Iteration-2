@@ -82,6 +82,7 @@ public class Payment {
 		payFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		payFrame.setVisible(true);
 		payFrame.pack();
+		payFrame.setSize(400, 200);
 	}
 
 	/**

@@ -42,6 +42,7 @@ public class ElectronicScaleObserver implements ElectronicScaleListener {
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
 		//SUCCESSFULL ON ADDING ITEM TO BAGGING AREA
 		//UPDATE THE GUI THROUGH THE SYSTEM WITH THE NEW UPDATED WEIGHT
+		//TODO Fix this observer class, as the system needs to be blocked when a weightChanged event happens.
 		sysRef.bagItemSuccess(true);
 		sysRef.updateWeightOnGUI(weightInGrams);
 		sysRef.setScanStatus(false);

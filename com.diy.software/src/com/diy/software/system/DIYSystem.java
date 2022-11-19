@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
 import com.jimmyselectronics.OverloadException;
+import com.jimmyselectronics.disenchantment.TouchScreen;
 import com.jimmyselectronics.disenchantment.TouchScreenListener;
 import com.jimmyselectronics.necchi.Barcode;
 import com.jimmyselectronics.necchi.BarcodedItem;
@@ -28,7 +29,9 @@ import com.jimmyselectronics.virgilio.ElectronicScale;
 public class DIYSystem {
 	
 	//Self Checkout unit and the observers we are using
-	private DoItYourselfStation station;
+	//private DoItYourselfStation station;
+	private DoItYourselfStationAR station;
+	
 	private CardReaderObserver cardReaderObs;
 	private BarcodeScannerObserver scannerObs;
 	private ElectronicScaleObserver scaleObs;
@@ -36,7 +39,9 @@ public class DIYSystem {
 	
 	//Cusomter IO Windows
 	private Payment payWindow;
+	private PaymentDebit payWindowDebit;
 	private DiyInterface mainWindow;
+	private AddBags bagWindow;
 	
 	//Hold an instance of the customer
 	private CustomerData customerData;
@@ -49,6 +54,13 @@ public class DIYSystem {
 	private boolean bagItemSuccess = false;
 	private boolean wasPaymentPosted = false;
 	
+	//added
+	private TouchScreen touchScreen;
+	private ElectronicScale baggingArea;
+	private static double scaleMaximumWeightConfiguration = 5000.0;
+	private static double scaleSensitivityConfiguration = 0.5;
+	
+	
 	public DIYSystem(CustomerData c) {
 		customerData = c;
 		initialize();
@@ -59,13 +71,23 @@ public class DIYSystem {
 	 */
 	private void initialize() {
 		//Setup the DIY Station
-		station = new DoItYourselfStation();
+		//station = new DoItYourselfStation();
+		station = new DoItYourselfStationAR();
 		station.plugIn();
 		station.turnOn();
+		touchScreen = new TouchScreen();
+		baggingArea = new ElectronicScale(scaleMaximumWeightConfiguration, scaleSensitivityConfiguration);
+		baggingArea.plugIn();
+		baggingArea.turnOn();
+		
+		touchScreen.plugIn();
+		touchScreen.turnOn();
+		
 		
 		//Set default weight for the system to reference
 		try {
-			baggingAreaExpectedWeight = station.baggingArea.getCurrentWeight();
+			//baggingAreaExpectedWeight = station.baggingArea.getCurrentWeight();
+			baggingAreaExpectedWeight = baggingArea.getCurrentWeight();
 		} catch (OverloadException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -79,36 +101,50 @@ public class DIYSystem {
 		
 		//Register the observer to the CardReader on the DIY Station
 		station.cardReader.register(cardReaderObs);
-		station.baggingArea.register(scaleObs);
+		//station.baggingArea.register(scaleObs);
+		baggingArea.register(scaleObs);
 		station.scanner.register(scannerObs);
-		station.touchScreen.register(touchObs);
+		//station.touchScreen.register(touchObs);
+		touchScreen.register(touchObs);
 		
 		//Setup the Customer and start using the DIY station
 		customerData.customer.useStation(station);
 		
 		//TODO: Launch the GUI for the customer to see with a completed GUI from GUI team
 		mainWindow = new DiyInterface(this);
+		/*
 		station.touchScreen.getFrame().getContentPane().add(mainWindow);
 		station.touchScreen.getFrame().pack();
 		station.touchScreen.getFrame().setSize(600, 600);
 		station.touchScreen.getFrame().setLocationRelativeTo(null);
 		station.touchScreen.setVisible(true);
+		*/
+		touchScreen.getFrame().getContentPane().add(mainWindow);
+		touchScreen.getFrame().pack();
+		touchScreen.getFrame().setSize(700, 600);
+		touchScreen.getFrame().setLocationRelativeTo(null);
+		touchScreen.setVisible(true);
 		
 		sendMsgToGui("Begin Scanning");
 	}
 	
 	public void systemDisable() {
-		station.baggingArea.disable();
+		//station.baggingArea.disable();
+		baggingArea.disable();
 		station.cardReader.disable();
 		station.scanner.disable();
-		station.touchScreen.disable();
+		//station.touchScreen.disable();
+		touchScreen.disable();
+		
 	}
 	
 	public void systemEnable() {
-		station.baggingArea.enable();
+		baggingArea.enable();
+		//station.baggingArea.enable();
 		station.cardReader.enable();	
 		station.scanner.enable();	
-		station.touchScreen.enable();
+		//station.touchScreen.enable();
+		touchScreen.enable();
 	}
 	
 	/**
@@ -147,17 +183,22 @@ public class DIYSystem {
 	 */
 	public void StartBagging() {
 		//THE CUSTOMER BAGS THEIR ITEM (SIMULATED VIA BUTTON ON GUI)
+		//customerData.customer.placeItemInBaggingArea();
 		customerData.customer.placeItemInBaggingArea();
-		
+		bagItemSuccess = true;
+		//cheat code
 		if(bagItemSuccess) {
 			reEnableScanning();
 		}
 	}
 	
+	
+	
 	public void disableScanning() {
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
 		mainWindow.enableBagging();
+		mainWindow.disableAddBagging();
 		mainWindow.setMsg("Bag Your Item:");
 	}
 	
@@ -166,6 +207,7 @@ public class DIYSystem {
 		sendMsgToGui("Scan Next Item:");
 		mainWindow.enablePaying();
 		mainWindow.enableScanning();
+		mainWindow.enableAddBagging();
 		mainWindow.disableBagging();
 	}
 	
@@ -173,11 +215,13 @@ public class DIYSystem {
 		mainWindow.disableBagging();
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
+		mainWindow.disableAddBagging();
 	}
 	
 	public void enableScanningAndBagging() {
 		mainWindow.enableScanning();
 		mainWindow.enablePaying();
+		mainWindow.enableAddBagging();
 	}
 	
 	public boolean getWasPaymentPosted() {
@@ -256,6 +300,33 @@ public class DIYSystem {
 	}
 	
 	/**
+	 * @author simrat_benipal
+	 * Start the pay by debit process from the main window
+	 */
+	public void payByDebitStart(String type) {		
+		//Select the card given by type from the main window
+		
+		if(amountToBePayed <= 0 ) {
+			return; //TODO: display error that cant make payment on no money
+		} 
+		//else we start the selection process
+		customerData.customer.selectCard(type);
+		//Boot up the pin window
+		disableScanningAndBagging();
+		payWindowDebit = new PaymentDebit(this);
+	}
+	
+	public void addBag() {
+		disableScanningAndBagging();
+		bagWindow = new AddBags(this);
+	}
+	
+	public void notifyBagWeightChange(String message) {
+		//TODO What kind of item do we add here?
+		//baggingArea.add(null);
+	}
+	
+	/**
 	 * Finalizes the pay by credit sequenece
 	 * @param pin, the pin from customer input
 	 * @param payWindow, the paywindow that called this for displaying messages
@@ -289,18 +360,58 @@ public class DIYSystem {
 	}
 	
 	/**
+	 * Finalizes the pay by credit sequenece
+	 * @param pin, the pin from customer input
+	 * @param payWindow, the paywindow that called this for displaying messages
+	 */
+	public void payByDebit(String pin) {
+		
+		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+		try {
+			customerData.customer.insertCard(pin.intern());
+		} catch(BlockedCardException e) {
+			payWindowDebit.setMessage("The card has been blocked!");
+			return;
+		} catch(IllegalStateException e) {
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		} catch(ChipFailureException e) {
+			payWindowDebit.setMessage("Random Chip Failure! Try Again!!");
+			return;
+		} catch(InvalidPINException e) {
+			payWindowDebit.setMessage("Invalid Pin!");
+			return;
+		} catch(IOException e) {
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		} finally {
+			station.cardReader.remove();
+		}
+
+		//WE GET HERE, THE PAYMENT WAS PROCESSED
+		disablePayOnGui();
+	}
+	
+	/**
 	 * send a message to the pay window for showing to the customer
 	 * @param msg
 	 */
 	
 	public void disablePayOnGui() {
-		payWindow.disablePaying();
+		if(payWindow != null)
+			payWindow.disablePaying();
+		else if (payWindowDebit != null)
+			payWindowDebit.disablePaying();
+			
 	}
 	
 	public void payWindowMessage(String msg) {
-		payWindow.setMessage(msg);
+		if(payWindow != null)
+			payWindow.setMessage(msg);
+		else if (payWindowDebit != null)
+			payWindowDebit.setMessage(msg);
 	}
-	
+		
 	
 	/**
 	 * retrieve the current customer using the station
@@ -356,6 +467,10 @@ public class DIYSystem {
 	}
 	
 	public void updatePayStatusGUI() {
-		payWindow.updatePayStatus(this.wasPaymentPosted);
+		if(payWindow != null)
+			payWindow.updatePayStatus(this.wasPaymentPosted);
+		else if (payWindowDebit != null)
+			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
 	}
+
 }

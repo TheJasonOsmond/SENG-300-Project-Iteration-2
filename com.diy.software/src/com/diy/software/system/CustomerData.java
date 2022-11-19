@@ -60,6 +60,14 @@ public class CustomerData {
 		//Creat a default bank called "Big Bank"
 		custBank = new Bank("Big Bank", 10);
 		
+		/**
+		 * @author simrat_benipal
+		 */
+		//Create a new Debit Card
+		customer.wallet.cards.add(new Card("A Debit Card", "123123123123123", "John Debit", "123", "1234".intern(), true, true));
+		customer.wallet.cards.add(new Card("Interac", "456456456456456", "John Interac", "123", "1234".intern(), true, true));	
+		/** Simrat_benipal Code ends */
+		
 		//Setup a date to use as the expiry date for the newly created card
 		Date date = new Date();
 		Calendar cal = Calendar.getInstance();
@@ -69,6 +77,13 @@ public class CustomerData {
 		//Store the card information into the "Big Bank" database with a limit of 2000
 		custBank.addCardData("1234567890123456", "John Doe", cal, "909", 2000);
 		custBank.addCardData("6543210987654321", "John Doe", cal, "415", 10);
+		
+		/** @author simrat_benipal */
+		//Store the card information into the "Big Bank" database with a limit of 2000
+		custBank.addCardData("123123123123123", "John Debit", cal, "123", 2000);
+		custBank.addCardData("456456456456456", "John Interac", cal, "123", 10);
+		/** Simrat_benipal Code ends */
+		
 	}
 	
 	/**
