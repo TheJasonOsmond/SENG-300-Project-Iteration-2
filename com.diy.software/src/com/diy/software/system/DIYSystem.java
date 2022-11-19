@@ -192,6 +192,8 @@ public class DIYSystem {
 		}
 	}
 	
+	
+	
 	public void disableScanning() {
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
@@ -317,6 +319,11 @@ public class DIYSystem {
 	public void addBag() {
 		disableScanningAndBagging();
 		bagWindow = new AddBags(this);
+	}
+	
+	public void notifyBagWeightChange(String message) {
+		//TODO What kind of item do we add here?
+		//baggingArea.add(null);
 	}
 	
 	/**

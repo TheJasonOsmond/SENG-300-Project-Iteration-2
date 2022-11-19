@@ -53,7 +53,7 @@ public class AddBags {
 
 		purchaseBag = new JButton("Purchase Store Bags");
 			purchaseBag.addActionListener(e -> {
-				//TODO Popup in Attendant station
+				//TODO Implementation of this.
 				
 				
 			});
@@ -62,7 +62,6 @@ public class AddBags {
 		
 		addOwnBags = new JButton("Add Own Bags");
 			addOwnBags.addActionListener(e -> {
-				
 				JOptionPane pane = new JOptionPane("Please press \"OK\" to confirm you have placed your own bags in the bagging area.", 
 						JOptionPane.INFORMATION_MESSAGE, 
 						JOptionPane.OK_CANCEL_OPTION);
@@ -70,14 +69,12 @@ public class AddBags {
 				dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 				dialog.setVisible(true);
 				
-				// If OK pressed, close dialog and block
-				
-
+				// If OK pressed, close dialog and block station. Otherwise, just go back to the dialog.
 					int value = ((Integer)pane.getValue()).intValue();
 					if (value == JOptionPane.OK_OPTION) {
-					    System.out.println("Yes");
+					    station.notifyBagWeightChange("Bags have been added by customer");
 					} else if (value == JOptionPane.CANCEL_OPTION) {
-					    System.out.println("No");
+					    System.out.println("Operation Canceled.");
 					}
 				
 				
@@ -118,9 +115,6 @@ public class AddBags {
 		this.purchaseBag.setEnabled(false);
 	}
 	
-	public void updatePayStatus(boolean status) {
-		this.payWasSuccessful = status;
-	}
 	
 	public void ownBagBlockMessage() {
 		
