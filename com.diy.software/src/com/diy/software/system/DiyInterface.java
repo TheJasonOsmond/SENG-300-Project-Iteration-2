@@ -67,6 +67,7 @@ public class DiyInterface extends Panel {
 	//private JButton PayNow;
 	private JButton PayNowCredit;
 	private JButton PayNowDebit;
+	private JButton AddBag;
 	private JButton BaggingAreaButton;
 	private JTextArea TotalWeight;
 	//private JComboBox<?> comboBox;
@@ -124,6 +125,20 @@ public class DiyInterface extends Panel {
 
 				System.out.println("Pay Now (Debit) button has been pressed");
 				sysRef.payByDebitStart((String) comboBoxDebit.getSelectedItem());
+				;
+			}
+		});
+		
+		/** @author Quang(Brandon) Nguyen
+		 * Added in Iteration II for adding bags
+		 */
+		AddBag = new JButton("Add Bag(s)");
+		AddBag.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		AddBag.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				System.out.println("Add bag button has been pressed.");
+				sysRef.addBag();
 				;
 			}
 		});
@@ -189,10 +204,12 @@ public class DiyInterface extends Panel {
 						.addComponent(PayNowDebit, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(PayNowCredit, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)		
 						.addComponent(ScanItem, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(AddBag, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(BaggingAreaButton, GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
 						.addComponent(comboBoxDebit, Alignment.TRAILING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(comboBoxCredit, Alignment.TRAILING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-					
+						
+						
 						.addComponent(ErrorMSG).addComponent(TotalWeight))
 						.addPreferredGap(ComponentPlacement.UNRELATED)
 						.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
@@ -214,6 +231,8 @@ public class DiyInterface extends Panel {
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(ScanItem, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(AddBag, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(PayNowCredit, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(comboBoxCredit, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
@@ -224,6 +243,7 @@ public class DiyInterface extends Panel {
 						.addComponent(PayNowDebit, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE))
 						.addGroup(gl_panel.createSequentialGroup().addGap(12).addComponent(ItemList,
 								GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE)))
+						
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(comboBoxDebit, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
@@ -278,5 +298,13 @@ public class DiyInterface extends Panel {
 	public void disablePaying() {
 		PayNowCredit.setEnabled(false);
 		PayNowDebit.setEnabled(false);
+	}
+	
+	public void enableAddBagging() {
+		AddBag.setEnabled(true);
+	}
+	
+	public void disableAddBagging() {
+		AddBag.setEnabled(false);
 	}
 }

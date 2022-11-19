@@ -41,6 +41,7 @@ public class DIYSystem {
 	private Payment payWindow;
 	private PaymentDebit payWindowDebit;
 	private DiyInterface mainWindow;
+	private AddBags bagWindow;
 	
 	//Hold an instance of the customer
 	private CustomerData customerData;
@@ -195,6 +196,7 @@ public class DIYSystem {
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
 		mainWindow.enableBagging();
+		mainWindow.disableAddBagging();
 		mainWindow.setMsg("Bag Your Item:");
 	}
 	
@@ -203,6 +205,7 @@ public class DIYSystem {
 		sendMsgToGui("Scan Next Item:");
 		mainWindow.enablePaying();
 		mainWindow.enableScanning();
+		mainWindow.enableAddBagging();
 		mainWindow.disableBagging();
 	}
 	
@@ -210,11 +213,13 @@ public class DIYSystem {
 		mainWindow.disableBagging();
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
+		mainWindow.disableAddBagging();
 	}
 	
 	public void enableScanningAndBagging() {
 		mainWindow.enableScanning();
 		mainWindow.enablePaying();
+		mainWindow.enableAddBagging();
 	}
 	
 	public boolean getWasPaymentPosted() {
@@ -307,6 +312,11 @@ public class DIYSystem {
 		//Boot up the pin window
 		disableScanningAndBagging();
 		payWindowDebit = new PaymentDebit(this);
+	}
+	
+	public void addBag() {
+		disableScanningAndBagging();
+		bagWindow = new AddBags(this);
 	}
 	
 	/**
