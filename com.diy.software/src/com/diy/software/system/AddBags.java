@@ -49,13 +49,26 @@ public class AddBags implements ActionListener {
 		purchaseBag = new JButton("Purchase Store Bags");
 			purchaseBag.addActionListener(e -> {
 				JOptionPane select_bag_amount = new JOptionPane();
-				bag_purchased = Integer.parseInt(JOptionPane.showInputDialog(select_bag_amount,"Enter amount"));
+				//bag_purchased = Integer.parseInt(JOptionPane.showInputDialog(select_bag_amount,"Enter amount"));
 				//bag_purchased = amount;
 				//JOptionPane bag_amount = new JOptionPane();
 				//select_bag_amount.setVisible(true);
 				//Button bag_quantity = new Button("Select the amount");
 				//bag_amount.add(bag_quantity);
 				//bag_quantity.addActionListener(this);
+				int custInput = 0;
+				int notInt = 0;
+				while (notInt == 0) {
+					try {
+						custInput = Integer.parseInt(JOptionPane.showInputDialog(select_bag_amount, "Enter amount"));
+						bag_purchased = custInput;
+						notInt = 1;
+					} catch (NumberFormatException exception) {
+						System.out.println("Please enter a valid number");
+					}
+
+				}
+
 				JOptionPane confirm_bag_amount = new JOptionPane("Please press \"OK\" to confirm the amount of bags " +
 						"purchased.",
 				//JOptionPane pane = new JOptionPane("Please press \"OK\" to confirm you have grabbed the store bag
@@ -66,11 +79,11 @@ public class AddBags implements ActionListener {
 				dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 				dialog.setVisible(true);
 
-				int value = ((Integer)confirm_bag_amount.getValue()).intValue();
-				if (value == JOptionPane.OK_OPTION) {
+				int value1 = ((Integer)confirm_bag_amount.getValue()).intValue();
+				if (value1 == JOptionPane.OK_OPTION) {
 					station.notifyBagWeightChange("Bags have been added by customer");
 					System.out.println("Bags have been added by customer");
-				} else if (value == JOptionPane.CANCEL_OPTION) {
+				} else if (value1 == JOptionPane.CANCEL_OPTION) {
 					System.out.println("Operation Canceled.");
 				}
 
@@ -162,5 +175,8 @@ public class AddBags implements ActionListener {
 		bag_purchased++;
 		purchaseBag.setText("The number of bags purchased is" + bag_purchased);
 
+	}
+	public int getBag_purchased(){
+		return bag_purchased;
 	}
 }
