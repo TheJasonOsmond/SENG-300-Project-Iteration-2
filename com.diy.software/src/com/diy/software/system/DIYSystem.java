@@ -61,7 +61,6 @@ public class DIYSystem {
 	//added
 	private TouchScreen touchScreen;
 	private ElectronicScale baggingArea;
-	private ReceiptPrinterD receiptPrinter;
 	private static double scaleMaximumWeightConfiguration = 5000.0;
 	private static double scaleSensitivityConfiguration = 0.5;
 	
@@ -78,22 +77,21 @@ public class DIYSystem {
 		//Setup the DIY Station
 		//station = new DoItYourselfStation();
 		station = new DoItYourselfStationAR();
-		station.plugIn();
-		station.turnOn();
+		
 		touchScreen = new TouchScreen();
 		baggingArea = new ElectronicScale(scaleMaximumWeightConfiguration, scaleSensitivityConfiguration);
-		receiptPrinter = new ReceiptPrinterD();
-		baggingArea.plugIn();
-		baggingArea.turnOn();
 		
+		station.plugIn();
+		baggingArea.plugIn();
 		touchScreen.plugIn();
+		
+		station.turnOn();
+		baggingArea.turnOn();
 		touchScreen.turnOn();
 		
-		receiptPrinter.plugIn();
-		receiptPrinter.turnOn();
 		try {
-			receiptPrinter.addPaper(100);
-			receiptPrinter.addInk(10000);
+			station.printer.addPaper(100);
+			station.printer.addInk(10000);
 		} catch (OverloadException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -128,13 +126,7 @@ public class DIYSystem {
 		
 		//TODO: Launch the GUI for the customer to see with a completed GUI from GUI team
 		mainWindow = new DiyInterface(this);
-		/*
-		station.touchScreen.getFrame().getContentPane().add(mainWindow);
-		station.touchScreen.getFrame().pack();
-		station.touchScreen.getFrame().setSize(600, 600);
-		station.touchScreen.getFrame().setLocationRelativeTo(null);
-		station.touchScreen.setVisible(true);
-		*/
+		
 		touchScreen.getFrame().getContentPane().add(mainWindow);
 		touchScreen.getFrame().pack();
 		touchScreen.getFrame().setSize(700, 600);
@@ -151,7 +143,7 @@ public class DIYSystem {
 		station.scanner.disable();
 		//station.touchScreen.disable();
 		touchScreen.disable();
-		receiptPrinter.disable();
+		station.printer.disable();
 		
 	}
 	
@@ -162,7 +154,7 @@ public class DIYSystem {
 		station.scanner.enable();	
 		//station.touchScreen.enable();
 		touchScreen.enable();
-		receiptPrinter.enable();
+		station.printer.enable();
 	}
 	
 	/**
@@ -209,9 +201,7 @@ public class DIYSystem {
 			reEnableScanning();
 		}
 	}
-	
-	
-	
+
 	public void disableScanning() {
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
@@ -468,21 +458,21 @@ public class DIYSystem {
 	
 	public void printReceipt() {
 
-		System.out.print(mainWindow.getProductDetails());
-		System.out.println(mainWindow.getTotalAmount());
 		char[] receipt = (mainWindow.getProductDetails()+mainWindow.getTotalAmount()).toCharArray();
 		
 		for (int c = 0; c<receipt.length-1;c++) {
-			
-			
 			try {
-				receiptPrinter.print(receipt[c]);
+				station.printer.print(receipt[c]);
 			} catch (EmptyException e) {
 				
 				//out of paper or ink
-				//stop printing
+				//stop printing- display message to customer
+				
 				//suspend station
+				systemDisable();
+				
 				//notify attendant
+				
 				//send duplicate receipt to print at attendant station?
 				
 				e.printStackTrace();
@@ -493,9 +483,14 @@ public class DIYSystem {
 			}
 			
 		}
-		receiptPrinter.cutPaper();
-		System.out.println(receiptPrinter.removeReceipt());
+		station.printer.cutPaper();
+		System.out.println(station.printer.removeReceipt());
 
+	}
+	
+	//method to allow attendant class to updated based on changes on customer end
+	public DiyInterface getMainWindow() {
+		return mainWindow;
 	}
 	
 	

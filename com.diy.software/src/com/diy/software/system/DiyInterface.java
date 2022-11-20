@@ -289,6 +289,10 @@ public class DiyInterface extends Panel {
 	public void enableScanning() {
 		ScanItem.setEnabled(true);
 	}
+	
+	public JTextPane getTextPane() {
+		return ItemList;
+	}
 
 	public void disableBagging() {
 		BaggingAreaButton.setEnabled(false);
