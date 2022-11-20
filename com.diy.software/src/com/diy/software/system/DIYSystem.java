@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
+import com.jimmyselectronics.EmptyException;
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
 import com.jimmyselectronics.disenchantment.TouchScreenListener;
@@ -13,6 +14,8 @@ import com.jimmyselectronics.opeechee.BlockedCardException;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
+import com.jimmyselectronics.abagnale.ReceiptPrinterD;
+import com.jimmyselectronics.abagnale.ReceiptPrinterListener;
 
 
 /** ITERATION 1.0
@@ -36,6 +39,7 @@ public class DIYSystem {
 	private BarcodeScannerObserver scannerObs;
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
+
 	
 	//Cusomter IO Windows
 	private Payment payWindow;
@@ -57,6 +61,7 @@ public class DIYSystem {
 	//added
 	private TouchScreen touchScreen;
 	private ElectronicScale baggingArea;
+	private ReceiptPrinterD receiptPrinter;
 	private static double scaleMaximumWeightConfiguration = 5000.0;
 	private static double scaleSensitivityConfiguration = 0.5;
 	
@@ -77,12 +82,22 @@ public class DIYSystem {
 		station.turnOn();
 		touchScreen = new TouchScreen();
 		baggingArea = new ElectronicScale(scaleMaximumWeightConfiguration, scaleSensitivityConfiguration);
+		receiptPrinter = new ReceiptPrinterD();
 		baggingArea.plugIn();
 		baggingArea.turnOn();
 		
 		touchScreen.plugIn();
 		touchScreen.turnOn();
 		
+		receiptPrinter.plugIn();
+		receiptPrinter.turnOn();
+		try {
+			receiptPrinter.addPaper(100);
+			receiptPrinter.addInk(10000);
+		} catch (OverloadException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		//Set default weight for the system to reference
 		try {
@@ -98,6 +113,7 @@ public class DIYSystem {
 		scannerObs = new BarcodeScannerObserver(this);
 		scaleObs = new ElectronicScaleObserver(this);
 		touchObs = new TouchScreenObserver();
+
 		
 		//Register the observer to the CardReader on the DIY Station
 		station.cardReader.register(cardReaderObs);
@@ -106,7 +122,7 @@ public class DIYSystem {
 		station.scanner.register(scannerObs);
 		//station.touchScreen.register(touchObs);
 		touchScreen.register(touchObs);
-		
+	
 		//Setup the Customer and start using the DIY station
 		customerData.customer.useStation(station);
 		
@@ -135,6 +151,7 @@ public class DIYSystem {
 		station.scanner.disable();
 		//station.touchScreen.disable();
 		touchScreen.disable();
+		receiptPrinter.disable();
 		
 	}
 	
@@ -145,6 +162,7 @@ public class DIYSystem {
 		station.scanner.enable();	
 		//station.touchScreen.enable();
 		touchScreen.enable();
+		receiptPrinter.enable();
 	}
 	
 	/**
@@ -355,6 +373,8 @@ public class DIYSystem {
 			station.cardReader.remove();
 		}
 
+		printReceipt();
+		
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -388,6 +408,8 @@ public class DIYSystem {
 			station.cardReader.remove();
 		}
 
+		printReceipt();
+		
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -445,6 +467,40 @@ public class DIYSystem {
 	public void resetReceiptPrice() {
 		amountToBePayed = 0;
 	}
+	
+	
+	public void printReceipt() {
+
+		System.out.print(mainWindow.getProductDetails());
+		System.out.println(mainWindow.getTotalAmount());
+		char[] receipt = (mainWindow.getProductDetails()+mainWindow.getTotalAmount()).toCharArray();
+		
+		for (int c = 0; c<receipt.length-1;c++) {
+			
+			
+			try {
+				receiptPrinter.print(receipt[c]);
+			} catch (EmptyException e) {
+				
+				//out of paper or ink
+				//stop printing
+				//suspend station
+				//notify attendant
+				//send duplicate receipt to print at attendant station?
+				
+				e.printStackTrace();
+				
+			} catch (OverloadException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		receiptPrinter.cutPaper();
+		System.out.println(receiptPrinter.removeReceipt());
+
+	}
+	
 	
 	public void setPriceOnGui() {
 		mainWindow.setamountToBePayedLabel(amountToBePayed);

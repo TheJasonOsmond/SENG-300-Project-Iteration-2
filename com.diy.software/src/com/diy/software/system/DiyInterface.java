@@ -259,11 +259,19 @@ public class DiyInterface extends Panel {
 	public void setamountToBePayedLabel(double amountToBePayed) {
 		TotalTxtField.setText("Total: $" + Double.toString(amountToBePayed));
 	}
+	
+	public String getTotalAmount() {
+		return TotalTxtField.getText();
+	}
 
 	public void addProductDetails(String name, double price, double weight) {
 		String itemDesc = ItemList.getText() + "Name: " + name + " -> Weight: " + Double.toString(weight)
 				+ " -> Price: " + Double.toString(price) + "\n";
 		ItemList.setText(itemDesc);
+	}
+	
+	public String getProductDetails() {
+		return ItemList.getText();
 	}
 
 	public void updateWeightLabel(double weight) {
