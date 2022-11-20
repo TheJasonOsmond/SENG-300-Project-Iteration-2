@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
+import com.jimmyselectronics.EmptyException;
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
 import com.jimmyselectronics.disenchantment.TouchScreenListener;
@@ -13,6 +14,8 @@ import com.jimmyselectronics.opeechee.BlockedCardException;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
+import com.jimmyselectronics.abagnale.ReceiptPrinterD;
+import com.jimmyselectronics.abagnale.ReceiptPrinterListener;
 
 
 /** ITERATION 1.0
@@ -36,6 +39,7 @@ public class DIYSystem {
 	private BarcodeScannerObserver scannerObs;
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
+
 	
 	//Cusomter IO Windows
 	private Payment payWindow;
@@ -73,16 +77,25 @@ public class DIYSystem {
 		//Setup the DIY Station
 		//station = new DoItYourselfStation();
 		station = new DoItYourselfStationAR();
-		station.plugIn();
-		station.turnOn();
+		
 		touchScreen = new TouchScreen();
 		baggingArea = new ElectronicScale(scaleMaximumWeightConfiguration, scaleSensitivityConfiguration);
-		baggingArea.plugIn();
-		baggingArea.turnOn();
 		
+		station.plugIn();
+		baggingArea.plugIn();
 		touchScreen.plugIn();
+		
+		station.turnOn();
+		baggingArea.turnOn();
 		touchScreen.turnOn();
 		
+		try {
+			station.printer.addPaper(100);
+			station.printer.addInk(10000);
+		} catch (OverloadException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		//Set default weight for the system to reference
 		try {
@@ -98,6 +111,7 @@ public class DIYSystem {
 		scannerObs = new BarcodeScannerObserver(this);
 		scaleObs = new ElectronicScaleObserver(this);
 		touchObs = new TouchScreenObserver();
+
 		
 		//Register the observer to the CardReader on the DIY Station
 		station.cardReader.register(cardReaderObs);
@@ -106,19 +120,13 @@ public class DIYSystem {
 		station.scanner.register(scannerObs);
 		//station.touchScreen.register(touchObs);
 		touchScreen.register(touchObs);
-		
+	
 		//Setup the Customer and start using the DIY station
 		customerData.customer.useStation(station);
 		
 		//TODO: Launch the GUI for the customer to see with a completed GUI from GUI team
 		mainWindow = new DiyInterface(this);
-		/*
-		station.touchScreen.getFrame().getContentPane().add(mainWindow);
-		station.touchScreen.getFrame().pack();
-		station.touchScreen.getFrame().setSize(600, 600);
-		station.touchScreen.getFrame().setLocationRelativeTo(null);
-		station.touchScreen.setVisible(true);
-		*/
+		
 		touchScreen.getFrame().getContentPane().add(mainWindow);
 		touchScreen.getFrame().pack();
 		touchScreen.getFrame().setSize(700, 600);
@@ -135,6 +143,7 @@ public class DIYSystem {
 		station.scanner.disable();
 		//station.touchScreen.disable();
 		touchScreen.disable();
+		station.printer.disable();
 		
 	}
 	
@@ -145,6 +154,7 @@ public class DIYSystem {
 		station.scanner.enable();	
 		//station.touchScreen.enable();
 		touchScreen.enable();
+		station.printer.enable();
 	}
 	
 	/**
@@ -191,9 +201,7 @@ public class DIYSystem {
 			reEnableScanning();
 		}
 	}
-	
-	
-	
+
 	public void disableScanning() {
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
@@ -261,7 +269,7 @@ public class DIYSystem {
 	
 	/** COME BACK TO THIS WHEN MULTIPLE PAYMENTS ARE OPTIONALS?
 	 * The customer has requested to pay via CREDIT CARD via the GUI interface (when implemented)
-	 * @param pin, the supplied pin from the GUI
+	 * @param //pin, the supplied pin from the GUI
 	 * @param type, the supplied type via the GUI
 	 * @throws Exception 
 	 *
@@ -329,7 +337,6 @@ public class DIYSystem {
 	/**
 	 * Finalizes the pay by credit sequenece
 	 * @param pin, the pin from customer input
-	 * @param payWindow, the paywindow that called this for displaying messages
 	 */
 	public void payByCredit(String pin) {
 		
@@ -355,6 +362,8 @@ public class DIYSystem {
 			station.cardReader.remove();
 		}
 
+		printReceipt();
+		
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -362,7 +371,6 @@ public class DIYSystem {
 	/**
 	 * Finalizes the pay by credit sequenece
 	 * @param pin, the pin from customer input
-	 * @param payWindow, the paywindow that called this for displaying messages
 	 */
 	public void payByDebit(String pin) {
 		
@@ -388,13 +396,14 @@ public class DIYSystem {
 			station.cardReader.remove();
 		}
 
+		printReceipt();
+		
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
 	
 	/**
 	 * send a message to the pay window for showing to the customer
-	 * @param msg
 	 */
 	
 	public void disablePayOnGui() {
@@ -431,7 +440,7 @@ public class DIYSystem {
 	
 	/**
 	 * update the price of the current receipt
-	 * @param d
+	 * @param price
 	 */
 	public void changeReceiptPrice(double price) {
 		amountToBePayed += price;
@@ -445,6 +454,45 @@ public class DIYSystem {
 	public void resetReceiptPrice() {
 		amountToBePayed = 0;
 	}
+	
+	
+	public void printReceipt() {
+
+		char[] receipt = (mainWindow.getProductDetails()+mainWindow.getTotalAmount()).toCharArray();
+		
+		for (int c = 0; c<receipt.length-1;c++) {
+			try {
+				station.printer.print(receipt[c]);
+			} catch (EmptyException e) {
+				
+				//out of paper or ink
+				//stop printing- display message to customer
+				
+				//suspend station
+				systemDisable();
+				
+				//notify attendant
+				
+				//send duplicate receipt to print at attendant station?
+				
+				e.printStackTrace();
+				
+			} catch (OverloadException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		station.printer.cutPaper();
+		System.out.println(station.printer.removeReceipt());
+
+	}
+	
+	//method to allow attendant class to updated based on changes on customer end
+	public DiyInterface getMainWindow() {
+		return mainWindow;
+	}
+	
 	
 	public void setPriceOnGui() {
 		mainWindow.setamountToBePayedLabel(amountToBePayed);
