@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.diy.hardware.BarcodedProduct;
-import com.diy.hardware.DoItYourselfStation;
+import com.diy.hardware.DoItYourselfStationAR;
 import com.diy.hardware.external.ProductDatabases;
 import com.diy.simulation.Customer;
 import com.diy.software.system.Bank;
@@ -37,7 +37,7 @@ public class PayByCreditTests {
 	private static final String CORRECT_PIN = "0000";
 	private DIYSystem testSystem;
 	private CustomerData testCustomerData;
-	private DoItYourselfStation selfCheckout;
+	private DoItYourselfStationAR selfCheckout;
 	private CardReaderObserver cardReaderObs;
 	
 	
@@ -50,7 +50,7 @@ public class PayByCreditTests {
 		// create listener
 		cardReaderObs = new CardReaderObserver(testSystem);
 
-		selfCheckout = new DoItYourselfStation();
+		selfCheckout = new DoItYourselfStationAR();
 		selfCheckout.plugIn();
 		selfCheckout.turnOn();		
 			

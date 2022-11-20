@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.diy.hardware.BarcodedProduct;
-import com.diy.hardware.DoItYourselfStation;
+import com.diy.hardware.DoItYourselfStationAR;
 import com.diy.hardware.external.ProductDatabases;
 import com.diy.software.system.CustomerData;
 import com.diy.software.system.DIYSystem;
@@ -26,7 +26,7 @@ public class ScanItemTests {
 
 	private DIYSystem testSystem;
 	private CustomerData testCustomerData;
-	private DoItYourselfStation selfCheckout;
+	private DoItYourselfStationAR selfCheckout;
 		
 	private Barcode normalBarcode;
 	private Item normalItem;
@@ -40,7 +40,7 @@ public class ScanItemTests {
 		testCustomerData = new CustomerData();
 		testSystem = new DIYSystem(testCustomerData);
 
-		selfCheckout = new DoItYourselfStation();
+		selfCheckout = new DoItYourselfStationAR();
 		selfCheckout.plugIn();
 		selfCheckout.turnOn();
 		
