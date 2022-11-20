@@ -279,7 +279,7 @@ public class DIYSystem {
 	
 	/** COME BACK TO THIS WHEN MULTIPLE PAYMENTS ARE OPTIONALS?
 	 * The customer has requested to pay via CREDIT CARD via the GUI interface (when implemented)
-	 * @param pin, the supplied pin from the GUI
+	 * @param //pin, the supplied pin from the GUI
 	 * @param type, the supplied type via the GUI
 	 * @throws Exception 
 	 *
@@ -347,7 +347,6 @@ public class DIYSystem {
 	/**
 	 * Finalizes the pay by credit sequenece
 	 * @param pin, the pin from customer input
-	 * @param payWindow, the paywindow that called this for displaying messages
 	 */
 	public void payByCredit(String pin) {
 		
@@ -382,7 +381,6 @@ public class DIYSystem {
 	/**
 	 * Finalizes the pay by credit sequenece
 	 * @param pin, the pin from customer input
-	 * @param payWindow, the paywindow that called this for displaying messages
 	 */
 	public void payByDebit(String pin) {
 		
@@ -416,7 +414,6 @@ public class DIYSystem {
 	
 	/**
 	 * send a message to the pay window for showing to the customer
-	 * @param msg
 	 */
 	
 	public void disablePayOnGui() {
@@ -453,7 +450,7 @@ public class DIYSystem {
 	
 	/**
 	 * update the price of the current receipt
-	 * @param d
+	 * @param price
 	 */
 	public void changeReceiptPrice(double price) {
 		amountToBePayed += price;
