@@ -1,16 +1,19 @@
 package com.diy.software.system;
 
-import com.diy.hardware.DoItYourselfStationAR;
+import java.io.IOException;
+import java.util.NoSuchElementException;
+import com.diy.hardware.*;
+import com.diy.hardware.external.ProductDatabases;
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
+import com.jimmyselectronics.disenchantment.TouchScreenListener;
+import com.jimmyselectronics.necchi.Barcode;
+import com.jimmyselectronics.necchi.BarcodedItem;
 import com.jimmyselectronics.opeechee.BlockedCardException;
 import com.jimmyselectronics.opeechee.Card;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
-
-import java.io.IOException;
-import java.util.NoSuchElementException;
 
 
 /** ITERATION 1.0
@@ -59,6 +62,7 @@ public class DIYSystem {
 	
 	
 	private Card debitCardSelected = null;
+	private Card creditCardSelected = null;
 	
 	
 	public DIYSystem(CustomerData c) {
@@ -301,9 +305,28 @@ public class DIYSystem {
 		//Select the card given by type from the main window
 		
 		if(amountToBePayed <= 0 ) {
+			mainWindow.setMsg("Please Scan at least one item");
 			return; //TODO: display error that cant make payment on no money
 		} 
+		if(type == null)
+		{
+			mainWindow.setMsg("Please select a valid Card");
+			return; // display error that cant make payment on no money
+		}
+			
+		
+		String[] arrOfStr = type.split(",");
+		type = arrOfStr[1].substring(1);//removing the leading space
 		//else we start the selection process
+		for(Card card : this.getUserData().customer.wallet.cards)
+			if(card.kind.equals(type)) 
+			{
+				creditCardSelected = card;
+				//to be used in next methods
+				//in tap method
+				break;
+			}
+		
 		customerData.customer.selectCard(type);
 		//Boot up the pin window
 		disableScanningAndBagging();
@@ -322,6 +345,15 @@ public class DIYSystem {
 			
 			return; //TODO: display error that cant make payment on no money
 		}
+		//just an error check
+		if(type == null)
+		{
+			mainWindow.setMsg("Please select a valid Card");
+			return; // display error that cant make payment on no money
+		}
+		String[] arrOfStr = type.split(",");
+		type = arrOfStr[1].substring(1);//remove the leading zero
+		
 		for(Card card : this.getUserData().customer.wallet.cards)
 			if(card.kind.equals(type)) 
 			{
@@ -330,7 +362,15 @@ public class DIYSystem {
 				//in tap method
 				break;
 			}
+		System.out.println(debitCardSelected.isTapEnabled);
 		//else we start the selection process
+		//System.out.println("card selected = "+ type);
+		//Type contains "John Interac, Interac"
+		//split the string based on ',' and get the second 
+		//https://www.geeksforgeeks.org/split-string-java-examples/
+		//System.out.println("card selected = "+ arrOfStr[1].replace(" ", ""));
+		
+		//System.out.println(type);
 		customerData.customer.selectCard(type);
 		//Boot up the pin window
 		disableScanningAndBagging();
@@ -377,6 +417,8 @@ public class DIYSystem {
 	 * @param payWindow, the paywindow that called this for displaying messages
 	 */
 	public void payByDebit(String pin) {
+		//normal insertion of card
+		
 		
 		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
 		try {
@@ -413,8 +455,16 @@ public class DIYSystem {
 	public void payByDebitTap() 
 	{
 		
-		
+		//check if the card has tap enabled or not
+		if(!debitCardSelected.isTapEnabled)
+		{
+			payWindowDebit.setMessage("This card cannot tap!");
+			return;
+		}
+		else
+		{
 		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+		
 		try {
 			//a card has been selected because of payByDebitStart() method
 			//so just tap the selected card
@@ -423,7 +473,7 @@ public class DIYSystem {
 			//This Card Reader should be powered-up and running
 			//this call will notify that the card is tapped in the CardReaderObserver
 			
-			//if this method returned success (based on probabilities of TapFailure
+			//if thiis method returned success (based on probabilities of TapFailure
 			//then we execute 'notifyCardDataRead(data), method in listener 
 			
 			//and this return CardData Object
@@ -443,6 +493,7 @@ public class DIYSystem {
 		{
 			payWindowDebit.setMessage(e.getMessage());
 			return;
+		}
 		}
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
@@ -492,6 +543,103 @@ public class DIYSystem {
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
+	
+	
+	/**Tap and Swipe for CREDIT CARDS
+	 * @author simrat_benipal 
+	 * Iteration 2.0 
+	 */
+	public void payByCreditTap() 
+	{
+		//check if the card has tap enabled or not
+		if(!creditCardSelected.isTapEnabled)
+		{
+			payWindowDebit.setMessage("This card cannot tap!");
+			return;
+		}
+		else
+		{
+		
+		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+		try {
+			//a card has been selected because of payByCreditStart() method
+			//so just tap the selected card
+			station.cardReader.tap(creditCardSelected); //method in CardReader.Java
+			//every station has a CardReader Object
+			//This Card Reader should be powered-up and running
+			//this call will notify that the card is tapped in the CardReaderObserver
+			
+			//if this method returned success (based on probabilities of TapFailure
+			//then we execute 'notifyCardDataRead(data), method in listener 
+			
+			//and this return CardData Object
+		} catch(BlockedCardException e) 
+		{
+			payWindowDebit.setMessage("The card has been blocked!");
+			return;
+		} catch(IllegalStateException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		} catch(ChipFailureException e) 
+		{
+			payWindowDebit.setMessage("Random Tap Failure! Try Again!!");
+			return;
+		} catch(IOException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		}
+		}
+		//WE GET HERE, THE PAYMENT WAS PROCESSED
+		disablePayOnGui();
+	}
+	
+	/**
+	 * Finalizes the pay by Debit sequenece (using TAP)
+	 * @author simrat_benipal
+	 * @param nothing, we can tap without PIN
+	 */
+	
+	public void payByCreditSwipe() 
+	{
+		
+		
+		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+		try {
+			//a card has been selected because of payByDebitStart() method
+			//so just swipe the selected card
+			station.cardReader.swipe(creditCardSelected);
+			//method in CardReader.Java
+			//every station has a CardReader Object
+			//This Card Reader should be powered-up and running
+			//this call will notify that the card is swipped in the CardReaderObserver
+			
+			//if this method returned success (based on probabilities of SWIPE Failure
+			//then we execute 'notifyCardDataRead(data), method in listener (already implemented in our listener/obs) 
+			
+			//and this return CardData Object
+		} catch(BlockedCardException e) 
+		{
+			payWindowDebit.setMessage("The card has been blocked!");
+			return;
+		} catch(IllegalStateException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		} catch(ChipFailureException e) 
+		{
+			payWindowDebit.setMessage("Random Swipe Failure! Try Again!!");
+			return;
+		} catch(IOException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		}
+		//WE GET HERE, THE PAYMENT WAS PROCESSED
+		disablePayOnGui();
+	}
+	
 	
 	/**
 	 * send a message to the pay window for showing to the customer
@@ -559,7 +707,7 @@ public class DIYSystem {
 		station.scanner.enable();
 	}
 
-	public void updateGUIItemList(String desc, double price, double weight) {
+	public void updateGUIItemList(String desc, double weight, double price) {
 		mainWindow.addProductDetails(desc, price, weight);
 	}
 	
