@@ -33,9 +33,13 @@ public class PaymentDebit {
 	private boolean payWasSuccessful = false;
 	private JButton btnCloseWindow;
 
+	/**
+	 *
+	 * @param sys
+	 */
 	public PaymentDebit(DIYSystem sys) {
 		station = sys;
-		payFrame = new JFrame("***** Pay by Card (Debit)*****");
+		payFrame = new JFrame("Debit Card Payment");
 		payFrame.setResizable(true);
 		payFrame.setUndecorated(false);
 		payFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -62,7 +66,7 @@ public class PaymentDebit {
 		pinLabel = new JLabel("PIN", SwingConstants.LEFT);
 		confirm = new JButton("Confirm Payment Details");
 
-		// When the Confrim button is pressed, tell the system to start the payment
+		// When the Confirm button is pressed, tell the system to start the payment
 		// process
 		confirm.addActionListener(e -> {
 			station.payByDebit(pin.getText());
@@ -70,16 +74,16 @@ public class PaymentDebit {
 
 		payPanel.add(confirm);
 		
-		/**
-		 * Adding 'Insert' Button
+		/*
+		  Adding 'Insert' Button
 		 */
 		//insertCard = new JButton("Insert Card");
 		//insertCard.addActionListener(e -> station.payByDebit(pin.getText()));
 		//payPanel.add(insertCard);
 		//Working
 
-		/**
-		 * Adding 'Tap' Button
+		/*
+		  Adding 'Tap' Button
 		 */
 		tapCard = new JButton("Tap Card");
 		//no need to insert this, just do transaction 
@@ -88,8 +92,8 @@ public class PaymentDebit {
 
 	
 		
-		/**
-		 * Adding 'Swipe' Button
+		/*
+		  Adding 'Swipe' Button
 		 */
 		swipeCard = new JButton("Swipe Card");
 		swipeCard.addActionListener(e -> station.payByDebitSwipe());
@@ -111,10 +115,9 @@ public class PaymentDebit {
 	}
 
 	/**
-	 * Triggered from the system to update the message that the customer can see
+	 * Triggered from the system to update the message that the customer can see.
 	 * 
-	 * @param msg
-	 * @throws InterruptedException
+	 * @param msg The message to be shown.
 	 */
 	public void setMessage(String msg) {
 		confirmLabel.setText(msg);

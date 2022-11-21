@@ -578,4 +578,6 @@ public class DIYSystem {
 	}
 
 
+	public void notifyBagWeightChange(String s) {
+	}
 }
