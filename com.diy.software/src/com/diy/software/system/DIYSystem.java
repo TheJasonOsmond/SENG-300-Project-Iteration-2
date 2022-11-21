@@ -1,19 +1,16 @@
 package com.diy.software.system;
 
-import java.io.IOException;
-import java.util.NoSuchElementException;
-import com.diy.hardware.*;
-import com.diy.hardware.external.ProductDatabases;
+import com.diy.hardware.DoItYourselfStationAR;
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
-import com.jimmyselectronics.disenchantment.TouchScreenListener;
-import com.jimmyselectronics.necchi.Barcode;
-import com.jimmyselectronics.necchi.BarcodedItem;
 import com.jimmyselectronics.opeechee.BlockedCardException;
 import com.jimmyselectronics.opeechee.Card;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
+
+import java.io.IOException;
+import java.util.NoSuchElementException;
 
 
 /** ITERATION 1.0
@@ -562,7 +559,7 @@ public class DIYSystem {
 		station.scanner.enable();
 	}
 
-	public void updateGUIItemList(String desc, double weight, double price) {
+	public void updateGUIItemList(String desc, double price, double weight) {
 		mainWindow.addProductDetails(desc, price, weight);
 	}
 	
