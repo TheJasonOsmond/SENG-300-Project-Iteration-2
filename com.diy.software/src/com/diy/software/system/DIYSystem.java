@@ -14,6 +14,9 @@ import com.jimmyselectronics.opeechee.BlockedCardException;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
+
+import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
+
 import com.jimmyselectronics.abagnale.ReceiptPrinterD;
 import com.jimmyselectronics.abagnale.ReceiptPrinterListener;
 
@@ -44,6 +47,7 @@ public class DIYSystem {
 	//Cusomter IO Windows
 	private Payment payWindow;
 	private PaymentDebit payWindowDebit;
+	private PaymentCash payWindowCash;
 	private DiyInterface mainWindow;
 	private AddBags bagWindow;
 	
@@ -324,6 +328,19 @@ public class DIYSystem {
 		payWindowDebit = new PaymentDebit(this);
 	}
 	
+	/**
+	 * @author Jesse Dirks
+	 * Start the pay by cash process from the main window
+	 */
+	public void payByCashStart() {
+		if (amountToBePayed <= 0) { //maybe we should allow 0 cost payments and just finish the payment immediately if they pay for nothing
+			throw new InvalidArgumentSimulationException("cost must be greater than 0");
+		}
+		//Customer class does not contain any cash.
+		disableScanningAndBagging();
+		payWindowCash = new PaymentCash(this);
+	}
+	
 	public void addBag() {
 		disableScanningAndBagging();
 		bagWindow = new AddBags(this);
@@ -400,6 +417,14 @@ public class DIYSystem {
 		
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
+	}
+	
+	/**
+	 * Finalizes the pay by cash sequence
+	 */
+	public void payByCash() {
+		
+		//try something, probably
 	}
 	
 	/**
