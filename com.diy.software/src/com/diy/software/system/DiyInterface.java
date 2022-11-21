@@ -20,6 +20,7 @@ import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import com.diy.hardware.BarcodedProduct;
+import com.jimmyselectronics.opeechee.Card;
 
 /**
  * The DIY Interface running through the touchscreen class.
@@ -159,16 +160,43 @@ public class DiyInterface extends Panel {
 		/**
 		 * Creates the Combo box for selecting cards.
 		 */
-		String card[] = { "VISA", "Master Card", "Other" };
-		comboBoxCredit = new JComboBox<Object>(card);
+		//String card[] = { "VISA", "Master Card", "Other" };
+		//ArrayList <String> cards = new ArrayList<String>();
+		String cards[] = new String[sysRef.getUserData().customer.wallet.cards.size()] ;
+		int i = 0;
+		for(Card card1 : sysRef.getUserData().customer.wallet.cards)
+		{
+			//name of card
+			if(card1.kind.contains("VISA") || card1.kind.contains("Master"))
+			{
+				cards[i] = card1.cardholder + " , " + card1.kind;
+			}
+			i++;
+		}
+		//Updated to show automatic list using Customer Data (Wallet)
+		//@simrat
+		comboBoxCredit = new JComboBox<Object>(cards);
 		comboBoxCredit.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
 		/** @author simrat_benipal
 		 * For debit card payments
 		 */
 		
-		String Debitcard[] = { "A Debit Card", "Interac", "Other" };
-		comboBoxDebit = new JComboBox<Object>(Debitcard);
+		String debitCards[] = new String[sysRef.getUserData().customer.wallet.cards.size()] ;
+		int j = 0;
+		for(Card card1 : sysRef.getUserData().customer.wallet.cards)
+		{
+			//name of card
+			if(card1.kind.contains("Debit") || card1.kind.contains("Interac"))
+			{
+				debitCards[j] = card1.cardholder + " , " + card1.kind;
+			}
+			j++;
+		}
+		//Updated to show automatic list using Customer Data (Wallet)
+		//@simrat
+		//String Debitcard[] = { "A Debit Card", "Interac", "Other" };
+		comboBoxDebit = new JComboBox<Object>(debitCards);
 		comboBoxDebit.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		/**

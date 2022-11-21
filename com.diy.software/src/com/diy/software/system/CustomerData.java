@@ -65,6 +65,8 @@ public class CustomerData {
 		//Create a new Debit Card
 		customer.wallet.cards.add(new Card("A Debit Card", "123123123123123", "John Debit", "123", "1234".intern(), true, true));
 		customer.wallet.cards.add(new Card("Interac", "456456456456456", "John Interac", "123", "1234".intern(), true, true));	
+		//customer.wallet.cards.add(new Card("<No Chip>Interac", "456456456456420", "John Interac (Blocked)", "123", "1234".intern(), true, false));	
+		customer.wallet.cards.add(new Card("<Tap False>Interac", "456456456456421", "John Interac (Tap Blocked)", "123", "1234".intern(), false, true));	
 		/** Simrat_benipal Code ends */
 		//Creat a default bank called "Big Bank"
 		custBank = new Bank("Big Bank", 10);
@@ -85,6 +87,8 @@ public class CustomerData {
 		//Store the card information into the "Big Bank" database with a limit of 2000
 		custBank.addCardData("123123123123123", "John Debit", cal, "123", john_debit_limit);
 		custBank.addCardData("456456456456456", "John Interac", cal, "123", john_interac_limit);
+		//custBank.addCardData("456456456456420", "John Interac (Blocked)", cal, "123", john_interac_limit);
+		custBank.addCardData("456456456456421", "John Interac (Tap Blocked)", cal, "123", john_interac_limit);
 		/** Simrat_benipal Code ends */
 		
 	}

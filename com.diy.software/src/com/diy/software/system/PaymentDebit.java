@@ -60,7 +60,7 @@ public class PaymentDebit {
 		payPanel.add(pin);
 
 		pinLabel = new JLabel("PIN", SwingConstants.LEFT);
-		confirm = new JButton("Confirm Payment Details");
+		confirm = new JButton("Insert Card");
 
 		// When the Confrim button is pressed, tell the system to start the payment
 		// process
