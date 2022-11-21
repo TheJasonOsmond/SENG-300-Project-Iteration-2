@@ -43,6 +43,7 @@ public class PayByCreditTests {
 	private CardReaderObserver cardReaderObs;
 	
 	
+	
 	@Before
 	public void setUp() throws Exception {
 		
