@@ -19,10 +19,9 @@ public class Start {
 		
 		//Make an attending customer
 		CustomerData c = new CustomerData();
-		CustomerData customers[] = {c};
 		
-		//Make the station and go into it	
-		AttendantStation attendant = new AttendantStation(customers);
+		//Make the station and go into it
+		DIYSystem diy = new DIYSystem(c);
 		
 	}
 }
