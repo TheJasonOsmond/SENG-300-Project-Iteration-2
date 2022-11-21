@@ -15,7 +15,6 @@ public class AddBags implements ActionListener {
 	JButton purchaseBag;
 	DIYSystem station;
 	
-	private boolean payWasSuccessful = false;
 	private JButton btnCloseWindow;
 	private JButton addOwnBags;
 	int bag_purchased;
@@ -49,53 +48,59 @@ public class AddBags implements ActionListener {
 		purchaseBag = new JButton("Purchase Store Bags");
 			purchaseBag.addActionListener(e -> {
 				JOptionPane select_bag_amount = new JOptionPane();
-				//bag_purchased = Integer.parseInt(JOptionPane.showInputDialog(select_bag_amount,"Enter amount"));
-				//bag_purchased = amount;
-				//JOptionPane bag_amount = new JOptionPane();
-				//select_bag_amount.setVisible(true);
-				//Button bag_quantity = new Button("Select the amount");
-				//bag_amount.add(bag_quantity);
-				//bag_quantity.addActionListener(this);
-				int custInput = 0;
-				int notInt = 0;
-				while (notInt == 0) {
-					try {
-						custInput = Integer.parseInt(JOptionPane.showInputDialog(select_bag_amount, "Enter amount"));
-						bag_purchased = custInput;
-						notInt = 1;
-					} catch (NumberFormatException exception) {
-						System.out.println("Please enter a valid number");
+				String custInput = "";
+				boolean canceled = false;
+				
+				// Keep looping if there is no input or if it equals 0, or not canceled.
+				while (custInput.length() == 0 || custInput.equals("0") || canceled) {
+						canceled = false;
+						custInput = JOptionPane.showInputDialog(select_bag_amount, "Enter amount of bags:");
+						if (custInput == null) {
+							// If we are here, the operation was canceled.
+							System.out.println("Operation Canceled.");
+							closeWindow();
+							canceled = true;
+							// Breaking out of loop
+							break;
+						} else {
+							try {
+								bag_purchased = Integer.parseInt(custInput);
+							} catch (NumberFormatException exception) {
+								System.out.println("Not an integer");
+								custInput = "";
+							}
+						}
+				}
+				
+				if (!canceled) {
+					JOptionPane confirm_bag_amount = new JOptionPane("Please press \"OK\" to confirm the amount of bag(s) purchased is " +
+							custInput,
+					//JOptionPane pane = new JOptionPane("Please press \"OK\" to confirm you have grabbed the store bag
+					// in the bagging area.",
+							JOptionPane.INFORMATION_MESSAGE,
+							JOptionPane.OK_CANCEL_OPTION);
+					JDialog dialog = confirm_bag_amount.createDialog(null, "Confirm");
+					dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+					dialog.setVisible(true);
+
+					int value1 = ((Integer)confirm_bag_amount.getValue()).intValue();
+					if (value1 == JOptionPane.OK_OPTION) {
+						//Update expected weight and price
+						double new_item_weight;
+						new_item_weight = bag_purchased * bag_weight;
+						double total_bag_price;
+						total_bag_price = bag_purchased * bag_price;
+						station.updateExpectedWeight(new_item_weight);
+						//TODO Should we update item list in the main system? Because we need the attendant station block to appear.
+						station.updateGUIItemList("Store bag", total_bag_price, new_item_weight);
+						station.notifyBagWeightChange("Bags have been added by customer");
+						System.out.println("Bags have been added by customer");
+						closeWindow();
+					} else if (value1 == JOptionPane.CANCEL_OPTION) {
+						System.out.println("Operation Canceled.");
+						closeWindow();
 					}
-
-				}
-
-				JOptionPane confirm_bag_amount = new JOptionPane("Please press \"OK\" to confirm the amount of bags " +
-						"purchased.",
-				//JOptionPane pane = new JOptionPane("Please press \"OK\" to confirm you have grabbed the store bag
-				// in the bagging area.",
-						JOptionPane.INFORMATION_MESSAGE,
-						JOptionPane.OK_CANCEL_OPTION);
-				JDialog dialog = confirm_bag_amount.createDialog(null, "Confirm");
-				dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-				dialog.setVisible(true);
-
-				int value1 = ((Integer)confirm_bag_amount.getValue()).intValue();
-				if (value1 == JOptionPane.OK_OPTION) {
-					station.notifyBagWeightChange("Bags have been added by customer");
-					System.out.println("Bags have been added by customer");
-				} else if (value1 == JOptionPane.CANCEL_OPTION) {
-					System.out.println("Operation Canceled.");
-				}
-
-				//Update expected weight and price
-				if (bag_purchased > 0){
-					double new_item_weight;
-					new_item_weight = bag_purchased * bag_weight;
-					double total_bag_price;
-					total_bag_price = bag_purchased * bag_price;
-					station.updateExpectedWeight(new_item_weight);
-					station.updateGUIItemList("Store bags purchased", total_bag_price, new_item_weight);
-				}
+				}	
 			});
 
 		payPanel.add(purchaseBag);
@@ -113,15 +118,16 @@ public class AddBags implements ActionListener {
 					int value = ((Integer)pane.getValue()).intValue();
 					if (value == JOptionPane.OK_OPTION) {
 					    station.notifyBagWeightChange("Bags have been added by customer");
+					    closeWindow();
 					} else if (value == JOptionPane.CANCEL_OPTION) {
 					    System.out.println("Operation Canceled.");
+					    closeWindow();
 					}
 				
 				
 				
 			});
 		payPanel.add(addOwnBags);
-		
 		
 		btnCloseWindow = new JButton("Exit");
 			btnCloseWindow.addActionListener(e -> {
@@ -136,37 +142,10 @@ public class AddBags implements ActionListener {
 		bagFrame.pack();
 		bagFrame.setSize(400, 200);
 	}
-
-	/**
-	 * Triggered from the system to update the message that the customer can see
-	 * 
-	 * @param msg
-	 * @throws InterruptedException
-	 */
-	public void setMessage(String msg) {
-		confirmLabel.setText(msg);
-	}
-
-	public String getMessage() {
-		return this.confirmLabel.getText();
-	}
 	
-	public void disableButtons() {
-		this.purchaseBag.setEnabled(false);
-	}
-	
-	
-	public void ownBagBlockMessage() {
-		
-	}
-
 	private void closeWindow() {
 		station.enableScanningAndBagging();
-		
-		if(!payWasSuccessful)
-			bagFrame.dispose();
-		else
-			System.exit(0);
+		bagFrame.dispose();
 	}
 
 	@Override
