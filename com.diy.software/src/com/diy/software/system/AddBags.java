@@ -65,13 +65,19 @@ public class AddBags implements ActionListener {
 						} else {
 							try {
 								bag_purchased = Integer.parseInt(custInput);
+								if (bag_purchased < 0){
+									System.out.println("Positive number only");
+									custInput = "";
+								}
 							} catch (NumberFormatException exception) {
 								System.out.println("Not an integer");
 								custInput = "";
 							}
+
 						}
+
 				}
-				
+
 				if (!canceled) {
 					JOptionPane confirm_bag_amount = new JOptionPane("Please press \"OK\" to confirm the amount of bag(s) purchased is " +
 							custInput,
