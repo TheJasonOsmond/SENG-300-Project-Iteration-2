@@ -4,8 +4,10 @@
     <output url="file://$MODULE_DIR$/com.diy.hardware_0.2/bin" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/com.diy.hardware_0.2/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/com.diy.software/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/com.diy.hardware_0.3/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/com.diy.software.tests/src" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/com.diy.hardware_0.2" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
