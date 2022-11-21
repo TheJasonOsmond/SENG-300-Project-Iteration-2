@@ -247,7 +247,7 @@ public class DiyInterface extends Panel {
 	}
 
 	public void updateWeightLabel(double weight) {
-		TotalWeight.setText("Total Weight: " + Double.toString(weight) + " grams");
+		TotalWeight.setText("Total Weight:77 " + Double.toString(weight) + " grams");
 	}
 
 	public void setMsg(String msg) {

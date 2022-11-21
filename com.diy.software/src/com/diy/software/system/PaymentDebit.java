@@ -26,6 +26,10 @@ public class PaymentDebit {
 	JButton confirm;
 	DIYSystem station;
 	
+	JButton tapCard;
+	JButton swipeCard;
+	JButton insertCard;
+	
 	private boolean payWasSuccessful = false;
 	private JButton btnCloseWindow;
 
@@ -55,7 +59,7 @@ public class PaymentDebit {
 		pin.setHorizontalAlignment(SwingConstants.CENTER);
 		payPanel.add(pin);
 
-		// pinLabel = new JLabel("PIN", SwingConstants.LEFT);
+		pinLabel = new JLabel("PIN", SwingConstants.LEFT);
 		confirm = new JButton("Confirm Payment Details");
 
 		// When the Confrim button is pressed, tell the system to start the payment
@@ -65,6 +69,32 @@ public class PaymentDebit {
 		});
 
 		payPanel.add(confirm);
+		
+		/**
+		 * Adding 'Insert' Button
+		 */
+		//insertCard = new JButton("Insert Card");
+		//insertCard.addActionListener(e -> station.payByDebit(pin.getText()));
+		//payPanel.add(insertCard);
+		//Working
+
+		/**
+		 * Adding 'Tap' Button
+		 */
+		tapCard = new JButton("Tap Card");
+		//no need to insert this, just do transaction 
+		tapCard.addActionListener(e -> station.payByDebitTap());
+		payPanel.add(tapCard);
+
+	
+		
+		/**
+		 * Adding 'Swipe' Button
+		 */
+		swipeCard = new JButton("Swipe Card");
+		swipeCard.addActionListener(e -> station.payByDebitSwipe());
+		payPanel.add(swipeCard);
+
 
 		btnCloseWindow = new JButton("Exit");
 		btnCloseWindow.addActionListener(e -> {
@@ -77,7 +107,7 @@ public class PaymentDebit {
 		payFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		payFrame.setVisible(true);
 		payFrame.pack();
-		payFrame.setSize(400, 200);
+		payFrame.setSize(400, 400);
 	}
 
 	/**
@@ -96,6 +126,8 @@ public class PaymentDebit {
 	
 	public void disablePaying() {
 		this.confirm.setEnabled(false);
+		this.swipeCard.setEnabled(false);
+		this.tapCard.setEnabled(false);
 	}
 	
 	public void updatePayStatus(boolean status) {

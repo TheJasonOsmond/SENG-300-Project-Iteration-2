@@ -10,6 +10,7 @@ import com.jimmyselectronics.disenchantment.TouchScreenListener;
 import com.jimmyselectronics.necchi.Barcode;
 import com.jimmyselectronics.necchi.BarcodedItem;
 import com.jimmyselectronics.opeechee.BlockedCardException;
+import com.jimmyselectronics.opeechee.Card;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
@@ -60,6 +61,9 @@ public class DIYSystem {
 	private static double scaleSensitivityConfiguration = 0.5;
 	
 	
+	private Card debitCardSelected = null;
+	
+	
 	public DIYSystem(CustomerData c) {
 		customerData = c;
 		initialize();
@@ -73,14 +77,31 @@ public class DIYSystem {
 		//station = new DoItYourselfStation();
 		station = new DoItYourselfStationAR();
 		station.plugIn();
-		station.turnOn();
+		//station.turnOn();
 		touchScreen = new TouchScreen();
 		baggingArea = new ElectronicScale(scaleMaximumWeightConfiguration, scaleSensitivityConfiguration);
 		baggingArea.plugIn();
-		baggingArea.turnOn();
+		//baggingArea.turnOn();
 		
 		touchScreen.plugIn();
-		touchScreen.turnOn();
+		//touchScreen.turnOn();
+		//These turnOn can result in power failure
+		boolean goodPower = false;
+		while (!goodPower)
+		{
+			try
+			{
+				station.turnOn();
+				baggingArea.turnOn();
+				touchScreen.turnOn();
+				goodPower = true;
+			}
+			catch (Exception e)
+			{
+				goodPower = false;
+			}
+		}
+		
 		
 		
 		//Set default weight for the system to reference
@@ -92,12 +113,12 @@ public class DIYSystem {
 			e.printStackTrace();
 		}
 		
-		//Setup the required observers
+		//Setup the required observers		
 		cardReaderObs = new CardReaderObserver(this);
 		scannerObs = new BarcodeScannerObserver(this);
 		scaleObs = new ElectronicScaleObserver(this);
 		touchObs = new TouchScreenObserver();
-		
+			
 		//Register the observer to the CardReader on the DIY Station
 		station.cardReader.register(cardReaderObs);
 		//station.baggingArea.register(scaleObs);
@@ -300,13 +321,24 @@ public class DIYSystem {
 		//Select the card given by type from the main window
 		
 		if(amountToBePayed <= 0 ) {
+			mainWindow.setMsg("Please Scan at least one item");
+			
 			return; //TODO: display error that cant make payment on no money
-		} 
+		}
+		for(Card card : this.getUserData().customer.wallet.cards)
+			if(card.kind.equals(type)) 
+			{
+				debitCardSelected = card;
+				//to be used in next methods
+				//in tap method
+				break;
+			}
 		//else we start the selection process
 		customerData.customer.selectCard(type);
 		//Boot up the pin window
 		disableScanningAndBagging();
 		payWindowDebit = new PaymentDebit(this);
+	
 	}
 	
 	/**
@@ -343,7 +375,7 @@ public class DIYSystem {
 	}
 	
 	/**
-	 * Finalizes the pay by credit sequenece
+	 * Finalizes the pay by Debit sequenece
 	 * @param pin, the pin from customer input
 	 * @param payWindow, the paywindow that called this for displaying messages
 	 */
@@ -371,6 +403,95 @@ public class DIYSystem {
 			station.cardReader.remove();
 		}
 
+		//WE GET HERE, THE PAYMENT WAS PROCESSED
+		disablePayOnGui();
+	}
+	
+	/**
+	 * Finalizes the pay by Debit sequenece (using TAP)
+	 * @author simrat_benipal
+	 * @param nothing, we can tap without PIN
+	 */
+	
+	public void payByDebitTap() 
+	{
+		
+		
+		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+		try {
+			//a card has been selected because of payByDebitStart() method
+			//so just tap the selected card
+			station.cardReader.tap(debitCardSelected); //method in CardReader.Java
+			//every station has a CardReader Object
+			//This Card Reader should be powered-up and running
+			//this call will notify that the card is tapped in the CardReaderObserver
+			
+			//if this method returned success (based on probabilities of TapFailure
+			//then we execute 'notifyCardDataRead(data), method in listener 
+			
+			//and this return CardData Object
+		} catch(BlockedCardException e) 
+		{
+			payWindowDebit.setMessage("The card has been blocked!");
+			return;
+		} catch(IllegalStateException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		} catch(ChipFailureException e) 
+		{
+			payWindowDebit.setMessage("Random Tap Failure! Try Again!!");
+			return;
+		} catch(IOException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		}
+		//WE GET HERE, THE PAYMENT WAS PROCESSED
+		disablePayOnGui();
+	}
+	
+	/**
+	 * Finalizes the pay by Debit sequenece (using TAP)
+	 * @author simrat_benipal
+	 * @param nothing, we can tap without PIN
+	 */
+	
+	public void payByDebitSwipe() 
+	{
+		
+		
+		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+		try {
+			//a card has been selected because of payByDebitStart() method
+			//so just swipe the selected card
+			station.cardReader.swipe(debitCardSelected);
+			//method in CardReader.Java
+			//every station has a CardReader Object
+			//This Card Reader should be powered-up and running
+			//this call will notify that the card is swipped in the CardReaderObserver
+			
+			//if this method returned success (based on probabilities of SWIPE Failure
+			//then we execute 'notifyCardDataRead(data), method in listener (already implemented in our listener/obs) 
+			
+			//and this return CardData Object
+		} catch(BlockedCardException e) 
+		{
+			payWindowDebit.setMessage("The card has been blocked!");
+			return;
+		} catch(IllegalStateException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		} catch(ChipFailureException e) 
+		{
+			payWindowDebit.setMessage("Random Swipe Failure! Try Again!!");
+			return;
+		} catch(IOException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		}
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -455,5 +576,6 @@ public class DIYSystem {
 		else if (payWindowDebit != null)
 			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
 	}
+
 
 }
