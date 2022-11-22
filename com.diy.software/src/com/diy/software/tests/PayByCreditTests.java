@@ -77,7 +77,7 @@ public class PayByCreditTests {
 	public void blankPIN() {
 	
 		// blank PIN should throw InvalidPINException
-		testSystem.payByCredit("");
+		testSystem.payByCredit("",testSystem.getReceiptPrice());
 		
 		// assert total still owed and payment NOT posted
 		assertEquals(1, testSystem.getReceiptPrice(), .1);
@@ -94,7 +94,7 @@ public class PayByCreditTests {
 	
 		// add amount to total
 		// attempt to pay with wrong pin 
-		testSystem.payByCredit("8675");
+		testSystem.payByCredit("8675", testSystem.getReceiptPrice());
 		// insure total amount owed is unchanged, correct error is set
 		assertEquals(1, testSystem.getReceiptPrice(), .1);
 		assertFalse(testSystem.getWasPaymentPosted());
@@ -102,7 +102,7 @@ public class PayByCreditTests {
 		// update total
 		testSystem.changeReceiptPrice(1.00);
 		// attempt to pay with wrong pin 
-		testSystem.payByCredit("3009");
+		testSystem.payByCredit("3009", testSystem.getReceiptPrice());
 		// insure total amount owed is unchanged
 		assertEquals(2, testSystem.getReceiptPrice(), .1);
 		assertFalse(testSystem.getWasPaymentPosted());
@@ -110,7 +110,7 @@ public class PayByCreditTests {
 		// update total
 		// attempt to pay with wrong pin 
 		testSystem.changeReceiptPrice(1.00);
-		testSystem.payByCredit("2112");
+		testSystem.payByCredit("2112", testSystem.getReceiptPrice());
 		// insure total amount owed is unchanged
 		assertEquals(3, testSystem.getReceiptPrice(), .1);
 		assertFalse(testSystem.getWasPaymentPosted());				
@@ -118,7 +118,7 @@ public class PayByCreditTests {
 		// update total
 		testSystem.changeReceiptPrice(1.00);
 		// check with valid pin final time, but card should be locked (ie no payment)
-		testSystem.payByCredit(CORRECT_PIN);	
+		testSystem.payByCredit(CORRECT_PIN, testSystem.getReceiptPrice());	
 		// insure total amount owed is unchanged even with 
 		assertEquals(4, testSystem.getReceiptPrice(), .1);
 		assertFalse(testSystem.getWasPaymentPosted());
@@ -133,7 +133,7 @@ public class PayByCreditTests {
 	public void successfulPayment() {
 
 		// make valid payment
-		testSystem.payByCredit(CORRECT_PIN);
+		testSystem.payByCredit(CORRECT_PIN, testSystem.getReceiptPrice());
 		
 		// check amount owing is 0, and successful payment posted
 		assertEquals(0, testSystem.getReceiptPrice(), .1);
@@ -146,7 +146,7 @@ public class PayByCreditTests {
 		testSystem.changeReceiptPrice(42.0);
 			
 		// make anther valid payment
-		testSystem.payByCredit(CORRECT_PIN);
+		testSystem.payByCredit(CORRECT_PIN, testSystem.getReceiptPrice());
 		
 		// check amount owing is 0, and successful payment posted
 		assertEquals(0, testSystem.getReceiptPrice(), .1);
@@ -164,7 +164,7 @@ public class PayByCreditTests {
 	
 		// should not be able to reach state where payment executes and amount owing is 0
 		testSystem.changeReceiptPrice(0.00);
-		testSystem.payByCredit(CORRECT_PIN);
+		testSystem.payByCredit(CORRECT_PIN, testSystem.getReceiptPrice());
 	}
 	
 	
@@ -181,7 +181,7 @@ public class PayByCreditTests {
 		testSystem.changeReceiptPrice(2001.00);
 				
 		// attempt to pay
-		testSystem.payByCredit(CORRECT_PIN);
+		testSystem.payByCredit(CORRECT_PIN, testSystem.getReceiptPrice());
 		
 		// ensure the amount is still the same
 		assertEquals(2001, testSystem.getReceiptPrice(), .1);		
@@ -200,13 +200,13 @@ public class PayByCreditTests {
 			// set up successful transaction
 			testSystem.resetReceiptPrice();
 			testSystem.changeReceiptPrice(1.0);
-			testSystem.payByCredit(CORRECT_PIN);
+			testSystem.payByCredit(CORRECT_PIN, testSystem.getReceiptPrice());
 			//assertTrue(testSystem.getWasPaymentPosted());
 		}
 		
 		testSystem.resetReceiptPrice();
 		testSystem.changeReceiptPrice(1.0);
-		testSystem.payByCredit(CORRECT_PIN);
+		testSystem.payByCredit(CORRECT_PIN, testSystem.getReceiptPrice());
 		assertFalse(testSystem.getWasPaymentPosted());
 	}
 }

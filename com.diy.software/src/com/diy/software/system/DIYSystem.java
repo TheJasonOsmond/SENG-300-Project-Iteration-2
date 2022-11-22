@@ -68,6 +68,7 @@ public class DIYSystem {
 	private static double scaleMaximumWeightConfiguration = 5000.0;
 	private static double scaleSensitivityConfiguration = 0.5;
 	
+	private double amountToPay;
 	
 	public DIYSystem(CustomerData c) {
 		customerData = c;
@@ -351,12 +352,14 @@ public class DIYSystem {
 		//baggingArea.add(null);
 	}
 	
+	
+
 	/**
-	 * Finalizes the pay by credit sequenece
+	 * Finalizes the pay by credit sequence
 	 * @param pin, the pin from customer input
 	 */
-	public void payByCredit(String pin) {
-		
+	public void payByCredit(String pin, double amountToPay) {
+		this.amountToPay = amountToPay;
 		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
 		try {
 			customerData.customer.insertCard(pin.intern());
@@ -376,6 +379,7 @@ public class DIYSystem {
 			payWindow.setMessage(e.getMessage());
 			return;
 		} finally {
+			//Data read on card reader observer
 			station.cardReader.remove();
 		}
 
@@ -478,6 +482,18 @@ public class DIYSystem {
 	 */
 	public void resetReceiptPrice() {
 		amountToBePayed = 0;
+		setPriceOnGui();
+	}
+	
+	/**
+	 */
+	public void decreaseReceiptPrice(double price) {
+		amountToBePayed -= price;
+		setPriceOnGui();
+	}
+	
+	public double getAmountToPay() {;
+		return amountToPay;
 	}
 	
 	
@@ -533,6 +549,10 @@ public class DIYSystem {
 
 	public void updateGUIItemList(String desc, double weight, double price) {
 		mainWindow.addProductDetails(desc, price, weight);
+	}
+	
+	public void updateGUIItemListPayment(double amountPaid) {
+		mainWindow.addPaymentToItems(amountPaid);
 	}
 	
 	public void updateWeightOnGUI(double weight) {

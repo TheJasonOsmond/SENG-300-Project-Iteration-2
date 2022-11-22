@@ -67,7 +67,7 @@ public class PaymentCash {
 		// When the Confrim button is pressed, tell the system to start the payment
 		// process
 		confirm.addActionListener(e -> {
-			station.payByCredit(pin.getText());
+			station.payByCredit(pin.getText(), sys.getReceiptPrice());
 		});
 
 		payPanel.add(confirm);

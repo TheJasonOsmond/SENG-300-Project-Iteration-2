@@ -64,19 +64,20 @@ public class CardReaderObserver implements CardReaderListener {
 		sys.payWindowMessage("Processing payment...");
 		
 		//get a hold number from the customers bank on the amount due
-		holdNumber = sys.getUserData().getBank().authorizeHold(data.getNumber(), sys.getReceiptPrice());
+		holdNumber = sys.getUserData().getBank().authorizeHold(data.getNumber(), sys.getAmountToPay());
 		
-		//Check to see if the hold was successfull...
+		//Check to see if the hold was successful...
 		if(holdNumber == -1) {
 			//The hold was not processed, do nothing
 			sys.payWindowMessage("Hold not successfull, insufficent funds!");
 		} else {
-			//The hold was succesful, tell the bank to post the transaction
+			//The hold was successful, tell the bank to post the transaction
 			sys.setwasPaymentPosted(sys.getUserData().getBank().postTransaction(data.getNumber(), holdNumber, sys.getReceiptPrice()));
 			sys.updatePayStatusGUI();
 			sys.getUserData().getBank().releaseHold(data.getNumber(), holdNumber);
-			sys.payWindowMessage("Your card has been charged: " + sys.getReceiptPrice());
-			sys.resetReceiptPrice();
+			sys.payWindowMessage("Your card has been charged: $" + sys.getAmountToPay());
+			sys.updateGUIItemListPayment(sys.getAmountToPay());
+			sys.decreaseReceiptPrice(sys.getAmountToPay());
 		}
 	}
 
