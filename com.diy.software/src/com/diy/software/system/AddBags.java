@@ -99,7 +99,7 @@ public class AddBags implements ActionListener {
 						station.updateExpectedWeight(new_item_weight);
 						//TODO Should we update item list in the main system? Because we need the attendant station block to appear.
 						station.updateGUIItemList("Store bag", total_bag_price, new_item_weight);
-						station.notifyBagWeightChange("Bags have been added by customer");
+						//station.notifyBagWeightChange("Bags have been added by customer");
 						System.out.println("Bags have been added by customer");
 						closeWindow();
 					} else if (value1 == JOptionPane.CANCEL_OPTION) {
@@ -123,7 +123,7 @@ public class AddBags implements ActionListener {
 				// If OK pressed, close dialog and block station. Otherwise, just go back to the dialog.
 					int value = ((Integer)pane.getValue()).intValue();
 					if (value == JOptionPane.OK_OPTION) {
-					    station.notifyBagWeightChange("Bags have been added by customer");
+					    //station.notifyBagWeightChange("Bags have been added by customer");
 					    closeWindow();
 					} else if (value == JOptionPane.CANCEL_OPTION) {
 					    System.out.println("Operation Canceled.");

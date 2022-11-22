@@ -71,10 +71,11 @@ public class DIYSystem {
 	}
 
 	/*
-	 * Setup the system to a default state, with an attending customer and DIY station
+	 * Set up the system to a default state, with an attending customer and DIY station
 	 */
 	private void initialize() {
-		//Setup the DIY Station
+		//Set up the DIY Station
+
 		//station = new DoItYourselfStation();
 		station = new DoItYourselfStationAR();
 		station.plugIn();

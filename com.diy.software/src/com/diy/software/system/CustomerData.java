@@ -28,19 +28,23 @@ import com.jimmyselectronics.opeechee.Card;
  * All information about the customer / bank the customer uses will be initialized and stored here
  * 
  * @author Brandon
+ * Edit: Updated some values to test the payment with debit option, and added some comments for better readablity- Eusa
  */
-
 public class CustomerData {
 	
 	public Customer customer;
 	private Bank custBank;
 	private double john_debit_limit = 2000;
 	private double john_interac_limit = 10;
-	
+
+	/**
+	 * Constructor for the class. Initializes default customer data.
+	 */
 	public CustomerData() {
 		initDefaultCustomer();
 	}
-	
+
+
 	private void initDefaultCustomer() {
 		customer = new Customer();
 		setupBankAndCard();
@@ -59,8 +63,8 @@ public class CustomerData {
 		//Create a new Card and store it in the waller for the customer
 		customer.wallet.cards.add(new Card("VISA", "1234567890123456", "John Doe", "909", "0000".intern(), true, true));
 		customer.wallet.cards.add(new Card("Master Card", "6543210987654321", "John Doe", "415", "1111".intern(), true, true));
-		/**
-		 * @author simrat_benipal
+		/*
+		  @author simrat_benipal
 		 */
 		//Create a new Debit Card
 		customer.wallet.cards.add(new Card("A Debit Card", "123123123123123", "John Debit", "123", "1234".intern(), true, true));
