@@ -39,6 +39,7 @@ public class DIYSystem {
 	private BarcodeScannerObserver scannerObs;
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
+	private ReceiptPrinterObserver printerObs;
 
 	
 	//Cusomter IO Windows
@@ -90,8 +91,8 @@ public class DIYSystem {
 		touchScreen.turnOn();
 		
 		try {
-			station.printer.addPaper(100);
-			station.printer.addInk(10000);
+			station.printer.addPaper(1);
+			station.printer.addInk(10);
 		} catch (OverloadException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -111,6 +112,7 @@ public class DIYSystem {
 		scannerObs = new BarcodeScannerObserver(this);
 		scaleObs = new ElectronicScaleObserver(this);
 		touchObs = new TouchScreenObserver();
+		printerObs = new ReceiptPrinterObserver();
 
 		
 		//Register the observer to the CardReader on the DIY Station
@@ -120,7 +122,8 @@ public class DIYSystem {
 		station.scanner.register(scannerObs);
 		//station.touchScreen.register(touchObs);
 		touchScreen.register(touchObs);
-	
+		station.printer.register(printerObs);
+		
 		//Setup the Customer and start using the DIY station
 		customerData.customer.useStation(station);
 		
@@ -470,12 +473,15 @@ public class DIYSystem {
 				
 				//suspend station
 				systemDisable();
+				payWindowMessage("printer error- please wait for attendant");
 				
-				//notify attendant
+				//notify attendant->send message, send printer
+				
+				
 				
 				//send duplicate receipt to print at attendant station?
 				
-				e.printStackTrace();
+			//	e.printStackTrace();
 				
 			} catch (OverloadException e) {
 				// TODO Auto-generated catch block
@@ -491,6 +497,10 @@ public class DIYSystem {
 	//method to allow attendant class to updated based on changes on customer end
 	public DiyInterface getMainWindow() {
 		return mainWindow;
+	}
+	
+	public ReceiptPrinterD getPrinter() {
+		return station.printer;
 	}
 	
 	

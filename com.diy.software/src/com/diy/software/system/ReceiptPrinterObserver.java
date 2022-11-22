@@ -1,50 +1,95 @@
 package com.diy.software.system;
-import java.io.IOException;
 
-import com.diy.hardware.DoItYourselfStationAR;
-import com.jimmyselectronics.EmptyException;
-import com.jimmyselectronics.OverloadException;
-import com.jimmyselectronics.abagnale.ReceiptPrinterD;
+import com.jimmyselectronics.AbstractDevice;
+import com.jimmyselectronics.AbstractDeviceListener;
+import com.jimmyselectronics.abagnale.IReceiptPrinter;
 import com.jimmyselectronics.abagnale.ReceiptPrinterListener;
 
-public class ReceiptPrinterObserver {
-    // Access the low ink and low paper
-    private DoItYourselfStationAR station;
-    private ReceiptPrinterD printer;
-    private ReceiptPrinterListener listener;
+/*
+ * @author Dayee Lee
+ * @author Benjamin Niles
+ */
+public class ReceiptPrinterObserver implements ReceiptPrinterListener{
 
-    private double totalPrice;
-    private boolean paymentMade = false;
+	@Override
+	public void enabled(AbstractDevice<? extends AbstractDeviceListener> device) {
+		// TODO Auto-generated method stub
+		
+	}
 
-    private void initialize() {
-        station = new DoItYourselfStationAR();
-        station.plugIn();
-        station.turnOn();
-        station.printer.enable();
-    }
+	@Override
+	public void disabled(AbstractDevice<? extends AbstractDeviceListener> device) {
+		// TODO Auto-generated method stub
+		
+	}
 
-    // Simply copied from DIYSystem...
-    private void printReceipt() {
+	@Override
+	public void turnedOn(AbstractDevice<? extends AbstractDeviceListener> device) {
+		// TODO Auto-generated method stub
+		
+	}
 
-        char[] receipt = new char[0];
+	@Override
+	public void turnedOff(AbstractDevice<? extends AbstractDeviceListener> device) {
+		// TODO Auto-generated method stub
+		
+	}
 
-        for (int c = 0; c < receipt.length-1; c++){
-            try {
-                station.printer.print(receipt[c]);
-            } catch (EmptyException e){
+	@Override
+	public void outOfPaper(IReceiptPrinter printer) {
+		System.out.println("no paper");	
+		
+		//find some way to connect to AttendantStation
+		//display message
+		//enable addPaperButton
+		
+	}
 
-            } catch (OverloadException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        // If payment is made, print receipt : Get total price
-        // exception: out of paper / ink -> stop printing, display message to customer
-        // suspend station
-            //DIYSystem: systemDisable();
-        // notify attendant, send duplicate receipt to print at attendant station
+	@Override
+	public void outOfInk(IReceiptPrinter printer) {
+		System.out.println("no ink");	
+		
+		//find some way to connect to AttendantStation
+		//display message
+		//enable addInkButton
+		
+		
+	}
 
-        station.printer.cutPaper();
-        System.out.println(station.printer.removeReceipt());
-    }
+	@Override
+	public void lowInk(IReceiptPrinter printer) {
+		System.out.println("low ink");	
+		
+		//find some way to connect to AttendantStation
+		//display message
+		//enable addInkButton
+		
+		
+	}
+
+	@Override
+	public void lowPaper(IReceiptPrinter printer) {
+		System.out.println("low paper");	
+		
+		//find some way to connect to AttendantStation
+		//display message
+		//enable addPaperButton
+		
+	}
+
+	@Override
+	public void paperAdded(IReceiptPrinter printer) {
+		System.out.println("paper added");	
+		
+		
+	}
+
+	@Override
+	public void inkAdded(IReceiptPrinter printer) {
+		System.out.println("ink added");	
+		
+		
+		
+	}
+
 }

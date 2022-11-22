@@ -9,11 +9,15 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
+import com.jimmyselectronics.AbstractDevice;
+import com.jimmyselectronics.AbstractDeviceListener;
+import com.jimmyselectronics.OverloadException;
+
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 /**
@@ -23,7 +27,7 @@ import java.util.ArrayList;
  * @author Benjamin Niles
  *
  */
-public class AttendantStation {
+public class AttendantStation{
 	
 	public AttendantStation(CustomerData[] c) {
 		
@@ -37,7 +41,7 @@ public class AttendantStation {
 		}
 		
 		currentDIY = system.get(0).getMainWindow();
-		diyNum = 0;
+		diyNum = 0;//change this depending on which diy station is selected
 		
 		initialize();
 	}
@@ -50,13 +54,19 @@ public class AttendantStation {
 	private JPanel rightPanel;
 	private JPanel infoPanel;
 	private JPanel itemPanel;
+	private JPanel printerPanel;
 	
 	private JLabel stationIDLabel;
 	private JLabel billLabel;
 	private JLabel totalLabel;
 	//private JLabel weightLabel;
+	private JLabel alertLabel;
+	private JLabel inkLabel;
+	private JLabel paperLabel;
 	
-
+	private JButton addInkButton;
+	private JButton addPaperButton;
+	private JButton enableStationButton;
 	
 	private JTextArea billTextArea;
 	
@@ -123,13 +133,26 @@ public class AttendantStation {
 		leftPanel = new JPanel(new GridLayout(2,1));
 		itemPanel = new JPanel(new BorderLayout());
 	
-		stationIDLabel = new JLabel("Current diy station: "+diyNum+1,JLabel.CENTER);
+		stationIDLabel = new JLabel("Current diy station: "+(diyNum+1),JLabel.CENTER);
 		
 		itemPanel.add(stationIDLabel, BorderLayout.NORTH);
 		
-		//put new buttons, etc here
-		
+		printerPanel = new JPanel(new GridLayout(3,2));
+		addInkButton = new JButton("add ink");
+		addPaperButton = new JButton("add paper");
+		enableStationButton = new JButton("unlock diy station");
 	
+		alertLabel = new JLabel("printer out of paper/ink");
+		inkLabel = new JLabel("no ink");
+		paperLabel = new JLabel("no paper");
+		
+		//printerPanel.add(alertLabel);
+		printerPanel.add(addInkButton);
+		printerPanel.add(inkLabel);
+		printerPanel.add(addPaperButton);
+		printerPanel.add(paperLabel);
+		
+		itemPanel.add(printerPanel, BorderLayout.CENTER);
 		leftPanel.add(itemPanel);	
 		frame.add(leftPanel);
 	}
@@ -140,6 +163,33 @@ public class AttendantStation {
 			totalLabel.setText(currentDIY.getTotalAmount());
 			//weightlabel.setText(null);
 		});
+		
+		addPaperButton.addActionListener(e->{
+			paperLabel.setText("paper added");
+			try {
+				system.get(diyNum).getPrinter().addPaper(500);
+			} catch (OverloadException e1) {
+				paperLabel.setText("Paper Tray Full");
+				addPaperButton.setEnabled(false);
+				e1.printStackTrace();
+			}
+		});
+		
+		addInkButton.addActionListener(e->{
+			inkLabel.setText("ink added");
+			try {
+				system.get(diyNum).getPrinter().addInk(500);
+			} catch (OverloadException e1) {
+				inkLabel.setText("Ink Full");
+				addInkButton.setEnabled(false);
+				e1.printStackTrace();
+			}
+		});
+		
+		enableStationButton.addActionListener(e->{
+			system.get(diyNum).systemEnable();
+		});
+		
 	}
 
 }	
