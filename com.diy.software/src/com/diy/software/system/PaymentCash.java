@@ -27,7 +27,7 @@ public class PaymentCash {
 	JFrame payFrame;
 	JPanel payPanel;
 	JTextField pin;
-	JLabel pinLabel, confirmLabel;
+	JLabel instructLabel, confirmLabel;
 	JButton confirm;
 	DIYSystem station;
 	
@@ -54,13 +54,16 @@ public class PaymentCash {
 		confirmLabel = new JLabel("");
 		confirmLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-		pinLabel = new JLabel("Enter PIN");
-		pinLabel.setHorizontalAlignment(JLabel.CENTER);
-		payPanel.add(pinLabel);
+		instructLabel = new JLabel("Choose coins to insert");
+		instructLabel.setHorizontalAlignment(JLabel.CENTER);
+		payPanel.add(instructLabel);
 		pin = new JTextField();
 		pin.setHorizontalAlignment(SwingConstants.CENTER);
 		payPanel.add(pin);
 
+		//create two buttons: one creates a coin and asks DoItYourselfStation's CoinSlot to receive the coin. the coin has denomination long.valueOf(1L)
+		//the other one asks DoItYourselfStation's BanknoteSlot to receive a banknote. the banknote has denomination int[] { 1 }
+		
 		// pinLabel = new JLabel("PIN", SwingConstants.LEFT);
 		confirm = new JButton("Confirm Payment Details");
 

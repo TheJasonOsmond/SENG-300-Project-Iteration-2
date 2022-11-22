@@ -425,6 +425,8 @@ public class DIYSystem {
 	public void payByCash() {
 		
 		//try something, probably
+		//CoinSlot
+		//BanknoteSlot
 	}
 	
 	/**
@@ -436,6 +438,8 @@ public class DIYSystem {
 			payWindow.disablePaying();
 		else if (payWindowDebit != null)
 			payWindowDebit.disablePaying();
+		else if (payWindowCash != null)
+			payWindowCash.disablePaying();
 			
 	}
 	
