@@ -1,6 +1,7 @@
 package com.diy.software.system;
 
 import java.io.IOException;
+import java.util.Currency;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
@@ -14,8 +15,13 @@ import com.jimmyselectronics.opeechee.BlockedCardException;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
+import com.unitedbankingservices.DisabledException;
+import com.unitedbankingservices.TooMuchCashException;
+import com.unitedbankingservices.banknote.Banknote;
+import com.unitedbankingservices.coin.Coin;
 
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
+import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 
 import com.jimmyselectronics.abagnale.ReceiptPrinterD;
 import com.jimmyselectronics.abagnale.ReceiptPrinterListener;
@@ -424,11 +430,40 @@ public class DIYSystem {
 	}
 	
 	/**
-	 * Finalizes the pay by cash sequence
+	 * Inserts a coin into the coin slot
 	 */
-	public void payByCash() {
+	public void InsertCoin(Currency curr) {
 		
-		//try something, probably
+		try {
+			Coin c = new Coin(curr, station.coinDenominations.get(0));
+			station.coinSlot.receive(c);
+		} catch(DisabledException e) {
+			payWindowCash.setMessage("The coin slot is currently disabled");
+		} catch(TooMuchCashException e) {
+			payWindowCash.setMessage("The machine is full of coins");
+		}
+	}
+	
+	/**
+	 * Inserts a banknote into the banknote slot
+	 */
+	public void InsertBanknote(Currency curr) {
+		
+		try {
+			Banknote b = new Banknote(curr, station.banknoteDenominations[0]);
+			station.banknoteInput.receive(b);
+		} catch(DisabledException e) {
+			payWindowCash.setMessage("The banknote slot is currently disabled");
+		} catch(TooMuchCashException e) {
+			payWindowCash.setMessage(e.getMessage());
+		}
+	}
+	
+	/**
+	 * Finalizes Pay with cash sequence
+	 */
+	public void payByCash(long amount) {
+		payWindowCash.setMessage("TODO:send change and print receipt");
 	}
 	
 	/**
@@ -440,6 +475,8 @@ public class DIYSystem {
 			payWindow.disablePaying();
 		else if (payWindowDebit != null)
 			payWindowDebit.disablePaying();
+		else if (payWindowCash != null)
+			payWindowCash.disablePaying();
 			
 	}
 	
