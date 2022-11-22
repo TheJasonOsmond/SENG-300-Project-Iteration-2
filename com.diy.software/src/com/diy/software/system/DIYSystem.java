@@ -462,7 +462,7 @@ public class DIYSystem {
 	/**
 	 * Finalizes Pay with cash sequence
 	 */
-	public void payByCash(long amount) {
+	public void payByCash(double amount) {
 		payWindowCash.setMessage("TODO:send change and print receipt");
 	}
 	

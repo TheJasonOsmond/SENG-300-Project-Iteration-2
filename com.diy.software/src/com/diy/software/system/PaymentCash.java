@@ -4,12 +4,15 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Currency;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -26,10 +29,12 @@ import java.awt.GridBagConstraints;
 public class PaymentCash {
 	JFrame payFrame;
 	JPanel payPanel;
-	JTextField pin;
+	JTextArea cashDisplay;
 	JLabel instructLabel, confirmLabel;
-	JButton confirm;
+	JButton confirm, insertCoin, insertNote;
 	DIYSystem station;
+	
+	double cashInserted;
 	
 	private boolean payWasSuccessful = false;
 	private JButton btnCloseWindow;
@@ -37,6 +42,8 @@ public class PaymentCash {
 	public PaymentCash(DIYSystem sys) {
 		//this is just copy paste from Payment.java for now...
 		station = sys;
+		Currency curr = Currency.getInstance(Locale.CANADA);
+		
 		payFrame = new JFrame("***** Pay by Cash *****");
 		payFrame.setResizable(true);
 		payFrame.setUndecorated(false);
@@ -57,20 +64,32 @@ public class PaymentCash {
 		instructLabel = new JLabel("Choose coins to insert");
 		instructLabel.setHorizontalAlignment(JLabel.CENTER);
 		payPanel.add(instructLabel);
-		pin = new JTextField();
-		pin.setHorizontalAlignment(SwingConstants.CENTER);
-		payPanel.add(pin);
-
-		//create two buttons: one creates a coin and asks DoItYourselfStation's CoinSlot to receive the coin. the coin has denomination long.valueOf(1L)
-		//the other one asks DoItYourselfStation's BanknoteSlot to receive a banknote. the banknote has denomination int[] { 1 }
+		//this displays the amount of cash inserted
+		cashDisplay = new JTextArea("Cash Inserted: $0.0");
+		payPanel.add(cashDisplay);
+		//press to insert a coin; this could be done better........
+		insertCoin = new JButton("Insert ¢1 Coin");
+		insertCoin.addActionListener(e -> {
+			station.InsertCoin(curr);
+			cashInserted += 0.1;
+			cashDisplay.replaceRange(String.valueOf(cashInserted), 16, 18);
+		});
+		payPanel.add(insertCoin);
+		
+		insertNote = new JButton("Insert $1 Banknote");
+		insertNote.addActionListener(e -> {
+			station.InsertBanknote(curr);
+			cashInserted += 1.0;
+			cashDisplay.replaceRange(String.valueOf(cashInserted), 16, 18);
+		});
 		
 		// pinLabel = new JLabel("PIN", SwingConstants.LEFT);
 		confirm = new JButton("Confirm Payment Details");
 
-		// When the Confrim button is pressed, tell the system to start the payment
+		// When the Confirm button is pressed, tell the system to start the payment
 		// process
 		confirm.addActionListener(e -> {
-			station.payByCredit(pin.getText(), sys.getReceiptPrice());
+			station.payByCash(cashInserted);
 		});
 
 		payPanel.add(confirm);
