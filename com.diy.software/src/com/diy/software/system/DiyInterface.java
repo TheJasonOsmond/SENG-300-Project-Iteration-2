@@ -11,9 +11,7 @@ import java.awt.Color;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.awt.event.ActionEvent;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JTextPane;
@@ -37,7 +35,6 @@ public class DiyInterface extends Panel {
 	ArrayList<String> items = new ArrayList<String>();
 	ArrayList<BarcodedProduct> products = new ArrayList<BarcodedProduct>();
 	private DIYSystem sysRef;
-	int count = 0;
 	private JTextField TotalTxtField;
 	private JTextArea ErrorMSG;
 	private JButton ScanItem;
@@ -59,7 +56,6 @@ public class DiyInterface extends Panel {
 		initialize();
 	}
 
-
 	/**
 	 * Initialize the contents of the frame.
 	 * @author Simrat Benipal
@@ -76,36 +72,26 @@ public class DiyInterface extends Panel {
 		//Create Scan Item Button.
 		ScanItem = new JButton("Scan Item");
 		ScanItem.setFont(new Font("Tahoma", Font.PLAIN, 25));
-		ScanItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				System.out.println("Scan Item button has been pressed");
-				sysRef.systemStartScan();
-			}
+		ScanItem.addActionListener(e -> {
+			System.out.println("Scan Item button has been pressed");
+			sysRef.systemStartScan();
 		});
 
 		//Create Pay Now By Credit button.
 		PayNowCredit = new JButton("Pay Now By Credit");
 		PayNowCredit.setFont(new Font("Tahoma", Font.PLAIN, 25));
-		PayNowCredit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				System.out.println("Pay Now button has been pressed");
-				sysRef.payByCreditStart((String) comboBoxCredit.getSelectedItem());
-				;
-			}
+		PayNowCredit.addActionListener(e -> {
+			System.out.println("Pay Now button has been pressed");
+			sysRef.payByCreditStart((String) comboBoxCredit.getSelectedItem());
 		});
 
 		//Create Pay Now By Debit button.
 		PayNowDebit = new JButton("Pay Now By Debit");
 		PayNowDebit.setFont(new Font("Tahoma", Font.PLAIN, 25));
-		PayNowDebit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				System.out.println("Pay Now (Debit) button has been pressed");
-				sysRef.payByDebitStart((String) comboBoxDebit.getSelectedItem());
-				;
-			}
+		PayNowDebit.addActionListener(e -> {
+			System.out.println("Pay Now (Debit) button has been pressed");
+			sysRef.payByDebitStart((String) comboBoxDebit.getSelectedItem());
+			;
 		});
 
 		//Create the Item list for items scanned.
@@ -116,11 +102,7 @@ public class DiyInterface extends Panel {
 		//Create the Place Item In Bagging Area button to place item in the bagging area.
 		BaggingAreaButton = new JButton("Place Item In Bagging Area");
 		BaggingAreaButton.setEnabled(false);
-		BaggingAreaButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				sysRef.StartBagging();
-			}
-		});
+		BaggingAreaButton.addActionListener(e -> sysRef.StartBagging());
 
 		//Create the total amount text field.
 		TotalTxtField = new JTextField();
@@ -148,16 +130,14 @@ public class DiyInterface extends Panel {
 		comboBoxDebit = new JComboBox<>(debitCardsSB.toArray());
 		comboBoxDebit.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
-		/**
-		 * Creates the total weight text field.
-		 */
+		//Create the Total Weight text field.
 		TotalWeight = new JTextArea();
 		TotalWeight.setEditable(false);
 		TotalWeight.setFont(new Font("Tahoma", Font.BOLD, 14));
 		TotalWeight.setText("Total Weight: ");
 
-		/**
-		 * GUI Layout.
+		/*
+		  GUI Layout.
 		 */
 		GroupLayout gl_panel = new GroupLayout(this);
 		gl_panel.setHorizontalGroup(gl_panel.createParallelGroup(Alignment.TRAILING).addGroup(gl_panel
@@ -213,7 +193,7 @@ public class DiyInterface extends Panel {
 		this.setLayout(gl_panel);
 	}
 
-	public void setamountToBePayedLabel(double amountToBePayed) {
+	public void setAmountToBePayedLabel(double amountToBePayed) {
 		TotalTxtField.setText("Total: $" + Double.toString(amountToBePayed));
 	}
 

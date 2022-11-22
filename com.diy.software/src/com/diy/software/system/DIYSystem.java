@@ -676,7 +676,7 @@ public class DIYSystem {
 	}
 	
 	public void setPriceOnGui() {
-		mainWindow.setamountToBePayedLabel(amountToBePayed);
+		mainWindow.setAmountToBePayedLabel(amountToBePayed);
 	}
 
 	public void reEnableScanner() {
