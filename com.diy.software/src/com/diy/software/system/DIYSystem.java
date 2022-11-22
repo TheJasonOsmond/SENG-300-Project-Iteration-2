@@ -32,7 +32,8 @@ import com.jimmyselectronics.abagnale.ReceiptPrinterListener;
 public class DIYSystem {
 	
 	//Self Checkout unit and the observers we are using
-	//private DoItYourselfStation station;
+	
+	public AttendantStation attendant;
 	private DoItYourselfStationAR station;
 	
 	private CardReaderObserver cardReaderObs;
@@ -58,6 +59,7 @@ public class DIYSystem {
 	private boolean wasSuccessScan = false;
 	private boolean bagItemSuccess = false;
 	private boolean wasPaymentPosted = false;
+	private boolean systemEnabled = true;
 	
 	//added
 	private TouchScreen touchScreen;
@@ -66,11 +68,12 @@ public class DIYSystem {
 	private static double scaleSensitivityConfiguration = 0.5;
 	
 	
-	public DIYSystem(CustomerData c) {
+	public DIYSystem(CustomerData c, AttendantStation a) {
 		customerData = c;
+		attendant = a;
 		initialize();
 	}
-
+	
 	/*
 	 * Setup the system to a default state, with an attending customer and DIY station
 	 */
@@ -91,8 +94,8 @@ public class DIYSystem {
 		touchScreen.turnOn();
 		
 		try {
-			station.printer.addPaper(1);
-			station.printer.addInk(10);
+			station.printer.addPaper(100);
+			station.printer.addInk(50);
 		} catch (OverloadException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -112,7 +115,7 @@ public class DIYSystem {
 		scannerObs = new BarcodeScannerObserver(this);
 		scaleObs = new ElectronicScaleObserver(this);
 		touchObs = new TouchScreenObserver();
-		printerObs = new ReceiptPrinterObserver();
+		printerObs = new ReceiptPrinterObserver(this);
 
 		
 		//Register the observer to the CardReader on the DIY Station
@@ -140,6 +143,9 @@ public class DIYSystem {
 	}
 	
 	public void systemDisable() {
+		
+		systemEnabled = false;
+		
 		//station.baggingArea.disable();
 		baggingArea.disable();
 		station.cardReader.disable();
@@ -148,9 +154,16 @@ public class DIYSystem {
 		touchScreen.disable();
 		station.printer.disable();
 		
+		mainWindow.disableAddBagging();
+		mainWindow.disableBagging();
+		mainWindow.disablePaying();
+		mainWindow.disableScanning();
 	}
 	
 	public void systemEnable() {
+		
+		systemEnabled = true;
+		
 		baggingArea.enable();
 		//station.baggingArea.enable();
 		station.cardReader.enable();	
@@ -158,6 +171,15 @@ public class DIYSystem {
 		//station.touchScreen.enable();
 		touchScreen.enable();
 		station.printer.enable();
+		
+		mainWindow.enableAddBagging();
+		mainWindow.enableBagging();
+		mainWindow.enablePaying();
+		mainWindow.enableScanning();
+	}
+	
+	public boolean isEnabled() {
+		return systemEnabled;
 	}
 	
 	/**
@@ -475,10 +497,8 @@ public class DIYSystem {
 				systemDisable();
 				payWindowMessage("printer error- please wait for attendant");
 				
-				//notify attendant->send message, send printer
-				
-				
-				
+				//notify attendant->via ReceiptPrinterObserver
+
 				//send duplicate receipt to print at attendant station?
 				
 			//	e.printStackTrace();

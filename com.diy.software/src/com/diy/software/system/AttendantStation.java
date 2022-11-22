@@ -1,23 +1,14 @@
 package com.diy.software.system;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-
-import com.jimmyselectronics.AbstractDevice;
-import com.jimmyselectronics.AbstractDeviceListener;
 import com.jimmyselectronics.OverloadException;
-
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
 /**
@@ -36,7 +27,7 @@ public class AttendantStation{
 		system = new ArrayList<DIYSystem>();
 		
 		for(int i =0; i<c.length;i++) {
-			DIYSystem diy = new DIYSystem(c[i]);
+			DIYSystem diy = new DIYSystem(c[i], this);
 			system.add(diy);
 		}
 		
@@ -61,12 +52,11 @@ public class AttendantStation{
 	private JLabel totalLabel;
 	//private JLabel weightLabel;
 	private JLabel alertLabel;
-	private JLabel inkLabel;
-	private JLabel paperLabel;
 	
 	private JButton addInkButton;
 	private JButton addPaperButton;
 	private JButton enableStationButton;
+	private JButton disableStationButton;
 	
 	private JTextArea billTextArea;
 	
@@ -139,20 +129,22 @@ public class AttendantStation{
 		
 		printerPanel = new JPanel(new GridLayout(3,2));
 		addInkButton = new JButton("add ink");
+		addInkButton.setEnabled(false);
 		addPaperButton = new JButton("add paper");
+		addPaperButton.setEnabled(false);
 		enableStationButton = new JButton("unlock diy station");
+		enableStationButton.setEnabled(false);
+		disableStationButton = new JButton("lock diy station");
 	
-		alertLabel = new JLabel("printer out of paper/ink");
-		inkLabel = new JLabel("no ink");
-		paperLabel = new JLabel("no paper");
+		alertLabel = new JLabel("");
 		
 		//printerPanel.add(alertLabel);
+		printerPanel.add(disableStationButton);
+		printerPanel.add(enableStationButton);
 		printerPanel.add(addInkButton);
-		printerPanel.add(inkLabel);
 		printerPanel.add(addPaperButton);
-		printerPanel.add(paperLabel);
-		
-		itemPanel.add(printerPanel, BorderLayout.CENTER);
+		itemPanel.add(alertLabel, BorderLayout.CENTER);
+		itemPanel.add(printerPanel, BorderLayout.SOUTH);
 		leftPanel.add(itemPanel);	
 		frame.add(leftPanel);
 	}
@@ -165,31 +157,68 @@ public class AttendantStation{
 		});
 		
 		addPaperButton.addActionListener(e->{
-			paperLabel.setText("paper added");
 			try {
 				system.get(diyNum).getPrinter().addPaper(500);
 			} catch (OverloadException e1) {
-				paperLabel.setText("Paper Tray Full");
+				addPaperButton.setText("Paper Tray Full");
 				addPaperButton.setEnabled(false);
-				e1.printStackTrace();
+				//e1.printStackTrace();
 			}
 		});
 		
 		addInkButton.addActionListener(e->{
-			inkLabel.setText("ink added");
 			try {
-				system.get(diyNum).getPrinter().addInk(500);
+				system.get(diyNum).getPrinter().addInk(500000);
 			} catch (OverloadException e1) {
-				inkLabel.setText("Ink Full");
+				addInkButton.setText("Ink Full");
 				addInkButton.setEnabled(false);
-				e1.printStackTrace();
+				//e1.printStackTrace();
 			}
 		});
 		
 		enableStationButton.addActionListener(e->{
 			system.get(diyNum).systemEnable();
+			enableStationButton.setEnabled(false);
+			disableStationButton.setEnabled(true);
+			addInkButton.setEnabled(false);
+			addPaperButton.setEnabled(false);
+			
 		});
 		
+		disableStationButton.addActionListener(e->{
+			system.get(diyNum).systemDisable();
+			enableStationButton.setEnabled(true);
+			disableStationButton.setEnabled(false);
+		});
+		
+	}
+	
+	//updates the text in the alert label
+	public void sendAlert(String alert) {
+		alertLabel.setText(alert);
+	}
+	
+	
+	//maybe move these to ReceiptPrinterObserver?
+	//would need a way to access/enable buttons
+	public void lowInk() {
+		addInkButton.setEnabled(true);
+		if(!system.get(diyNum).isEnabled()) {
+			enableStationButton.setEnabled(true);
+			disableStationButton.setEnabled(false);
+		}
+	}
+	
+	public void lowPaper() {
+		addPaperButton.setEnabled(true);
+		if(!system.get(diyNum).isEnabled()) {
+			enableStationButton.setEnabled(true);
+			disableStationButton.setEnabled(false);
+		}
+	}
+	
+	public DIYSystem getCurrentDIY() {
+		return system.get(diyNum);
 	}
 
 }	
