@@ -14,14 +14,16 @@ public class AddBags implements ActionListener {
 	JLabel bagLabel, confirmLabel;
 	JButton purchaseBag;
 	DIYSystem station;
+	AttendantStation aStation;
 	BagDispenser bagDispenser;
 	
 	private JButton btnCloseWindow;
 	private JButton addOwnBags;
 	int bag_purchased;
 
-	public AddBags(DIYSystem sys) {
+	public AddBags(DIYSystem sys, AttendantStation asys) {
 		station = sys;
+		aStation = asys;
 		bagDispenser = sys.getBagDispenserData();
 		bagFrame = new JFrame("*****Add Bags*****");
 		bagFrame.setResizable(true);
@@ -97,6 +99,10 @@ public class AddBags implements ActionListener {
 						if (bagDispenser.isDispenserEmpty()) {
 							System.out.println("Empty");
 							sys.systemDisable();
+							aStation.noBags(bagDispenser.getAmountOfBags());
+							sys.outOfBags();
+							updateSystem();
+							bagFrame.dispose();
 							// TODO ATTENDANT STATION POPUP AND BLOCKS STATION
 							// ON WINDOW POPUP CLOSE, UPDATE PRICE
 						} else {
@@ -156,6 +162,8 @@ public class AddBags implements ActionListener {
 		station.enableScanningAndBagging();
 		bagFrame.dispose();
 	}
+	
+
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

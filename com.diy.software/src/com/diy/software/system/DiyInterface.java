@@ -319,4 +319,5 @@ public class DiyInterface extends Panel {
 	public void disableAddBagging() {
 		AddBag.setEnabled(false);
 	}
+	
 }

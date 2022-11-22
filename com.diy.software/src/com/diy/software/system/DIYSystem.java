@@ -1,14 +1,11 @@
 package com.diy.software.system;
 
-<<<<<<< HEAD
 import com.diy.hardware.DoItYourselfStationAR;
-=======
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
 import com.jimmyselectronics.EmptyException;
->>>>>>> refs/remotes/origin/print_receipt
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
 import com.jimmyselectronics.opeechee.BlockedCardException;
@@ -63,13 +60,9 @@ public class DIYSystem {
 	private boolean wasSuccessScan = false;
 	private boolean bagItemSuccess = false;
 	private boolean wasPaymentPosted = false;
-<<<<<<< HEAD
 	private boolean requestAttendant = true;
-
-=======
 	private boolean systemEnabled = true;
->>>>>>> refs/remotes/origin/print_receipt
-	
+
 	//added
 	private TouchScreen touchScreen;
 	private ElectronicScale baggingArea;
@@ -91,14 +84,11 @@ public class DIYSystem {
 		//Setup the DIY Station
 		//station = new DoItYourselfStation();
 		station = new DoItYourselfStationAR();
-<<<<<<< HEAD
 		station.plugIn();
 		station.turnOn();
 		
 		//Initialize a bag dispenser with 50 bags.
 		bagDispenser = new BagDispenser(50);
-=======
->>>>>>> refs/remotes/origin/print_receipt
 		
 		touchScreen = new TouchScreen();
 		baggingArea = new ElectronicScale(scaleMaximumWeightConfiguration, scaleSensitivityConfiguration);
@@ -173,7 +163,7 @@ public class DIYSystem {
 		station.printer.disable();
 		
 		mainWindow.disableAddBagging();
-		mainWindow.disableBagging();
+		//mainWindow.disableBagging();
 		mainWindow.disablePaying();
 		mainWindow.disableScanning();
 	}
@@ -191,7 +181,7 @@ public class DIYSystem {
 		station.printer.enable();
 		
 		mainWindow.enableAddBagging();
-		mainWindow.enableBagging();
+		//mainWindow.enableBagging();
 		mainWindow.enablePaying();
 		mainWindow.enableScanning();
 	}
@@ -373,7 +363,7 @@ public class DIYSystem {
 	 */
 	public void addBag() {
 		disableScanningAndBagging();
-		bagWindow = new AddBags(this);
+		bagWindow = new AddBags(this, attendant);
 	}
 	
 	public BagDispenser getBagDispenserData() {
@@ -596,8 +586,18 @@ public class DIYSystem {
 		}
 
 	}
+	
 	public boolean get_requestAttendant(){
 		return requestAttendant;
 	}
+	
+	public void outOfBags() {
+		mainWindow.setMsg("Out of bags. Please wait for attendant");
+	}
+	
+	public void bagsRefilled() {
+		mainWindow.setMsg("");
+	}
+	
 
 }

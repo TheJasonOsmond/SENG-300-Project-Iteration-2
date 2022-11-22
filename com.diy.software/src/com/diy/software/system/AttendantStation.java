@@ -10,6 +10,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * 
@@ -57,6 +59,7 @@ public class AttendantStation{
 	private JButton addPaperButton;
 	private JButton enableStationButton;
 	private JButton disableStationButton;
+	private JButton addBagButton;
 	
 	private JTextArea billTextArea;
 	
@@ -75,6 +78,7 @@ public class AttendantStation{
 		addListeners();
 		
 		frame.setVisible(true);
+		
 	}
 	
 		
@@ -84,7 +88,7 @@ public class AttendantStation{
 		frame.setMinimumSize(new Dimension(600,300));
 		frame.setMaximumSize(new Dimension(600,300));
 		frame.setLocationRelativeTo(null);
-		frame.setLayout(new GridLayout(0,2));
+		frame.getContentPane().setLayout(new GridLayout(0,2));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 	}
@@ -115,7 +119,7 @@ public class AttendantStation{
 		rightPanel.add(infoPanel, BorderLayout.SOUTH);
 
 		
-		frame.add(rightPanel);
+		frame.getContentPane().add(rightPanel);
 		
 	}
 	
@@ -135,18 +139,20 @@ public class AttendantStation{
 		enableStationButton = new JButton("unlock diy station");
 		enableStationButton.setEnabled(false);
 		disableStationButton = new JButton("lock diy station");
-	
+		addBagButton = new JButton("add bags");	
+		addBagButton.setEnabled(false);
 		alertLabel = new JLabel("");
-		
 		//printerPanel.add(alertLabel);
+		printerPanel.add(addBagButton);
 		printerPanel.add(disableStationButton);
 		printerPanel.add(enableStationButton);
 		printerPanel.add(addInkButton);
 		printerPanel.add(addPaperButton);
 		itemPanel.add(alertLabel, BorderLayout.CENTER);
 		itemPanel.add(printerPanel, BorderLayout.SOUTH);
+		printerPanel.add(addBagButton);
 		leftPanel.add(itemPanel);	
-		frame.add(leftPanel);
+		frame.getContentPane().add(leftPanel);
 	}
 	public void addListeners() {
 		
@@ -185,6 +191,15 @@ public class AttendantStation{
 			
 		});
 		
+		addBagButton.addActionListener(e->{
+			system.get(diyNum).getBagDispenserData().addBagsToDispenser(50);
+			sendAlert("");
+			enableStationButton.setEnabled(true);
+			disableStationButton.setEnabled(false);
+			addBagButton.setEnabled(false);
+			system.get(diyNum).bagsRefilled();
+		});
+		
 		disableStationButton.addActionListener(e->{
 			system.get(diyNum).systemDisable();
 			enableStationButton.setEnabled(true);
@@ -214,6 +229,24 @@ public class AttendantStation{
 		if(!system.get(diyNum).isEnabled()) {
 			enableStationButton.setEnabled(true);
 			disableStationButton.setEnabled(false);
+		}
+	}
+	
+	public void noBags(int difference) {
+		if (difference == 0) {
+			sendAlert("Please refill bag dispenser.");
+			addBagButton.setEnabled(true);
+			if(!system.get(diyNum).isEnabled()) {
+				enableStationButton.setEnabled(false);
+				disableStationButton.setEnabled(false);
+			}
+		} else {
+			sendAlert("Bag dispenser empty. Give customer " + Math.abs(difference) + " bag(s).");
+			addBagButton.setEnabled(true);
+			if(!system.get(diyNum).isEnabled()) {
+				enableStationButton.setEnabled(false);
+				disableStationButton.setEnabled(false);
+			}
 		}
 	}
 	
