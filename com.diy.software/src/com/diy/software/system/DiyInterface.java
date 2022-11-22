@@ -67,8 +67,11 @@ public class DiyInterface extends Panel {
 	//private JButton PayNow;
 	private JButton PayNowCredit;
 	private JButton PayNowDebit;
+	private JButton PayNowCash;
 	private JButton AddBag;
 	private JButton BaggingAreaButton;
+	private JButton ExitButton;
+	
 	private JTextArea TotalWeight;
 	//private JComboBox<?> comboBox;
 	private JComboBox<?> comboBoxCredit;
@@ -108,10 +111,8 @@ public class DiyInterface extends Panel {
 		PayNowCredit.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		PayNowCredit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				System.out.println("Pay Now button has been pressed");
 				sysRef.payByCreditStart((String) comboBoxCredit.getSelectedItem());
-				;
 			}
 		});
 		
@@ -122,10 +123,25 @@ public class DiyInterface extends Panel {
 		PayNowDebit.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		PayNowDebit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				System.out.println("Pay Now (Debit) button has been pressed");
 				sysRef.payByDebitStart((String) comboBoxDebit.getSelectedItem());
-				;
+			}
+		});
+		
+		PayNowCash = new JButton("Pay With Cash");
+		PayNowCash.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		PayNowCash.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Pay With Cash button has been pressed");
+				sysRef.payByCashStart();
+			}
+		});
+		
+		ExitButton = new JButton("Exit");
+		ExitButton.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		ExitButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				exit();
 			}
 		});
 		
@@ -202,9 +218,11 @@ public class DiyInterface extends Panel {
 				.createSequentialGroup().addContainerGap()
 				.addGroup(gl_panel.createParallelGroup(Alignment.LEADING, false)
 						.addComponent(PayNowDebit, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(PayNowCredit, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)		
+						.addComponent(PayNowCredit, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(PayNowCash, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(ScanItem, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(AddBag, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(ExitButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(BaggingAreaButton, GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
 						.addComponent(comboBoxDebit, Alignment.TRAILING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(comboBoxCredit, Alignment.TRAILING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -252,6 +270,13 @@ public class DiyInterface extends Panel {
 								GroupLayout.PREFERRED_SIZE)
 						.addComponent(TotalTxtField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
 								GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addComponent(PayNowCash, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addComponent(ExitButton, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
+				.addPreferredGap(ComponentPlacement.RELATED)
 				.addContainerGap()));
 		this.setLayout(gl_panel);
 	}
@@ -312,11 +337,13 @@ public class DiyInterface extends Panel {
 	public void enablePaying() {
 		PayNowCredit.setEnabled(true);
 		PayNowDebit.setEnabled(true);
+		PayNowCash.setEnabled(true);
 	}
 
 	public void disablePaying() {
 		PayNowCredit.setEnabled(false);
 		PayNowDebit.setEnabled(false);
+		PayNowCash.setEnabled(false);
 	}
 	
 	public void enableAddBagging() {
@@ -326,4 +353,8 @@ public class DiyInterface extends Panel {
 	public void disableAddBagging() {
 		AddBag.setEnabled(false);
 	}
+	private void exit() {
+		System.exit(0); 
+	}
+	
 }

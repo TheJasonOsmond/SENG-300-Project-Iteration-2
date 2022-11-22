@@ -27,12 +27,15 @@ public class PaymentCash {
 	JFrame payFrame;
 	JPanel payPanel;
 	JTextField pin;
-	JLabel instructLabel, confirmLabel;
+	JLabel instructLabel, confirmLabel, amountLabel;
 	JButton confirm;
+	JButton btnAdd1,btnAdd5;
 	DIYSystem station;
 	
 	private boolean payWasSuccessful = false;
 	private JButton btnCloseWindow;
+	private long amountInserted = 0;
+	
 
 	public PaymentCash(DIYSystem sys) {
 		//this is just copy paste from Payment.java for now...
@@ -57,20 +60,38 @@ public class PaymentCash {
 		instructLabel = new JLabel("Choose coins to insert");
 		instructLabel.setHorizontalAlignment(JLabel.CENTER);
 		payPanel.add(instructLabel);
-		pin = new JTextField();
-		pin.setHorizontalAlignment(SwingConstants.CENTER);
-		payPanel.add(pin);
 
 		//create two buttons: one creates a coin and asks DoItYourselfStation's CoinSlot to receive the coin. the coin has denomination long.valueOf(1L)
 		//the other one asks DoItYourselfStation's BanknoteSlot to receive a banknote. the banknote has denomination int[] { 1 }
 		
 		// pinLabel = new JLabel("PIN", SwingConstants.LEFT);
-		confirm = new JButton("Confirm Payment Details");
-
-		// When the Confrim button is pressed, tell the system to start the payment
-		// process
-		confirm.addActionListener(e -> {
-			station.payByCredit(pin.getText(), sys.getReceiptPrice());
+		
+		// Add 1 Button
+		btnAdd1 = new JButton("Add 1");		
+		btnAdd1.addActionListener(e -> { // When Add 1 is pressed, tell the system to start the payment process
+			System.out.println("Add 1 button pressed"); 
+			amountInserted++;
+			updateAmountLabel();
+		});
+		payPanel.add(btnAdd1);
+		
+		// Add 5 Button
+		btnAdd5 = new JButton("Add 5");		
+		btnAdd5.addActionListener(e -> { // When Add 1 is pressed, tell the system to start the payment process
+			System.out.println("Add 5button pressed"); 
+			amountInserted += 5;
+			updateAmountLabel();
+		});
+		payPanel.add(btnAdd5);
+		
+		amountLabel = new JLabel("Amount Inserted = $0");
+		amountLabel.setHorizontalAlignment(JLabel.CENTER);
+		payPanel.add(amountLabel);
+		
+		//Confirm button
+		confirm = new JButton("Confirm Payment Details");		
+		confirm.addActionListener(e -> { // When Confirm is pressed, tell the system to start the payment process
+			station.payByCash(amountInserted); 
 		});
 
 		payPanel.add(confirm);
@@ -98,6 +119,10 @@ public class PaymentCash {
 	public void setMessage(String msg) {
 		confirmLabel.setText(msg);
 	}
+	
+	private void updateAmountLabel() {
+		amountLabel.setText("Amount Inserted = $" + amountInserted);
+	}
 
 	public String getMessage() {
 		return this.confirmLabel.getText();
@@ -113,10 +138,12 @@ public class PaymentCash {
 
 	private void closeWindow() {
 		station.enableScanningAndBagging();
-		
-		if(!payWasSuccessful)
+		if(!payWasSuccessful) {
 			payFrame.dispose();
-		else
-			System.exit(0);
+			return;
+		}
+		//Pay was successful
+		payFrame.dispose();
+		
 	}
 }

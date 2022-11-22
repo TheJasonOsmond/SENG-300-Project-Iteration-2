@@ -341,7 +341,8 @@ public class DIYSystem {
 	 */
 	public void payByCashStart() {
 		if (amountToBePayed <= 0) { //maybe we should allow 0 cost payments and just finish the payment immediately if they pay for nothing
-			throw new InvalidArgumentSimulationException("cost must be greater than 0");
+			return;
+			//throw new InvalidArgumentSimulationException("cost must be greater than 0");
 		}
 		//Customer class does not contain any cash.
 		disableScanningAndBagging();

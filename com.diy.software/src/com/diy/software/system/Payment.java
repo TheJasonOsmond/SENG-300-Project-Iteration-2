@@ -185,9 +185,5 @@ public class Payment {
 		//Pay was successful
 		payFrame.dispose();
 		
-//		//Update the text for total amount due
-//		//Print the amount paid into the text box 
-		
-//		System.exit(0); 	//Exits the system after paying
 	}
 }
