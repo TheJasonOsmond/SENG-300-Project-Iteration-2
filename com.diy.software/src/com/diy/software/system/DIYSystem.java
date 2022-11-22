@@ -50,6 +50,8 @@ public class DIYSystem {
 	private boolean wasSuccessScan = false;
 	private boolean bagItemSuccess = false;
 	private boolean wasPaymentPosted = false;
+	private boolean requestAttendant = true;
+
 	
 	//added
 	private TouchScreen touchScreen;
