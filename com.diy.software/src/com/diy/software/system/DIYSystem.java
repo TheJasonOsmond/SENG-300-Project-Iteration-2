@@ -46,10 +46,7 @@ public class DIYSystem {
 	//Cusomter IO Windows
 	private Payment payWindow;
 	private PaymentDebit payWindowDebit;
-	
 	private Membership membershipWindow;
-
-	
 	private DiyInterface mainWindow;
 	private AddBags bagWindow;
 	
@@ -58,8 +55,10 @@ public class DIYSystem {
 	
 	//System Variables
 	private double amountToBePayed; //TOTAL AMOUNT OWED BY CUSTOMER, INCREMENTED ON SUCCESSFULL ITEM SCAN VIA BARCODESCANNEROBSERVER
+	
 	private double baggingAreaCurrentWeight;
 	private double baggingAreaExpectedWeight;
+	
 	private boolean wasSuccessScan = false;
 	private boolean bagItemSuccess = false;
 	private boolean wasPaymentPosted = false;
@@ -226,6 +225,7 @@ public class DIYSystem {
 	}
 	
 	public void disableScanningAndBagging() {
+
 		mainWindow.disableBagging();
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
@@ -315,6 +315,7 @@ public class DIYSystem {
 	
 	/**
 	 * @author simrat_benipal
+
 	 * Start the pay by debit process from the main window
 	 */
 	public void payByDebitStart(String type) {		
@@ -335,15 +336,10 @@ public class DIYSystem {
 	 * Start the Enter Membership Number process from the main window
 	 */
 	public void enterMembershipStart(String type) {		
-
-		//start the selection process
-		//customerData.customer.selectCard(type);
-		//Boot up the pin window
+		//Boot up the membership window
 		disableScanningAndBagging();
 		membershipWindow = new Membership(this);
 	}
-	
-	
 	
 	public void addBag() {
 		disableScanningAndBagging();
@@ -353,7 +349,23 @@ public class DIYSystem {
 	public void notifyBagWeightChange(String message) {
 		//TODO What kind of item do we add here?
 		//baggingArea.add(null);
+		updateWeightOnGUI(baggingAreaCurrentWeight);
 	}
+	
+	/**
+	 * @author Saja Abufarha
+	 * Gets error message to signals the Customer I/O regarding the weight discrepancy. 
+	 * Will be called by Roze's code
+	 * 
+	 * Updates the message on the GUI
+	 * @param message
+	 */
+	public void notifyWeightDiscrepancy(String message) {
+		mainWindow.updateWeightDiscrepancyLabel(message);
+
+	}
+	
+	
 	
 	/**
 	 * Finalizes the pay by credit sequenece
@@ -394,6 +406,7 @@ public class DIYSystem {
 	 * @param pin, the pin from customer input
 	 */
 	public void payByDebit(String pin) {
+
 		
 		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
 		try {
@@ -423,6 +436,7 @@ public class DIYSystem {
 		disablePayOnGui();
 	}
 	public void enterMembership(String membershipNumber) {
+
 		// TODO Auto-generated method stub
 		
 	}
@@ -432,6 +446,7 @@ public class DIYSystem {
 	 */
 	
 	public void disablePayOnGui() {
+
 		if(payWindow != null)
 			payWindow.disablePaying();
 		else if (payWindowDebit != null)
@@ -440,6 +455,7 @@ public class DIYSystem {
 	}
 	
 	public void payWindowMessage(String msg) {
+
 		if(payWindow != null)
 			payWindow.setMessage(msg);
 		else if (payWindowDebit != null)
@@ -515,6 +531,7 @@ public class DIYSystem {
 	
 	//method to allow attendant class to updated based on changes on customer end
 	public DiyInterface getMainWindow() {
+
 		return mainWindow;
 	}
 	
@@ -540,6 +557,7 @@ public class DIYSystem {
 	}
 	
 	public void updatePayStatusGUI() {
+
 		if(payWindow != null)
 			payWindow.updatePayStatus(this.wasPaymentPosted);
 		else if (payWindowDebit != null)

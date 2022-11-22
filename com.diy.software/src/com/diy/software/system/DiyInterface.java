@@ -71,6 +71,8 @@ public class DiyInterface extends Panel {
 	private JButton BaggingAreaButton;
 	private JButton enterMembership;
 	private JTextArea TotalWeight;
+	private JTextArea weightMSG;
+
 	//private JComboBox<?> comboBox;
 	private JComboBox<?> comboBoxCredit;
 	private JComboBox<?> comboBoxDebit;
@@ -211,6 +213,12 @@ public class DiyInterface extends Panel {
 		TotalWeight.setFont(new Font("Tahoma", Font.BOLD, 14));
 		TotalWeight.setText("Total Weight: ");
 
+		// Will be used to set the weight-discrepancy text 
+		weightMSG = new JTextArea();
+		weightMSG.setEditable(false);
+		weightMSG.setFont(new Font("Tahoma", Font.BOLD, 14));
+		weightMSG.setText(" ");
+		
 		/**
 		 * GUI Layout.
 		 */
@@ -229,7 +237,7 @@ public class DiyInterface extends Panel {
 						.addComponent(enterMembership, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						
 						
-						.addComponent(ErrorMSG).addComponent(TotalWeight))
+						.addComponent(ErrorMSG).addComponent(TotalWeight).addComponent(weightMSG))
 						.addPreferredGap(ComponentPlacement.UNRELATED)
 						.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
 						.addComponent(TotalTxtField, GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE)
@@ -244,6 +252,11 @@ public class DiyInterface extends Panel {
 						.addComponent(TotalWeight, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
 								GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
+						
+						.addComponent(weightMSG, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						
 						.addComponent(ErrorMSG, GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(BaggingAreaButton, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
@@ -278,6 +291,7 @@ public class DiyInterface extends Panel {
 								GroupLayout.PREFERRED_SIZE))
 				.addContainerGap()));
 		this.setLayout(gl_panel);
+
 	}
 
 	public void setamountToBePayedLabel(double amountToBePayed) {
@@ -299,7 +313,14 @@ public class DiyInterface extends Panel {
 	}
 
 	public void updateWeightLabel(double weight) {
+
 		TotalWeight.setText("Total Weight: " + Double.toString(weight) + " grams");
+	}
+	
+	// Will use to set the weight-discrepancy text
+	public void updateWeightDiscrepancyLabel(String msg) {
+		// get msg from DIYSystem
+		weightMSG.setText(msg);
 	}
 
 	public void setMsg(String msg) {
