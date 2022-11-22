@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7cce0a78-9ae7-43fb-927e-780be46e2a12" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/com.diy.software.tests/src/com/diy/software/tests/PayByDebitTests.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.software.tests/src/com/diy/software/tests/PayByCreditTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software.tests/src/com/diy/software/tests/PayByCreditTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/CustomerData.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/CustomerData.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DIYSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DIYSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DiyInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DiyInterface.java" afterDir="false" />
     </list>
@@ -10,6 +13,13 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -37,7 +47,7 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
   }
 }</component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.Start">
     <configuration name="Start" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.diy.software.system.Start" />
       <module name="SENG-300-Project-Iteration-2" />
@@ -51,9 +61,77 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PayByDebitTests.bankHoldReached" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SENG-300-Project-Iteration-2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.diy.software.tests.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.diy.software.tests" />
+      <option name="MAIN_CLASS_NAME" value="com.diy.software.tests.PayByDebitTests" />
+      <option name="METHOD_NAME" value="bankHoldReached" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PayByDebitTests.insufficientFunds" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SENG-300-Project-Iteration-2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.diy.software.tests.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.diy.software.tests" />
+      <option name="MAIN_CLASS_NAME" value="com.diy.software.tests.PayByDebitTests" />
+      <option name="METHOD_NAME" value="insufficientFunds" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PayByDebitTests.nothingOwed" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SENG-300-Project-Iteration-2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.diy.software.tests.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.diy.software.tests" />
+      <option name="MAIN_CLASS_NAME" value="com.diy.software.tests.PayByDebitTests" />
+      <option name="METHOD_NAME" value="nothingOwed" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PayByDebitTests.successfulPayment" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SENG-300-Project-Iteration-2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.diy.software.tests.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.diy.software.tests" />
+      <option name="MAIN_CLASS_NAME" value="com.diy.software.tests.PayByDebitTests" />
+      <option name="METHOD_NAME" value="successfulPayment" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Application.Start" />
+        <item itemvalue="JUnit.PayByDebitTests.bankHoldReached" />
+        <item itemvalue="JUnit.PayByDebitTests.insufficientFunds" />
+        <item itemvalue="JUnit.PayByDebitTests.nothingOwed" />
+        <item itemvalue="JUnit.PayByDebitTests.successfulPayment" />
       </list>
     </recent_temporary>
   </component>
@@ -78,5 +156,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/SENG_300_Project_Iteration_2$Start.ic" NAME="Start Coverage Results" MODIFIED="1669095194266" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
+      <FILTER>com.diy.software.system.*</FILTER>
+    </SUITE>
   </component>
 </project>

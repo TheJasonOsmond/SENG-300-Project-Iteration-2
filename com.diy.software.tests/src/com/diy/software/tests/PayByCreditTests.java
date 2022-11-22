@@ -36,7 +36,7 @@ public class PayByCreditTests {
 		// initiate pay by credit 
 		testSystem.resetReceiptPrice();
 		testSystem.changeReceiptPrice(1.0);
-		testSystem.payByCreditStart("VISA");		
+		testSystem.payByCreditStart(", VISA");
 		
 	}
 

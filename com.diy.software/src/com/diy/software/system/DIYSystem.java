@@ -97,7 +97,7 @@ public class DIYSystem {
 			e.printStackTrace();
 		}
 		
-		//Setup the required observers		
+		//Set up the required observers
 		cardReaderObs = new CardReaderObserver(this);
 		scannerObs = new BarcodeScannerObserver(this);
 		scaleObs = new ElectronicScaleObserver(this);
@@ -132,44 +132,22 @@ public class DIYSystem {
 		sendMsgToGui("Begin Scanning");
 	}
 	
-	public void systemDisable() {
-		//station.baggingArea.disable();
-		baggingArea.disable();
-		station.cardReader.disable();
-		station.scanner.disable();
-		//station.touchScreen.disable();
-		touchScreen.disable();
-		
-	}
-	
-	public void systemEnable() {
-		baggingArea.enable();
-		//station.baggingArea.enable();
-		station.cardReader.enable();	
-		station.scanner.enable();	
-		//station.touchScreen.enable();
-		touchScreen.enable();
-	}
-	
+
+
 	/**
-	 * Add Item By Scanning
-	 *
+	 * Scans an item.
 	 */
-	
 	public void systemStartScan() {
-		
 		//START SCAN BY SELECTING AN ITEM IF WE CAN
-			try { 
-				customerData.customer.selectNextItem();
-			} catch(NoSuchElementException e) {
-				sendMsgToGui("No more items in the cart...");
-				return;
-			}
-	
+		try {
+			customerData.customer.selectNextItem();
+		} catch(NoSuchElementException e) {
+			sendMsgToGui("No more items in the cart...");
+			return;
+		}
 		customerData.customer.scanItem();
 		systemDisable();
-		
-		//ON FAILED SCAN, DO NOT CYLCE TO NEXT ITEM, RESCAN THE SAME ONE
+		//ON FAILED SCAN, DO NOT CYCLE TO NEXT ITEM, RESCAN THE SAME ONE
 		if(!wasSuccessScan) {
 			customerData.customer.deselectCurrentItem();
 			systemEnable();
@@ -183,11 +161,10 @@ public class DIYSystem {
 	}
 	
 	/**
-	 * Start the bagging proccess for the user
+	 * Bags the Item for the user.
 	 */
 	public void StartBagging() {
 		//THE CUSTOMER BAGS THEIR ITEM (SIMULATED VIA BUTTON ON GUI)
-		//customerData.customer.placeItemInBaggingArea();
 		customerData.customer.placeItemInBaggingArea();
 		bagItemSuccess = true;
 		//cheat code
@@ -195,73 +172,22 @@ public class DIYSystem {
 			reEnableScanning();
 		}
 	}
-	
-	public void disableScanning() {
-		mainWindow.disableScanning();
-		mainWindow.disablePaying();
-		mainWindow.enableBagging();
-		mainWindow.setMsg("Bag Your Item:");
-	}
-	
-	public void reEnableScanning() {
-		systemEnable();
-		sendMsgToGui("Scan Next Item:");
-		mainWindow.enablePaying();
-		mainWindow.enableScanning();
-		mainWindow.disableBagging();
-	}
-	
-	public void disableScanningAndBagging() {
-		mainWindow.disableBagging();
-		mainWindow.disableScanning();
-		mainWindow.disablePaying();
-	}
-	
-	public void enableScanningAndBagging() {
-		mainWindow.enableScanning();
-		mainWindow.enablePaying();
-	}
-	
-	public boolean getWasPaymentPosted() {
-		return wasPaymentPosted;
-	}
-	
-	public void setWasPaymentPosted(boolean state) {
-		this.wasPaymentPosted = state;
-	}
-	
-	private void sendMsgToGui(String string) {
-		// TODO Auto-generated method stub
-		mainWindow.setMsg(string);
-	}
 
-	public double getCurrentExpectedWeight() {
-		return baggingAreaExpectedWeight;
-	}
-	
+
+
 	public double updateExpectedWeight(ElectronicScale baggingArea, double itemExpectedWeight) throws OverloadException {
 		baggingAreaCurrentWeight = baggingArea.getCurrentWeight();
 		baggingAreaExpectedWeight = baggingAreaCurrentWeight + itemExpectedWeight;
 		return baggingAreaExpectedWeight;
 	}
 	
-	public void updateExpectedWeight(double newItemWeight) {
-		baggingAreaExpectedWeight += newItemWeight;
-	}
-	
-	public void setScanStatus(boolean status) {
-		this.wasSuccessScan = status;
-	}
-	
-	public void bagItemSuccess(boolean status) {
-		this.bagItemSuccess = status;
-	}
+
 	
 	/** COME BACK TO THIS WHEN MULTIPLE PAYMENTS ARE OPTIONALS?
 	 * The customer has requested to pay via CREDIT CARD via the GUI interface (when implemented)
 	 * @param pin, the supplied pin from the GUI
 	 * @param type, the supplied type via the GUI
-	 * @throws Exception 
+	 * @throws Exception
 	 *
 	//public void startPayment() {
 	//	//Disable scanner from further input
@@ -272,360 +198,211 @@ public class DIYSystem {
 	//		//DO NOT START PAYMENT, NOTHING SCANNED IN
 	//		//TODO:Display error to the main gui and restart the scanner
 	//		reEnableScanner();
-	//	} else { 
+	//	} else {
 	//		//Card To Use
 	//		customerData.customer.selectCard("Visa");
 	//		payWindow = new Payment(this);
 	//	}
 	//}
-	
-	/****************PAY BY CREDIT CARD BELOW****************************************************
-	/**
-	 * Start the pay by credit process from the main window
-	 * @param type, passed from the maing window
 	 */
-	public void payByCreditStart(String type) {		
-		//Select the card given by type from the main window
-		
+
+	 /**
+	 * Starts the pay by credit process from the main window.
+	 * @param data The card type passed from the main window as String.
+	 */
+	public void payByCreditStart(String data) {
 		if(amountToBePayed <= 0 ) {
 			mainWindow.setMsg("Please Scan at least one item");
 			return; //TODO: display error that cant make payment on no money
 		} 
-		if(type == null)
-		{
+		if(data == null) {
 			mainWindow.setMsg("Please select a valid Card");
 			return; // display error that cant make payment on no money
 		}
-			
-		
-		String[] arrOfStr = type.split(",");
-		type = arrOfStr[1].substring(1);//removing the leading space
-		//else we start the selection process
+
+		String[] arrOfStr = data.split(",");
+		String type = arrOfStr[1].substring(1);//removing the leading space
+
 		for(Card card : this.getUserData().customer.wallet.cards)
-			if(card.kind.equals(type)) 
-			{
-				creditCardSelected = card;
-				//to be used in next methods
-				//in tap method
+			if(card.kind.equals(type)) {
+				creditCardSelected = card;//to be used in next methods (in tap method)
 				break;
 			}
-		
 		customerData.customer.selectCard(type);
-		//Boot up the pin window
 		disableScanningAndBagging();
-		payWindow = new Payment(this);
+		payWindow = new Payment(this); //Boot up the payment window
 	}
-	
+
 	/**
+	 * Starts the pay by credit process from the main window.
+	 * @param data The card type passed from the main window as String.
 	 * @author simrat_benipal
-	 * Start the pay by debit process from the main window
 	 */
-	public void payByDebitStart(String type) {
+	public void payByDebitStart(String data) {
 		if(amountToBePayed <= 0 ) {
 			mainWindow.setMsg("Please Scan at least one item");
 			return;
 		}
-		//Select the card given by type from the main window
-		if(type == null) {
+		if(data == null) {
 			mainWindow.setMsg("Please select a valid Card");
 			return; // display error that cant make payment on no money
 		}
 
-		String[] arrOfStr = type.split(",");
-		type = arrOfStr[1].substring(1);//remove the leading zero
+		String[] arrOfStr = data.split(",");
+		String type = arrOfStr[1].substring(1);//remove the leading zero
 		
 		for(Card card : this.getUserData().customer.wallet.cards)
-			if(card.kind.equals(type)) 
-			{
-				debitCardSelected = card;
-				//to be used in next methods
-				//in tap method
+			if(card.kind.equals(type)) {
+				debitCardSelected = card;//to be used in next methods (in tap method)
 				break;
 			}
-		System.out.println(debitCardSelected.isTapEnabled);
-		//else we start the selection process
-		//System.out.println("card selected = "+ type);
-		//Type contains "John Interac, Interac"
-		//split the string based on ',' and get the second 
-		//https://www.geeksforgeeks.org/split-string-java-examples/
-		//System.out.println("card selected = "+ arrOfStr[1].replace(" ", ""));
-		
-		//System.out.println(type);
+		//System.out.println(debitCardSelected.isTapEnabled);
 		customerData.customer.selectCard(type);
-		//Boot up the pin window
 		disableScanningAndBagging();
-		payWindowDebit = new PaymentDebit(this);
-	
+		payWindowDebit = new PaymentDebit(this); //Boot up the payment window
 	}
 	
 	/**
-	 * Finalizes the pay by credit sequenece
-	 * @param pin, the pin from customer input
-	 * @param payWindow, the paywindow that called this for displaying messages
+	 * Finalizes the pay by credit sequence.
+	 * @param pin The pin from customer input
 	 */
 	public void payByCredit(String pin) {
-		
-		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
-		try {
+		try { //Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
 			customerData.customer.insertCard(pin.intern());
 		} catch(BlockedCardException e) {
-			payWindow.setMessage("The card has been blocked!");
-			return;
-		} catch(IllegalStateException e) {
-			payWindow.setMessage(e.getMessage());
+			payWindow.setMessage("Payment Unsuccessful: Blocked Card, Please Try Again.");
 			return;
 		} catch(ChipFailureException e) {
-			payWindow.setMessage("Random Chip Failure! Try Again!!");
+			payWindow.setMessage("Payment Unsuccessful: Random Chip Failure, Please Try Again.");
 			return;
 		} catch(InvalidPINException e) {
-			payWindow.setMessage("Invalid Pin!");
+			payWindow.setMessage("Payment Unsuccessful: Invalid, Please Try Again.");
 			return;
-		} catch(IOException e) {
+		} catch(IllegalStateException | IOException e) {
 			payWindow.setMessage(e.getMessage());
 			return;
 		} finally {
 			station.cardReader.remove();
 		}
-
-		//WE GET HERE, THE PAYMENT WAS PROCESSED
-		disablePayOnGui();
+		disablePayOnGui(); //WE GET HERE, THE PAYMENT WAS PROCESSED
 	}
 	
 	/**
-	 * Finalizes the pay by Debit sequenece
-	 * @param pin, the pin from customer input
-	 * @param payWindow, the paywindow that called this for displaying messages
+	 * Finalizes the pay by Debit sequence.
+	 * @param pin The pin from customer input.
 	 */
 	public void payByDebit(String pin) {
-		//normal insertion of card
-		
-		
-		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
-		try {
+		try { //Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
 			customerData.customer.insertCard(pin.intern());
 		} catch(BlockedCardException e) {
-			payWindowDebit.setMessage("The card has been blocked!");
-			return;
-		} catch(IllegalStateException e) {
-			payWindowDebit.setMessage(e.getMessage());
+			payWindowDebit.setMessage("Payment Unsuccessful: Blocked Card, Please Try Again.");
 			return;
 		} catch(ChipFailureException e) {
-			payWindowDebit.setMessage("Random Chip Failure! Try Again!!");
+			payWindowDebit.setMessage("Payment Unsuccessful: Random Chip Failure, Please Try Again.");
 			return;
 		} catch(InvalidPINException e) {
-			payWindowDebit.setMessage("Invalid Pin!");
+			payWindowDebit.setMessage("Payment Unsuccessful: Invalid, Please Try Again.");
 			return;
-		} catch(IOException e) {
+		} catch(IllegalStateException | IOException e) {
 			payWindowDebit.setMessage(e.getMessage());
 			return;
 		} finally {
 			station.cardReader.remove();
 		}
-
-		//WE GET HERE, THE PAYMENT WAS PROCESSED
-		disablePayOnGui();
+		disablePayOnGui(); //WE GET HERE, THE PAYMENT WAS PROCESSED
 	}
 	
 	/**
-	 * Finalizes the pay by Debit sequenece (using TAP)
+	 * Finalizes the pay by Debit sequence using TAP.
 	 * @author simrat_benipal
-	 * @param nothing, we can tap without PIN
 	 */
-	
-	public void payByDebitTap() 
-	{
-		
-		//check if the card has tap enabled or not
-		if(!debitCardSelected.isTapEnabled)
-		{
-			payWindowDebit.setMessage("This card cannot tap!");
+	public void payByDebitTap() {
+		if(!debitCardSelected.isTapEnabled) { //check if the card has tap enabled or not
+			payWindowDebit.setMessage("Payment Unsuccessful: Tap function not available.");
 			return;
+		} else { //Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+			try {
+				station.cardReader.tap(debitCardSelected);
+			} catch(BlockedCardException e) {
+				payWindowDebit.setMessage("Payment Unsuccessful: Blocked Card, Please Try Again.");
+				return;
+			} catch(ChipFailureException e) {
+				payWindowDebit.setMessage("Payment Unsuccessful: Random Tap Failure, Please Try Again.");
+				return;
+			} catch(IllegalStateException | IOException e) {
+				payWindowDebit.setMessage(e.getMessage());
+				return;
+			}
 		}
-		else
-		{
-		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
-		
-		try {
-			//a card has been selected because of payByDebitStart() method
-			//so just tap the selected card
-			station.cardReader.tap(debitCardSelected); //method in CardReader.Java
-			//every station has a CardReader Object
-			//This Card Reader should be powered-up and running
-			//this call will notify that the card is tapped in the CardReaderObserver
-			
-			//if thiis method returned success (based on probabilities of TapFailure
-			//then we execute 'notifyCardDataRead(data), method in listener 
-			
-			//and this return CardData Object
-		} catch(BlockedCardException e) 
-		{
-			payWindowDebit.setMessage("The card has been blocked!");
-			return;
-		} catch(IllegalStateException e) 
-		{
-			payWindowDebit.setMessage(e.getMessage());
-			return;
-		} catch(ChipFailureException e) 
-		{
-			payWindowDebit.setMessage("Random Tap Failure! Try Again!!");
-			return;
-		} catch(IOException e) 
-		{
-			payWindowDebit.setMessage(e.getMessage());
-			return;
-		}
-		}
-		//WE GET HERE, THE PAYMENT WAS PROCESSED
-		disablePayOnGui();
+		disablePayOnGui(); //WE GET HERE, THE PAYMENT WAS PROCESSED
 	}
 	
 	/**
-	 * Finalizes the pay by Debit sequenece (using TAP)
+	 * Finalizes the pay by Debit sequence using swipe.
 	 * @author simrat_benipal
-	 * @param nothing, we can tap without PIN
 	 */
-	
-	public void payByDebitSwipe() 
-	{
-		
-		
-		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
-		try {
-			//a card has been selected because of payByDebitStart() method
-			//so just swipe the selected card
+	public void payByDebitSwipe() {
+		try { //Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
 			station.cardReader.swipe(debitCardSelected);
-			//method in CardReader.Java
-			//every station has a CardReader Object
-			//This Card Reader should be powered-up and running
-			//this call will notify that the card is swipped in the CardReaderObserver
-			
-			//if this method returned success (based on probabilities of SWIPE Failure
-			//then we execute 'notifyCardDataRead(data), method in listener (already implemented in our listener/obs) 
-			
-			//and this return CardData Object
-		} catch(BlockedCardException e) 
-		{
-			payWindowDebit.setMessage("The card has been blocked!");
+		} catch(BlockedCardException e) {
+			payWindowDebit.setMessage("Payment Unsuccessful: Blocked Card, Please Try Again.");
 			return;
-		} catch(IllegalStateException e) 
-		{
-			payWindowDebit.setMessage(e.getMessage());
+		} catch(ChipFailureException e) {
+			payWindowDebit.setMessage("Payment Unsuccessful: Random Swipe Failure, Please Try Again.");
 			return;
-		} catch(ChipFailureException e) 
-		{
-			payWindowDebit.setMessage("Random Swipe Failure! Try Again!!");
-			return;
-		} catch(IOException e) 
-		{
+		} catch(IllegalStateException | IOException e) {
 			payWindowDebit.setMessage(e.getMessage());
 			return;
 		}
-		//WE GET HERE, THE PAYMENT WAS PROCESSED
-		disablePayOnGui();
+		disablePayOnGui(); //WE GET HERE, THE PAYMENT WAS PROCESSED
 	}
-	
-	
-	/**Tap and Swipe for CREDIT CARDS
-	 * @author simrat_benipal 
-	 * Iteration 2.0 
-	 */
-	public void payByCreditTap() 
-	{
-		//check if the card has tap enabled or not
-		if(!creditCardSelected.isTapEnabled)
-		{
-			payWindowDebit.setMessage("This card cannot tap!");
-			return;
-		}
-		else
-		{
-		
-		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
-		try {
-			//a card has been selected because of payByCreditStart() method
-			//so just tap the selected card
-			station.cardReader.tap(creditCardSelected); //method in CardReader.Java
-			//every station has a CardReader Object
-			//This Card Reader should be powered-up and running
-			//this call will notify that the card is tapped in the CardReaderObserver
-			
-			//if this method returned success (based on probabilities of TapFailure
-			//then we execute 'notifyCardDataRead(data), method in listener 
-			
-			//and this return CardData Object
-		} catch(BlockedCardException e) 
-		{
-			payWindowDebit.setMessage("The card has been blocked!");
-			return;
-		} catch(IllegalStateException e) 
-		{
-			payWindowDebit.setMessage(e.getMessage());
-			return;
-		} catch(ChipFailureException e) 
-		{
-			payWindowDebit.setMessage("Random Tap Failure! Try Again!!");
-			return;
-		} catch(IOException e) 
-		{
-			payWindowDebit.setMessage(e.getMessage());
-			return;
-		}
-		}
-		//WE GET HERE, THE PAYMENT WAS PROCESSED
-		disablePayOnGui();
-	}
-	
+
 	/**
-	 * Finalizes the pay by Debit sequenece (using TAP)
+	 * Finalizes the pay by Credit sequence using TAP.
 	 * @author simrat_benipal
-	 * @param nothing, we can tap without PIN
 	 */
-	
-	public void payByCreditSwipe() 
-	{
-		
-		
-		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
-		try {
-			//a card has been selected because of payByDebitStart() method
-			//so just swipe the selected card
+	public void payByCreditTap() {
+		if(!creditCardSelected.isTapEnabled) { //check if the card has tap enabled or not
+			payWindowDebit.setMessage("Payment Unsuccessful: Tap function not available.");
+			return;
+		} else {
+			try { //Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+				station.cardReader.tap(creditCardSelected);
+			} catch(BlockedCardException e) {
+				payWindowDebit.setMessage("Payment Unsuccessful: Blocked Card, Please Try Again.");
+				return;
+			} catch(ChipFailureException e) {
+				payWindowDebit.setMessage("Payment Unsuccessful: Random Tap Failure, Please Try Again.");
+				return;
+			} catch(IllegalStateException | IOException e) {
+				payWindowDebit.setMessage(e.getMessage());
+				return;
+			}
+		}
+		disablePayOnGui(); //WE GET HERE, THE PAYMENT WAS PROCESSED
+	}
+
+	/**
+	 * Finalizes the pay by Credit sequence using swipe.
+	 * @author simrat_benipal
+	 */
+	public void payByCreditSwipe() {
+		try { //Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
 			station.cardReader.swipe(creditCardSelected);
-			//method in CardReader.Java
-			//every station has a CardReader Object
-			//This Card Reader should be powered-up and running
-			//this call will notify that the card is swipped in the CardReaderObserver
-			
-			//if this method returned success (based on probabilities of SWIPE Failure
-			//then we execute 'notifyCardDataRead(data), method in listener (already implemented in our listener/obs) 
-			
-			//and this return CardData Object
-		} catch(BlockedCardException e) 
-		{
-			payWindowDebit.setMessage("The card has been blocked!");
+		} catch(BlockedCardException e) {
+			payWindowDebit.setMessage("Payment Unsuccessful: Blocked Card, Please Try Again.");
 			return;
-		} catch(IllegalStateException e) 
-		{
-			payWindowDebit.setMessage(e.getMessage());
+		} catch(ChipFailureException e) {
+			payWindowDebit.setMessage("Payment Unsuccessful: Random Swipe Failure, Please Try Again.");
 			return;
-		} catch(ChipFailureException e) 
-		{
-			payWindowDebit.setMessage("Random Swipe Failure! Try Again!!");
-			return;
-		} catch(IOException e) 
-		{
+		} catch(IllegalStateException | IOException e) {
 			payWindowDebit.setMessage(e.getMessage());
 			return;
 		}
-		//WE GET HERE, THE PAYMENT WAS PROCESSED
-		disablePayOnGui();
+		disablePayOnGui(); //WE GET HERE, THE PAYMENT WAS PROCESSED
 	}
 	
-	
-	/**
-	 * send a message to the pay window for showing to the customer
-	 * @param msg
-	 */
-	
+
 	public void disablePayOnGui() {
 		if(payWindow != null)
 			payWindow.disablePaying();
@@ -633,14 +410,29 @@ public class DIYSystem {
 			payWindowDebit.disablePaying();
 			
 	}
-	
+
+	/**
+	 * Sends a message to the pay window to show to the customer.
+	 * @param msg The message to be displayed.
+	 */
 	public void payWindowMessage(String msg) {
 		if(payWindow != null)
 			payWindow.setMessage(msg);
 		else if (payWindowDebit != null)
 			payWindowDebit.setMessage(msg);
 	}
-		
+
+	public void updateExpectedWeight(double newItemWeight) {
+		baggingAreaExpectedWeight += newItemWeight;
+	}
+
+	public void setScanStatus(boolean status) {
+		this.wasSuccessScan = status;
+	}
+
+	public void bagItemSuccess(boolean status) {
+		this.bagItemSuccess = status;
+	}
 	
 	/**
 	 * retrieve the current customer using the station
@@ -659,8 +451,8 @@ public class DIYSystem {
 	}
 
 	/**
-	 * update the price of the current receipt.
-	 * @param price the amount to be added to the price.
+	 * Adds the specified amount to the current receipt total.
+	 * @param price The amount to be added to the price.
 	 */
 	public void changeReceiptPrice(double price) {
 		amountToBePayed += price;
@@ -669,10 +461,10 @@ public class DIYSystem {
 	
 
 	/**
-	 * reset receipt after payment done?
+	 * Resets the receipt price (total) to 0.
 	 */
 	public void resetReceiptPrice() {
-		amountToBePayed = 0;
+		amountToBePayed = 0.0;
 	}
 	
 	public void setPriceOnGui() {
@@ -696,6 +488,68 @@ public class DIYSystem {
 			payWindow.updatePayStatus(this.wasPaymentPosted);
 		else if (payWindowDebit != null)
 			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
+	}
+
+	public void systemDisable() {
+		//station.baggingArea.disable();
+		baggingArea.disable();
+		station.cardReader.disable();
+		station.scanner.disable();
+		//station.touchScreen.disable();
+		touchScreen.disable();
+
+	}
+
+	public void systemEnable() {
+		baggingArea.enable();
+		//station.baggingArea.enable();
+		station.cardReader.enable();
+		station.scanner.enable();
+		//station.touchScreen.enable();
+		touchScreen.enable();
+	}
+
+	public void disableScanning() {
+		mainWindow.disableScanning();
+		mainWindow.disablePaying();
+		mainWindow.enableBagging();
+		mainWindow.setMsg("Bag Your Item:");
+	}
+
+	public void reEnableScanning() {
+		systemEnable();
+		sendMsgToGui("Scan Next Item:");
+		mainWindow.enablePaying();
+		mainWindow.enableScanning();
+		mainWindow.disableBagging();
+	}
+
+	public void disableScanningAndBagging() {
+		mainWindow.disableBagging();
+		mainWindow.disableScanning();
+		mainWindow.disablePaying();
+	}
+
+	public void enableScanningAndBagging() {
+		mainWindow.enableScanning();
+		mainWindow.enablePaying();
+	}
+
+	public boolean getWasPaymentPosted() {
+		return wasPaymentPosted;
+	}
+
+	public void setWasPaymentPosted(boolean state) {
+		this.wasPaymentPosted = state;
+	}
+
+	private void sendMsgToGui(String string) {
+		// TODO Auto-generated method stub
+		mainWindow.setMsg(string);
+	}
+
+	public double getCurrentExpectedWeight() {
+		return baggingAreaExpectedWeight;
 	}
 
 

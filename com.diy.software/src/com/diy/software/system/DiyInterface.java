@@ -2,21 +2,16 @@ package com.diy.software.system;
 
 import java.awt.Font;
 import java.awt.Panel;
-
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-
 import java.awt.Color;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-
 import java.util.ArrayList;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
-
 import com.diy.hardware.BarcodedProduct;
 import com.jimmyselectronics.opeechee.Card;
 
@@ -117,11 +112,11 @@ public class DiyInterface extends Panel {
 		ArrayList<String> debitCardsSB = new ArrayList<>();
 		for(Card card : sysRef.getUserData().customer.wallet.cards) {
 			if(card.kind.contains("VISA") || card.kind.contains("Master")) {
-				String data = card.cardholder + " , " + card.kind;
+				String data = card.cardholder + ", " + card.kind;
 				creditCardsSB.add(data);
 			}
 			if(card.kind.contains("Debit") || card.kind.contains("Interac")) {
-				String data = card.cardholder + " , " + card.kind;
+				String data = card.cardholder + ", " + card.kind;
 				debitCardsSB.add(data);
 			}
 		}

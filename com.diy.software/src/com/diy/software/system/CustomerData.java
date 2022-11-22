@@ -61,6 +61,7 @@ public class CustomerData {
 
 		customer.wallet.cards.add(new Card("VISA", "1234567890123456", "John Doe", "909", "0000".intern(), true, true));
 		customer.wallet.cards.add(new Card("Master Card", "6543210987654321", "John Doe", "415", "1111".intern(), true, true));
+
 		customer.wallet.cards.add(new Card("A Debit Card", "123123123123123", "John Debit", "123", "1234".intern(), true, true));
 		customer.wallet.cards.add(new Card("Interac", "456456456456456", "John Interac", "123", "1234".intern(), true, true));	
 		//customer.wallet.cards.add(new Card("<No Chip>Interac", "456456456456420", "John Interac (Blocked)", "123", "1234".intern(), true, false));	
