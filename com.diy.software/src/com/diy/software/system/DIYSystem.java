@@ -56,6 +56,7 @@ public class DIYSystem {
 	//added
 	private TouchScreen touchScreen;
 	private ElectronicScale baggingArea;
+	private BagDispenser bagDispenser;
 	private static double scaleMaximumWeightConfiguration = 5000.0;
 	private static double scaleSensitivityConfiguration = 0.5;
 	
@@ -74,6 +75,10 @@ public class DIYSystem {
 		station = new DoItYourselfStationAR();
 		station.plugIn();
 		station.turnOn();
+		
+		//Initialize a bag dispenser with 50 bags.
+		bagDispenser = new BagDispenser(50);
+		
 		touchScreen = new TouchScreen();
 		baggingArea = new ElectronicScale(scaleMaximumWeightConfiguration, scaleSensitivityConfiguration);
 		baggingArea.plugIn();
@@ -315,9 +320,17 @@ public class DIYSystem {
 		payWindowDebit = new PaymentDebit(this);
 	}
 	
+	/**
+	 * @author brandonn38
+	 * Start the process of adding a bag
+	 */
 	public void addBag() {
 		disableScanningAndBagging();
 		bagWindow = new AddBags(this);
+	}
+	
+	public BagDispenser getBagDispenserData() {
+		return this.bagDispenser;
 	}
 	
 	public void notifyBagWeightChange(String message) {

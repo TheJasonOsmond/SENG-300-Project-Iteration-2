@@ -14,15 +14,15 @@ public class AddBags implements ActionListener {
 	JLabel bagLabel, confirmLabel;
 	JButton purchaseBag;
 	DIYSystem station;
+	BagDispenser bagDispenser;
 	
 	private JButton btnCloseWindow;
 	private JButton addOwnBags;
 	int bag_purchased;
-	double bag_weight = 0.10;
-	double bag_price = 0.10;
 
 	public AddBags(DIYSystem sys) {
 		station = sys;
+		bagDispenser = sys.getBagDispenserData();
 		bagFrame = new JFrame("*****Add Bags*****");
 		bagFrame.setResizable(true);
 		bagFrame.setUndecorated(false);
@@ -91,17 +91,20 @@ public class AddBags implements ActionListener {
 
 					int value1 = ((Integer)confirm_bag_amount.getValue()).intValue();
 					if (value1 == JOptionPane.OK_OPTION) {
-						//Update expected weight and price
-						double new_item_weight;
-						new_item_weight = bag_purchased * bag_weight;
-						double total_bag_price;
-						total_bag_price = bag_purchased * bag_price;
-						station.updateExpectedWeight(new_item_weight);
-						//TODO Should we update item list in the main system? Because we need the attendant station block to appear.
-						station.updateGUIItemList("Store bag", total_bag_price, new_item_weight);
-						station.notifyBagWeightChange("Bags have been added by customer");
-						System.out.println("Bags have been added by customer");
-						closeWindow();
+						
+						bagDispenser.dispense(bag_purchased);
+						
+						if (bagDispenser.isDispenserEmpty()) {
+							System.out.println("Empty");
+							sys.systemDisable();
+							// TODO ATTENDANT STATION POPUP AND BLOCKS STATION
+							// ON WINDOW POPUP CLOSE, UPDATE PRICE
+						} else {
+							updateSystem();
+							closeWindow();
+						}
+						
+						
 					} else if (value1 == JOptionPane.CANCEL_OPTION) {
 						System.out.println("Operation Canceled.");
 						closeWindow();
@@ -163,5 +166,12 @@ public class AddBags implements ActionListener {
 	}
 	public int getBag_purchased(){
 		return bag_purchased;
+	}
+	
+	public void updateSystem() {
+		station.updateExpectedWeight(bagDispenser.calcTotalBagWeight(bag_purchased));
+		station.updateGUIItemList("Store bag", bagDispenser.calcTotalBagPrice(bag_purchased), bagDispenser.calcTotalBagWeight(bag_purchased));
+		station.notifyBagWeightChange("Bags have been added by customer");
+		System.out.println("Bags have been added by customer");
 	}
 }
