@@ -1,14 +1,14 @@
 package com.diy.software.system;
 
-<<<<<<< HEAD
+
 import com.diy.hardware.DoItYourselfStationAR;
-=======
+
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
 import com.jimmyselectronics.EmptyException;
->>>>>>> refs/remotes/origin/print_receipt
+
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
 import com.jimmyselectronics.opeechee.BlockedCardException;
@@ -63,12 +63,12 @@ public class DIYSystem {
 	private boolean wasSuccessScan = false;
 	private boolean bagItemSuccess = false;
 	private boolean wasPaymentPosted = false;
-<<<<<<< HEAD
+
 	private boolean requestAttendant = true;
 
-=======
+
 	private boolean systemEnabled = true;
->>>>>>> refs/remotes/origin/print_receipt
+
 	
 	//added
 	private TouchScreen touchScreen;
@@ -91,14 +91,13 @@ public class DIYSystem {
 		//Setup the DIY Station
 		//station = new DoItYourselfStation();
 		station = new DoItYourselfStationAR();
-<<<<<<< HEAD
+
 		station.plugIn();
 		station.turnOn();
 		
 		//Initialize a bag dispenser with 50 bags.
 		bagDispenser = new BagDispenser(50);
-=======
->>>>>>> refs/remotes/origin/print_receipt
+
 		
 		touchScreen = new TouchScreen();
 		baggingArea = new ElectronicScale(scaleMaximumWeightConfiguration, scaleSensitivityConfiguration);
