@@ -469,5 +469,28 @@ public class DIYSystem {
 		else if (payWindowDebit != null)
 			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
 	}
+	
+	public void weightDiscrepancy(ElectronicScale baggingArea, double currentWeight) throws OverloadException {
+		//Compare current weight vs previous weight
+		double expected_weight = getCurrentExpectedWeight();
+		//double current_weight = baggingArea.getCurrentWeight();
+
+		if (expected_weight < currentWeight){
+			//Station to disabled scanning
+			station.scanner.disable();
+			//GUI to disable scanning and bagging
+			disableScanningAndBagging();
+			//Signal attendant to help
+			requestAttendant = true;
+		}
+		else if (expected_weight == currentWeight){
+			station.scanner.enable();
+			enableScanningAndBagging();
+		}
+
+	}
+	public boolean get_requestAttendant(){
+		return requestAttendant;
+	}
 
 }
