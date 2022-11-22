@@ -2,6 +2,7 @@ package com.diy.software.tests;
 
 import ca.ucalgary.seng300.simulation.SimulationException;
 import com.diy.hardware.DoItYourselfStationAR;
+import com.diy.software.system.AttendantStation;
 import com.diy.software.system.CardReaderObserver;
 import com.diy.software.system.CustomerData;
 import com.diy.software.system.DIYSystem;
@@ -18,6 +19,7 @@ public class PayByCreditTests {
 	private CustomerData testCustomerData;
 	//private DoItYourselfStation selfCheckout;
 	private DoItYourselfStationAR selfCheckout;
+	private AttendantStation attendantStation;
 	private CardReaderObserver cardReaderObs;
 	
 	
@@ -25,7 +27,7 @@ public class PayByCreditTests {
 	public void setUp() throws Exception {
 		
 		testCustomerData = new CustomerData();
-		testSystem = new DIYSystem(testCustomerData);
+		testSystem = new DIYSystem(testCustomerData, attendantStation);
 		
 		// create listener
 		cardReaderObs = new CardReaderObserver(testSystem);
