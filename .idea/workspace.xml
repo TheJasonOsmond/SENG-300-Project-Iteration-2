@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cce0a78-9ae7-43fb-927e-780be46e2a12" name="Changes" comment="" />
+    <list default="true" id="7cce0a78-9ae7-43fb-927e-780be46e2a12" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.hardware_0.3/src/com/jimmyselectronics/necchi/SampleBarcodeScannerDemo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.hardware_0.3/src/com/jimmyselectronics/necchi/SampleBarcodeScannerListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/AddBags.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/AddBags.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/CustomerData.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/CustomerData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DIYSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DIYSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/PaymentDebit.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/PaymentDebit.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -18,24 +27,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Downloaded.Files.Path.Enabled": "false",
-    "Repository.Attach.Annotations": "false",
-    "Repository.Attach.JavaDocs": "false",
-    "Repository.Attach.Sources": "false",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.lookFeel"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_directory_selection&quot;: &quot;C:/Users/ahnaf/IdeaProjects/SENG-300-Project-Iteration-2/com.diy.software.tests/src&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="Start" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.diy.software.system.Start" />
-      <module name="Project" />
+      <module name="SENG-300-Project-Iteration-2" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.diy.software.system.*" />
