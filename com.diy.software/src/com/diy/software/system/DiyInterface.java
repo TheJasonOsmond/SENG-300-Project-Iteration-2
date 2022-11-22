@@ -153,7 +153,7 @@ public class DiyInterface extends Panel {
 			public void actionPerformed(ActionEvent e) {
 
 				System.out.println("Enter Membership Number button has been pressed");
-				sysRef.payByCreditStart((String) comboBoxCredit.getSelectedItem());
+				sysRef.enterMembershipStart((String) comboBoxCredit.getSelectedItem());
 				;
 			}
 		});
@@ -337,7 +337,6 @@ public class DiyInterface extends Panel {
 	}
 	
 	public void disableMembership() {
-		enterMembership.setEnabled(false);
 		enterMembership.setEnabled(false);
 	}
 	

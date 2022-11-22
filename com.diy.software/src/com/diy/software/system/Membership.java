@@ -4,6 +4,7 @@ package com.diy.software.system;
 import java.awt.GridLayout;
 
 
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -59,11 +60,11 @@ public class Membership {
 
 		// When the Confirm button is pressed, tell the system to start 
 		
-		/**
-		 * Add membership method to station 
+		
+		//Add membership method to station 
 		confirm.addActionListener(e -> {
-			station.mmbership(memberNumber.getText());
-		});**/
+			station.enterMembership(memberNumber.getText());
+		});
 
 		memberPanel.add(confirm);
 
