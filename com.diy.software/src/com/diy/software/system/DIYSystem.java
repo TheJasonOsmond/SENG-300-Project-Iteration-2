@@ -63,7 +63,6 @@ public class DIYSystem {
 	private boolean requestAttendant = true;
 	private boolean systemEnabled = true;
 
-	//added
 	private TouchScreen touchScreen;
 	private ElectronicScale baggingArea;
 	private BagDispenser bagDispenser;
@@ -84,6 +83,7 @@ public class DIYSystem {
 		//Setup the DIY Station
 		//station = new DoItYourselfStation();
 		station = new DoItYourselfStationAR();
+
 		station.plugIn();
 		station.turnOn();
 		
