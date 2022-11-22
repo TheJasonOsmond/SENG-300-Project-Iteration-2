@@ -37,30 +37,6 @@ public class DiyInterface extends Panel {
 	ArrayList<String> items = new ArrayList<String>();
 	ArrayList<BarcodedProduct> products = new ArrayList<BarcodedProduct>();
 	private DIYSystem sysRef;
-
-	/**
-	 * Create the application.
-	 */
-	public DiyInterface(DIYSystem s) {
-		sysRef = s;
-		initialize();
-	}
-
-	public void addUIItem(String item) {
-		this.items.add(item);
-	}
-
-	public void addUIProduct(BarcodedProduct product) {
-		this.products.add(product);
-	}
-
-	public ArrayList<BarcodedProduct> getCurrentProducts() {
-		return (this.products);
-	}
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	int count = 0;
 	private JTextField TotalTxtField;
 	private JTextArea ErrorMSG;
@@ -75,10 +51,21 @@ public class DiyInterface extends Panel {
 	private JComboBox<?> comboBoxDebit;
 	private JTextPane ItemList;
 
+	/**
+	 * Create the application.
+	 */
+	public DiyInterface(DIYSystem s) {
+		sysRef = s;
+		initialize();
+	}
+
+
+	/**
+	 * Initialize the contents of the frame.
+	 * @author Simrat Benipal
+	 */
 	public void initialize() {
-		/**
-		 * Creates Error text area.
-		 */
+		//Create Error text and response area.
 		ErrorMSG = new JTextArea();
 		ErrorMSG.setWrapStyleWord(true);
 		ErrorMSG.setBackground(new Color(255, 255, 255));
@@ -86,9 +73,7 @@ public class DiyInterface extends Panel {
 		ErrorMSG.setLineWrap(true);
 		ErrorMSG.setFont(new Font("Tahoma", Font.BOLD, 20));
 
-		/**
-		 * Action of "Scan Item" Button.
-		 */
+		//Create Scan Item Button.
 		ScanItem = new JButton("Scan Item");
 		ScanItem.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		ScanItem.addActionListener(new ActionListener() {
@@ -99,11 +84,7 @@ public class DiyInterface extends Panel {
 			}
 		});
 
-		/**
-		 * Creates Pay Now button.
-		 * Iteration II Updated PayNow to PayNowCredit (variable name change
-		 * by Simrat Benipal
-		 */
+		//Create Pay Now By Credit button.
 		PayNowCredit = new JButton("Pay Now By Credit");
 		PayNowCredit.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		PayNowCredit.addActionListener(new ActionListener() {
@@ -114,10 +95,8 @@ public class DiyInterface extends Panel {
 				;
 			}
 		});
-		
-		/** @author simrat_benipal
-		 * Added in Iteration II for debit card payments
-		 */
+
+		//Create Pay Now By Debit button.
 		PayNowDebit = new JButton("Pay Now By Debit");
 		PayNowDebit.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		PayNowDebit.addActionListener(new ActionListener() {
@@ -128,28 +107,22 @@ public class DiyInterface extends Panel {
 				;
 			}
 		});
-		/**
-		 * Creates the Item list for items scanned.
-		 */
+
+		//Create the Item list for items scanned.
 		ItemList = new JTextPane();
 		ItemList.setEditable(false);
 		ItemList.setFont(new Font("Tahoma", Font.PLAIN, 17));
 
-		/**
-		 * Action of "ItemList" here.
-		 */
-
+		//Create the Place Item In Bagging Area button to place item in the bagging area.
 		BaggingAreaButton = new JButton("Place Item In Bagging Area");
 		BaggingAreaButton.setEnabled(false);
 		BaggingAreaButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sysRef.StartBagging();
 			}
-
 		});
-		/**
-		 * Creates the total amount text field.
-		 */
+
+		//Create the total amount text field.
 		TotalTxtField = new JTextField();
 		TotalTxtField.setEditable(false);
 		TotalTxtField.setBackground(new Color(255, 255, 255));
@@ -157,46 +130,22 @@ public class DiyInterface extends Panel {
 		TotalTxtField.setText("Total:");
 		TotalTxtField.setColumns(10);
 
-		/**
-		 * Creates the Combo box for selecting cards.
-		 */
-		//String card[] = { "VISA", "Master Card", "Other" };
-		//ArrayList <String> cards = new ArrayList<String>();
-		String cards[] = new String[sysRef.getUserData().customer.wallet.cards.size()] ;
-		int i = 0;
-		for(Card card1 : sysRef.getUserData().customer.wallet.cards)
-		{
-			//name of card
-			if(card1.kind.contains("VISA") || card1.kind.contains("Master"))
-			{
-				cards[i] = card1.cardholder + " , " + card1.kind;
+		//Create the Combo box for selecting cards.
+		ArrayList<String> creditCardsSB = new ArrayList<>();
+		ArrayList<String> debitCardsSB = new ArrayList<>();
+		for(Card card : sysRef.getUserData().customer.wallet.cards) {
+			if(card.kind.contains("VISA") || card.kind.contains("Master")) {
+				String data = card.cardholder + " , " + card.kind;
+				creditCardsSB.add(data);
 			}
-			i++;
+			if(card.kind.contains("Debit") || card.kind.contains("Interac")) {
+				String data = card.cardholder + " , " + card.kind;
+				debitCardsSB.add(data);
+			}
 		}
-		//Updated to show automatic list using Customer Data (Wallet)
-		//@simrat
-		comboBoxCredit = new JComboBox<Object>(cards);
+		comboBoxCredit = new JComboBox<>(creditCardsSB.toArray());
 		comboBoxCredit.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		
-		/** @author simrat_benipal
-		 * For debit card payments
-		 */
-		
-		String debitCards[] = new String[sysRef.getUserData().customer.wallet.cards.size()] ;
-		int j = 0;
-		for(Card card1 : sysRef.getUserData().customer.wallet.cards)
-		{
-			//name of card
-			if(card1.kind.contains("Debit") || card1.kind.contains("Interac"))
-			{
-				debitCards[j] = card1.cardholder + " , " + card1.kind;
-			}
-			j++;
-		}
-		//Updated to show automatic list using Customer Data (Wallet)
-		//@simrat
-		//String Debitcard[] = { "A Debit Card", "Interac", "Other" };
-		comboBoxDebit = new JComboBox<Object>(debitCards);
+		comboBoxDebit = new JComboBox<>(debitCardsSB.toArray());
 		comboBoxDebit.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		/**
@@ -306,5 +255,17 @@ public class DiyInterface extends Panel {
 	public void disablePaying() {
 		PayNowCredit.setEnabled(false);
 		PayNowDebit.setEnabled(false);
+	}
+
+	public void addUIItem(String item) {
+		this.items.add(item);
+	}
+
+	public void addUIProduct(BarcodedProduct product) {
+		this.products.add(product);
+	}
+
+	public ArrayList<BarcodedProduct> getCurrentProducts() {
+		return (this.products);
 	}
 }

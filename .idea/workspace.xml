@@ -2,14 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7cce0a78-9ae7-43fb-927e-780be46e2a12" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/com.diy.hardware_0.3/src/com/jimmyselectronics/necchi/SampleBarcodeScannerDemo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/com.diy.hardware_0.3/src/com/jimmyselectronics/necchi/SampleBarcodeScannerListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/AddBags.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/AddBags.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/CardReaderObserver.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/CardReaderObserver.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/CustomerData.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/CustomerData.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DIYSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DIYSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/PaymentDebit.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/PaymentDebit.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DiyInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DiyInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/tests/PayByCreditTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/tests/ScanItemTests.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

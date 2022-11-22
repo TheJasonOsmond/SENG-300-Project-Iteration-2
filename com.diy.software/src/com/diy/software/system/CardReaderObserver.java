@@ -1,7 +1,5 @@
 package com.diy.software.system;
 
-import java.util.concurrent.TimeUnit;
-
 import com.jimmyselectronics.AbstractDevice;
 import com.jimmyselectronics.AbstractDeviceListener;
 import com.jimmyselectronics.opeechee.Card.CardData;
@@ -76,7 +74,7 @@ public class CardReaderObserver implements CardReaderListener {
 			sys.payWindowMessage("Hold not successfull, insufficent funds!");
 		} else {
 			//The hold was succesful, tell the bank to post the transaction
-			sys.setwasPaymentPosted(sys.getUserData().getBank().postTransaction(data.getNumber(), holdNumber, sys.getReceiptPrice()));
+			sys.setWasPaymentPosted(sys.getUserData().getBank().postTransaction(data.getNumber(), holdNumber, sys.getReceiptPrice()));
 			sys.updatePayStatusGUI();
 			sys.getUserData().getBank().releaseHold(data.getNumber(), holdNumber);
 			sys.payWindowMessage("Your card has been charged: " + sys.getReceiptPrice());

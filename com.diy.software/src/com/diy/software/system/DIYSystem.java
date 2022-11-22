@@ -3,18 +3,13 @@ package com.diy.software.system;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
-import com.diy.hardware.external.ProductDatabases;
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
-import com.jimmyselectronics.disenchantment.TouchScreenListener;
-import com.jimmyselectronics.necchi.Barcode;
-import com.jimmyselectronics.necchi.BarcodedItem;
 import com.jimmyselectronics.opeechee.BlockedCardException;
 import com.jimmyselectronics.opeechee.Card;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
-
 
 /** ITERATION 1.0
  * The logic of the system. Booted from Start. 
@@ -27,43 +22,37 @@ import com.jimmyselectronics.virgilio.ElectronicScale;
  * 			Rose
  *
  */
+
 public class DIYSystem {
 	
 	//Self Checkout unit and the observers we are using
-	//private DoItYourselfStation station;
 	private DoItYourselfStationAR station;
-	
 	private CardReaderObserver cardReaderObs;
 	private BarcodeScannerObserver scannerObs;
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
 	
-	//Cusomter IO Windows
+	//Customer IO Windows
 	private Payment payWindow;
 	private PaymentDebit payWindowDebit;
 	private DiyInterface mainWindow;
 	
-	//Hold an instance of the customer
-	private CustomerData customerData;
+	//Customer Data Instance
+	private final CustomerData customerData;
 	
 	//System Variables
-	private double amountToBePayed; //TOTAL AMOUNT OWED BY CUSTOMER, INCREMENTED ON SUCCESSFULL ITEM SCAN VIA BARCODESCANNEROBSERVER
+	private double amountToBePayed; //TOTAL AMOUNT OWED BY CUSTOMER, INCREMENTED ON SUCCESSFUL ITEM SCAN VIA BARCODESCANNEROBSERVER
 	private double baggingAreaCurrentWeight;
 	private double baggingAreaExpectedWeight;
 	private boolean wasSuccessScan = false;
 	private boolean bagItemSuccess = false;
 	private boolean wasPaymentPosted = false;
-	
-	//added
 	private TouchScreen touchScreen;
 	private ElectronicScale baggingArea;
 	private static double scaleMaximumWeightConfiguration = 5000.0;
 	private static double scaleSensitivityConfiguration = 0.5;
-	
-	
 	private Card debitCardSelected = null;
 	private Card creditCardSelected = null;
-	
 	
 	public DIYSystem(CustomerData c) {
 		customerData = c;
@@ -75,8 +64,6 @@ public class DIYSystem {
 	 */
 	private void initialize() {
 		//Set up the DIY Station
-
-		//station = new DoItYourselfStation();
 		station = new DoItYourselfStationAR();
 		station.plugIn();
 		//station.turnOn();
@@ -84,28 +71,23 @@ public class DIYSystem {
 		baggingArea = new ElectronicScale(scaleMaximumWeightConfiguration, scaleSensitivityConfiguration);
 		baggingArea.plugIn();
 		//baggingArea.turnOn();
-		
 		touchScreen.plugIn();
 		//touchScreen.turnOn();
 		//These turnOn can result in power failure
 		boolean goodPower = false;
-		while (!goodPower)
-		{
-			try
-			{
+		while (!goodPower){
+			try{
 				station.turnOn();
 				baggingArea.turnOn();
 				touchScreen.turnOn();
 				goodPower = true;
 			}
-			catch (Exception e)
-			{
+			catch (Exception e){
 				goodPower = false;
 			}
 		}
-		
-		
-		
+		//Shouldn't catching the no power exception be necessary in the implementation? - Eusa
+
 		//Set default weight for the system to reference
 		try {
 			//baggingAreaExpectedWeight = station.baggingArea.getCurrentWeight();
@@ -244,7 +226,7 @@ public class DIYSystem {
 		return wasPaymentPosted;
 	}
 	
-	public void setwasPaymentPosted(boolean state) {
+	public void setWasPaymentPosted(boolean state) {
 		this.wasPaymentPosted = state;
 	}
 	
@@ -338,20 +320,17 @@ public class DIYSystem {
 	 * @author simrat_benipal
 	 * Start the pay by debit process from the main window
 	 */
-	public void payByDebitStart(String type) {		
-		//Select the card given by type from the main window
-		
+	public void payByDebitStart(String type) {
 		if(amountToBePayed <= 0 ) {
 			mainWindow.setMsg("Please Scan at least one item");
-			
-			return; //TODO: display error that cant make payment on no money
+			return;
 		}
-		//just an error check
-		if(type == null)
-		{
+		//Select the card given by type from the main window
+		if(type == null) {
 			mainWindow.setMsg("Please select a valid Card");
 			return; // display error that cant make payment on no money
 		}
+
 		String[] arrOfStr = type.split(",");
 		type = arrOfStr[1].substring(1);//remove the leading zero
 		
@@ -678,10 +657,10 @@ public class DIYSystem {
 	public double getReceiptPrice() {
 		return amountToBePayed;
 	}
-	
+
 	/**
-	 * update the price of the current receipt
-	 * @param d
+	 * update the price of the current receipt.
+	 * @param price the amount to be added to the price.
 	 */
 	public void changeReceiptPrice(double price) {
 		amountToBePayed += price;
@@ -700,11 +679,7 @@ public class DIYSystem {
 		mainWindow.setamountToBePayedLabel(amountToBePayed);
 	}
 
-	/**
-	 * Used to just re enable scanning
-	 */
 	public void reEnableScanner() {
-		//Re enable the scanner
 		station.scanner.enable();
 	}
 

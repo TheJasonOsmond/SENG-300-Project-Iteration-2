@@ -26,12 +26,10 @@ import com.jimmyselectronics.opeechee.Card;
 /**
  * Represents the Customer using the DIY Station
  * All information about the customer / bank the customer uses will be initialized and stored here
- * 
  * @author Brandon
  * Edit: Updated some values to test the payment with debit option, and added some comments for better readablity- Eusa
  */
 public class CustomerData {
-	
 	public Customer customer;
 	private Bank custBank;
 	private double john_debit_limit = 2000;
@@ -44,57 +42,44 @@ public class CustomerData {
 		initDefaultCustomer();
 	}
 
-
+	/**
+	 * Creates a customer object and sets up bank and card information and fills their shopping cart
+	 * with predefined values.
+	 */
 	private void initDefaultCustomer() {
 		customer = new Customer();
 		setupBankAndCard();
 		fillShoppingCart();
 	}
-	
-	/**
-	 * Get the customers bank they use
-	 * @return
-	 */
-	public Bank getBank() {
-		return this.custBank;
-	}
 
+	/**
+	 * Sets up the Bank and the card info of the customer.
+	 * @author simrat_benipal
+	 */
 	private void setupBankAndCard() {
-		//Create a new Card and store it in the waller for the customer
+		custBank = new Bank("Big Bank", 10);
+
 		customer.wallet.cards.add(new Card("VISA", "1234567890123456", "John Doe", "909", "0000".intern(), true, true));
 		customer.wallet.cards.add(new Card("Master Card", "6543210987654321", "John Doe", "415", "1111".intern(), true, true));
-		/*
-		  @author simrat_benipal
-		 */
-		//Create a new Debit Card
 		customer.wallet.cards.add(new Card("A Debit Card", "123123123123123", "John Debit", "123", "1234".intern(), true, true));
 		customer.wallet.cards.add(new Card("Interac", "456456456456456", "John Interac", "123", "1234".intern(), true, true));	
 		//customer.wallet.cards.add(new Card("<No Chip>Interac", "456456456456420", "John Interac (Blocked)", "123", "1234".intern(), true, false));	
-		customer.wallet.cards.add(new Card("<Tap False>Interac", "456456456456421", "John Interac (Tap Blocked)", "123", "1234".intern(), false, true));	
-		/** Simrat_benipal Code ends */
-		//Creat a default bank called "Big Bank"
-		custBank = new Bank("Big Bank", 10);
-		
+		customer.wallet.cards.add(new Card("<Tap False>Interac", "456456456456421", "John Interac (Tap Blocked)", "123", "1234".intern(), false, true));
 
-		
-		//Setup a date to use as the expiry date for the newly created card
-		Date date = new Date();
+		//Set up a date to use as the expiry date for the newly created cards
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
+		cal.setTime(new Date());
 		cal.add(Calendar.MONTH, 12);
 		
 		//Store the card information into the "Big Bank" database with a limit of 2000
 		custBank.addCardData("1234567890123456", "John Doe", cal, "909", 2000);
 		custBank.addCardData("6543210987654321", "John Doe", cal, "415", 10);
-		
-		/** @author simrat_benipal */
+
 		//Store the card information into the "Big Bank" database with a limit of 2000
 		custBank.addCardData("123123123123123", "John Debit", cal, "123", john_debit_limit);
 		custBank.addCardData("456456456456456", "John Interac", cal, "123", john_interac_limit);
 		//custBank.addCardData("456456456456420", "John Interac (Blocked)", cal, "123", john_interac_limit);
 		custBank.addCardData("456456456456421", "John Interac (Tap Blocked)", cal, "123", john_interac_limit);
-		/** Simrat_benipal Code ends */
-		
 	}
 	
 	/**
@@ -106,7 +91,14 @@ public class CustomerData {
 			this.customer.shoppingCart.add(new BarcodedItem(b, ProductDatabases.BARCODED_PRODUCT_DATABASE.get(b).getExpectedWeight()));
 		}
 	}
-	
+
+	/**
+	 * Get the bank used by the customer.
+	 */
+	public Bank getBank() {
+		return this.custBank;
+	}
+
 	/**
 	 * @author simrat_benipal
 	 * Getting method for debit limit
@@ -114,6 +106,7 @@ public class CustomerData {
 	public double get_john_debit_limit(){
 		return john_debit_limit;
 	}
+
 	/**
 	 * @author simrat_benipal
 	 * Getting method for debit limit for interac named card
