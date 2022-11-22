@@ -29,8 +29,7 @@ import java.awt.GridBagConstraints;
 public class PaymentCash {
 	JFrame payFrame;
 	JPanel payPanel;
-	JTextArea cashDisplay;
-	JLabel instructLabel, confirmLabel;
+	JLabel instructLabel, confirmLabel, cashDisplay;
 	JButton confirm, insertCoin, insertNote;
 	DIYSystem station;
 	
@@ -63,16 +62,18 @@ public class PaymentCash {
 
 		instructLabel = new JLabel("Choose coins to insert");
 		instructLabel.setHorizontalAlignment(JLabel.CENTER);
+		
 		payPanel.add(instructLabel);
 		//this displays the amount of cash inserted
-		cashDisplay = new JTextArea("Cash Inserted: $0.0");
+		cashDisplay = new JLabel("Cash Inserted: $0.0");
 		payPanel.add(cashDisplay);
+		
 		//press to insert a coin; this could be done better........
 		insertCoin = new JButton("Insert ¢1 Coin");
 		insertCoin.addActionListener(e -> {
 			station.InsertCoin(curr);
 			cashInserted += 0.1;
-			cashDisplay.replaceRange(String.valueOf(cashInserted), 16, 18);
+			updateCashDisplay();
 		});
 		payPanel.add(insertCoin);
 		
@@ -80,8 +81,9 @@ public class PaymentCash {
 		insertNote.addActionListener(e -> {
 			station.InsertBanknote(curr);
 			cashInserted += 1.0;
-			cashDisplay.replaceRange(String.valueOf(cashInserted), 16, 18);
+			updateCashDisplay();
 		});
+		payPanel.add(insertNote);
 		
 		// pinLabel = new JLabel("PIN", SwingConstants.LEFT);
 		confirm = new JButton("Confirm Payment Details");
@@ -91,7 +93,6 @@ public class PaymentCash {
 		confirm.addActionListener(e -> {
 			station.payByCash(cashInserted);
 		});
-
 		payPanel.add(confirm);
 
 		btnCloseWindow = new JButton("Exit");
@@ -108,6 +109,10 @@ public class PaymentCash {
 		payFrame.setSize(400, 200);
 	}
 
+	private void updateCashDisplay() {
+		cashDisplay.setText("Cash Inserted: $" + cashInserted);
+	}
+	
 	/**
 	 * Triggered from the system to update the message that the customer can see
 	 * 
