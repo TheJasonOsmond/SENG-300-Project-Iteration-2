@@ -11,7 +11,7 @@ import java.awt.event.WindowEvent;
 
 public class AddBags implements ActionListener {
 	JFrame bagFrame;
-	JPanel payPanel;
+	JPanel bagPanel;
 	JDialog addOwnBagDialog;
 	JLabel bagLabel, confirmLabel;
 	JButton purchaseBag;
@@ -22,8 +22,15 @@ public class AddBags implements ActionListener {
 	private JButton btnCloseWindow;
 	private JButton addOwnBags;
 	int bag_purchased;
+	private CustomerBag shopping_bag;
 
+	/**
+	 * GUI for adding bags. User has a choice of adding their own bags or store bought bags.
+	 * @param sys Main DIYSystem
+	 * @param asys Main Attendant Station
+	 */
 	public AddBags(DIYSystem sys, AttendantStation asys) {
+		shopping_bag = new CustomerBag(10);
 		station = sys;
 		aStation = asys;
 		bagDispenser = sys.getBagDispenserData();
@@ -37,17 +44,17 @@ public class AddBags implements ActionListener {
 			}
 		});
 		bagFrame.getContentPane().setLayout(new BoxLayout(bagFrame.getContentPane(), BoxLayout.X_AXIS));
-		payPanel = new JPanel();
-		payPanel.setLayout(new GridLayout(0, 1));
-		payPanel.setBorder(BorderFactory.createEmptyBorder(30,30,10,30));
-		bagFrame.getContentPane().add(payPanel);
+		bagPanel = new JPanel();
+		bagPanel.setLayout(new GridLayout(0, 1));
+		bagPanel.setBorder(BorderFactory.createEmptyBorder(30,30,10,30));
+		bagFrame.getContentPane().add(bagPanel);
 		confirmLabel = new JLabel("");
 		confirmLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		//Button bag_quantity;
 
 		bagLabel = new JLabel("Please choose an option:");
 		bagLabel.setHorizontalAlignment(JLabel.CENTER);
-		payPanel.add(bagLabel);
+		bagPanel.add(bagLabel);
 
 		purchaseBag = new JButton("Purchase Store Bags");
 			purchaseBag.addActionListener(e -> {
@@ -82,6 +89,7 @@ public class AddBags implements ActionListener {
 
 				}
 
+				// This is called if the operation is not canceled.
 				if (!canceled) {
 					JOptionPane confirm_bag_amount = new JOptionPane("Please press \"OK\" to confirm the amount of bag(s) purchased is " +
 							custInput,
@@ -99,19 +107,17 @@ public class AddBags implements ActionListener {
 						bagDispenser.dispense(bag_purchased);
 						
 						if (bagDispenser.isDispenserEmpty()) {
-							System.out.println("Empty");
+							// Disable the system if the bag dispenser is empty.
+							// Notify attendant as well.
 							sys.systemDisable();
 							aStation.noBags(bagDispenser.getAmountOfBags());
 							sys.outOfBags();
 							updateSystem();
 							bagFrame.dispose();
-							// TODO ATTENDANT STATION POPUP AND BLOCKS STATION
-							// ON WINDOW POPUP CLOSE, UPDATE PRICE
 						} else {
 							updateSystem();
 							closeWindow();
 						}
-						
 						
 					} else if (value1 == JOptionPane.CANCEL_OPTION) {
 						System.out.println("Operation Canceled.");
@@ -120,7 +126,7 @@ public class AddBags implements ActionListener {
 				}	
 			});
 
-		payPanel.add(purchaseBag);
+		bagPanel.add(purchaseBag);
 		
 		addOwnBags = new JButton("Add Own Bags");
 			addOwnBags.addActionListener(e -> {
@@ -134,49 +140,42 @@ public class AddBags implements ActionListener {
 				// If OK pressed, close dialog and block station. Otherwise, just go back to the dialog.
 					int value = ((Integer)pane.getValue()).intValue();
 					if (value == JOptionPane.OK_OPTION) {
-						//station.updateExpectedWeight(0.1);
-						//station.updateGUIItemList("Owned bag", 0,0.1);
-						station.notifyBagWeightChange("Bags have been added by customer");
-						//System.out.println("Owned bags are added to the station");
-						//try {
-						//	station.weightDiscrepancy(0.1);
-						//} catch (OverloadException ex) {
-						//	throw new RuntimeException(ex);
-						//}
-						//station.disableScanning();
+						
+						// Simulates customer adding their shopping bag to the bagging area.
+						// This will trigger a weight change, blocking the system.
+						station.getBaggingAreaRef().add(shopping_bag);
 						bagFrame.dispose();
-					    //closeWindow();
 					} else if (value == JOptionPane.CANCEL_OPTION) {
 					    System.out.println("Operation Canceled.");
 					    closeWindow();
 					}
-				
-				
-				
+
 			});
-		payPanel.add(addOwnBags);
-		
+			
+		bagPanel.add(addOwnBags);
+		// Exit button
 		btnCloseWindow = new JButton("Exit");
 			btnCloseWindow.addActionListener(e -> {
 					closeWindow();
 			});
 				
-				payPanel.add(btnCloseWindow);
-		payPanel.add(confirmLabel);
+				bagPanel.add(btnCloseWindow);
+		bagPanel.add(confirmLabel);
 
-		bagFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		bagFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		bagFrame.setVisible(true);
 		bagFrame.pack();
 		bagFrame.setSize(400, 200);
 	}
 	
+	/**
+	 * Closes the window, and enables the system again. Used on exit calls.
+	 */
 	private void closeWindow() {
 		station.enableScanningAndBagging();
 		bagFrame.dispose();
 	}
 	
-
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		//bag_purchased = 0;
@@ -184,14 +183,22 @@ public class AddBags implements ActionListener {
 		purchaseBag.setText("The number of bags purchased is" + bag_purchased);
 
 	}
+	
+	/**
+	 * Gets the amount of bags purchased
+	 * @return Amount of bags purchased by customer
+	 */
 	public int getBag_purchased(){
 		return bag_purchased;
 	}
 	
+	/**
+	 * Updates the system's price, weight, and item list.
+	 */
 	public void updateSystem() {
 		station.updateExpectedWeight(bagDispenser.calcTotalBagWeight(bag_purchased));
 		station.updateGUIItemList("Store bag", bagDispenser.calcTotalBagPrice(bag_purchased), bagDispenser.calcTotalBagWeight(bag_purchased));
-		station.notifyBagWeightChange("Bags have been added by customer");
+		station.changeReceiptPrice(bagDispenser.calcTotalBagPrice(bag_purchased));
 		System.out.println("Bags have been added by customer");
 	}
 }
