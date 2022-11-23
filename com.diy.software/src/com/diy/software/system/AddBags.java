@@ -134,12 +134,15 @@ public class AddBags implements ActionListener {
 				// If OK pressed, close dialog and block station. Otherwise, just go back to the dialog.
 					int value = ((Integer)pane.getValue()).intValue();
 					if (value == JOptionPane.OK_OPTION) {
-						try {
-							station.weightDiscrepancy(station.getCurrentWeight());
-						} catch (OverloadException ex) {
-							throw new RuntimeException(ex);
-						}
+						//station.updateExpectedWeight(0.1);
+						//station.updateGUIItemList("Owned bag", 0,0.1);
 						//station.notifyBagWeightChange("Bags have been added by customer");
+						//System.out.println("Owned bags are added to the station");
+						//try {
+						//	station.weightDiscrepancy(0.1);
+						//} catch (OverloadException ex) {
+						//	throw new RuntimeException(ex);
+						//}
 					    closeWindow();
 					} else if (value == JOptionPane.CANCEL_OPTION) {
 					    System.out.println("Operation Canceled.");

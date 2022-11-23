@@ -265,8 +265,9 @@ public class DiyInterface extends Panel {
 	}
 
 	public void addProductDetails(String name, double price, double weight) {
-		String itemDesc = ItemList.getText() + "Name: " + name + " -> Weight: " + Double.toString(weight)
-				+ " -> Price: " + Double.toString(price) + "\n";
+		String itemDesc = ItemList.getText() + "Name: " + name +  " -> Weight: " + Double.toString(weight) + " -> " +
+				"Price: " + Double.toString(price) +
+				"\n";
 		ItemList.setText(itemDesc);
 	}
 	

@@ -571,12 +571,13 @@ public class DIYSystem {
 			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
 	}
 	
-	public void weightDiscrepancy( double currentWeight) throws OverloadException {
+	/*public void weightDiscrepancy( double currentWeight) throws OverloadException {
 		//Compare current weight vs previous weight
 		double expected_weight = getCurrentExpectedWeight();
+		double current_weight = getCurrentWeight()+ currentWeight;
 		//double current_weight = baggingArea.getCurrentWeight();
 
-		if (expected_weight < currentWeight){
+		if (expected_weight < current_weight){
 			//Station to disabled scanning
 			station.scanner.disable();
 			//GUI to disable scanning and bagging
@@ -585,12 +586,12 @@ public class DIYSystem {
 			attendant.notifyWeightChange();
 
 		}
-		else if (expected_weight == currentWeight){
+		else if (expected_weight == current_weight){
 			station.scanner.enable();
 			enableScanningAndBagging();
 		}
 
-	}
+	}*/
 	
 	public boolean get_requestAttendant(){
 		return requestAttendant;
