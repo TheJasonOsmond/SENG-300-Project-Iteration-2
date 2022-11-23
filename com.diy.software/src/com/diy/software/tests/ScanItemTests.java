@@ -13,6 +13,7 @@ import com.diy.hardware.BarcodedProduct;
 //import com.diy.hardware.DoItYourselfStation;
 import com.diy.hardware.DoItYourselfStationAR;
 import com.diy.hardware.external.ProductDatabases;
+import com.diy.software.system.AttendantStation;
 import com.diy.software.system.CustomerData;
 import com.diy.software.system.DIYSystem;
 import com.jimmyselectronics.Item;
@@ -29,6 +30,7 @@ public class ScanItemTests {
 	private CustomerData testCustomerData;
 	//private DoItYourselfStation selfCheckout;
 	private DoItYourselfStationAR selfCheckout;
+	private AttendantStation attendantStation;
 		
 	private Barcode normalBarcode;
 	private Item normalItem;
@@ -40,7 +42,7 @@ public class ScanItemTests {
 	public void setUp() throws Exception {
 		
 		testCustomerData = new CustomerData();
-		testSystem = new DIYSystem(testCustomerData);
+		testSystem = new DIYSystem(testCustomerData, attendantStation);
 
 		//selfCheckout = new DoItYourselfStation();
 		selfCheckout = new DoItYourselfStationAR();

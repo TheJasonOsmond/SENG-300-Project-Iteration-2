@@ -1,5 +1,13 @@
 package com.diy.software.system;
 
+
+import com.diy.hardware.DoItYourselfStationAR;
+import java.io.IOException;
+import java.util.NoSuchElementException;
+import com.diy.hardware.*;
+import com.diy.hardware.external.ProductDatabases;
+import com.jimmyselectronics.EmptyException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Currency;
@@ -7,6 +15,7 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
+
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
 import com.jimmyselectronics.disenchantment.TouchScreenListener;
@@ -17,6 +26,7 @@ import com.jimmyselectronics.opeechee.Card;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
+
 import com.unitedbankingservices.DisabledException;
 import com.unitedbankingservices.TooMuchCashException;
 import com.unitedbankingservices.banknote.Banknote;
@@ -45,13 +55,16 @@ import com.jimmyselectronics.abagnale.ReceiptPrinterListener;
 public class DIYSystem {
 	
 	//Self Checkout unit and the observers we are using
-	//private DoItYourselfStation station;
+	
+	public AttendantStation attendant;
 	private DoItYourselfStationAR station;
 	
 	private CardReaderObserver cardReaderObs;
 	private BarcodeScannerObserver scannerObs;
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
+	private ReceiptPrinterObserver printerObs;
+
 	
 	//Cusomter IO Windows
 	private Payment payWindow;
@@ -69,10 +82,12 @@ public class DIYSystem {
 	private boolean wasSuccessScan = false;
 	private boolean bagItemSuccess = false;
 	private boolean wasPaymentPosted = false;
-	
-	//added
+	private boolean requestAttendant = true;
+	private boolean systemEnabled = true;
+
 	private TouchScreen touchScreen;
 	private ElectronicScale baggingArea;
+	private BagDispenser bagDispenser;
 	private static double scaleMaximumWeightConfiguration = 5000.0;
 	private static double scaleSensitivityConfiguration = 0.5;
 	
@@ -90,11 +105,12 @@ public class DIYSystem {
 	private Card creditCardSelected = null;
 	
 	
-	public DIYSystem(CustomerData c) {
+	public DIYSystem(CustomerData c, AttendantStation a) {
 		customerData = c;
+		attendant = a;
 		initialize();
 	}
-
+	
 	/*
 	 * Setup the system to a default state, with an attending customer and DIY station
 	 */
@@ -102,14 +118,23 @@ public class DIYSystem {
 		//Setup the DIY Station
 		//station = new DoItYourselfStation();
 		station = new DoItYourselfStationAR();
+
 		station.plugIn();
-		//station.turnOn();
+
+		station.turnOn();
+		
+		//Initialize a bag dispenser with 50 bags.
+		bagDispenser = new BagDispenser(50);
+		
 		touchScreen = new TouchScreen();
 		baggingArea = new ElectronicScale(scaleMaximumWeightConfiguration, scaleSensitivityConfiguration);
 		baggingArea.plugIn();
 		//baggingArea.turnOn();
 		
+		station.plugIn();
+		baggingArea.plugIn();
 		touchScreen.plugIn();
+
 		//touchScreen.turnOn();
 		//These turnOn can result in power failure
 		boolean goodPower = false;
@@ -152,6 +177,8 @@ public class DIYSystem {
 		scannerObs = new BarcodeScannerObserver(this);
 		scaleObs = new ElectronicScaleObserver(this);
 		touchObs = new TouchScreenObserver();
+		printerObs = new ReceiptPrinterObserver(this);
+
 		
 		//Setup Cash validators
 //		for (long denom: acceptedCoinDemominations) //Could also be done in a function
@@ -165,19 +192,14 @@ public class DIYSystem {
 		station.scanner.register(scannerObs);
 		//station.touchScreen.register(touchObs);
 		touchScreen.register(touchObs);
+		station.printer.register(printerObs);
 		
 		//Setup the Customer and start using the DIY station
 		customerData.customer.useStation(station);
 		
 		//TODO: Launch the GUI for the customer to see with a completed GUI from GUI team
 		mainWindow = new DiyInterface(this);
-		/*
-		station.touchScreen.getFrame().getContentPane().add(mainWindow);
-		station.touchScreen.getFrame().pack();
-		station.touchScreen.getFrame().setSize(600, 600);
-		station.touchScreen.getFrame().setLocationRelativeTo(null);
-		station.touchScreen.setVisible(true);
-		*/
+		
 		touchScreen.getFrame().getContentPane().add(mainWindow);
 		touchScreen.getFrame().pack();
 		touchScreen.getFrame().setSize(700, 600);
@@ -188,22 +210,43 @@ public class DIYSystem {
 	}
 	
 	public void systemDisable() {
+		
+		systemEnabled = false;
+		
 		//station.baggingArea.disable();
 		baggingArea.disable();
 		station.cardReader.disable();
 		station.scanner.disable();
 		//station.touchScreen.disable();
 		touchScreen.disable();
+		station.printer.disable();
 		
+		mainWindow.disableAddBagging();
+		//mainWindow.disableBagging();
+		mainWindow.disablePaying();
+		mainWindow.disableScanning();
 	}
 	
 	public void systemEnable() {
+		
+		systemEnabled = true;
+		
 		baggingArea.enable();
 		//station.baggingArea.enable();
 		station.cardReader.enable();	
 		station.scanner.enable();	
 		//station.touchScreen.enable();
 		touchScreen.enable();
+		station.printer.enable();
+		
+		mainWindow.enableAddBagging();
+		//mainWindow.enableBagging();
+		mainWindow.enablePaying();
+		mainWindow.enableScanning();
+	}
+	
+	public boolean isEnabled() {
+		return systemEnabled;
 	}
 	
 	/**
@@ -250,7 +293,7 @@ public class DIYSystem {
 			reEnableScanning();
 		}
 	}
-	
+
 	public void disableScanning() {
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
@@ -314,7 +357,7 @@ public class DIYSystem {
 	
 	/** COME BACK TO THIS WHEN MULTIPLE PAYMENTS ARE OPTIONALS?
 	 * The customer has requested to pay via CREDIT CARD via the GUI interface (when implemented)
-	 * @param pin, the supplied pin from the GUI
+	 * @param //pin, the supplied pin from the GUI
 	 * @param type, the supplied type via the GUI
 	 * @throws Exception 
 	 *
@@ -429,9 +472,17 @@ public class DIYSystem {
 		payWindowCash = new PaymentCash(this);
 	}
 	
+	/**
+	 * @author brandonn38
+	 * Start the process of adding a bag
+	 */
 	public void addBag() {
 		disableScanningAndBagging();
-		bagWindow = new AddBags(this);
+		bagWindow = new AddBags(this, attendant);
+	}
+	
+	public BagDispenser getBagDispenserData() {
+		return this.bagDispenser;
 	}
 	
 	public void notifyBagWeightChange(String message) {
@@ -443,7 +494,6 @@ public class DIYSystem {
 	/**
 	 * Finalizes the pay by credit sequence
 	 * @param pin, the pin from customer input
-	 * @param payWindow, the paywindow that called this for displaying messages
 	 */
 	public void payByCredit(String pin, double amountToPay) {
 		this.amountToPay = amountToPay;
@@ -470,6 +520,8 @@ public class DIYSystem {
 			station.cardReader.remove();
 		}
 
+		printReceipt();
+		
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -477,7 +529,6 @@ public class DIYSystem {
 	/**
 	 * Finalizes the pay by Debit sequenece
 	 * @param pin, the pin from customer input
-	 * @param payWindow, the paywindow that called this for displaying messages
 	 */
 	public void payByDebit(String pin) {
 		//normal insertion of card
@@ -505,6 +556,8 @@ public class DIYSystem {
 			station.cardReader.remove();
 		}
 
+		printReceipt();
+		
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -743,7 +796,6 @@ public class DIYSystem {
 	
 		/**
 	 * send a message to the pay window for showing to the customer
-	 * @param msg
 	 */
 	
 	public void disablePayOnGui() {
@@ -782,7 +834,7 @@ public class DIYSystem {
 	
 	/**
 	 * update the price of the current receipt
-	 * @param d
+	 * @param price
 	 */
 	public void changeReceiptPrice(double price) {
 		amountToBePayed += price;
@@ -808,6 +860,50 @@ public class DIYSystem {
 	public double getAmountToPay() {;
 		return amountToPay;
 	}
+	
+	
+	public void printReceipt() {
+
+		char[] receipt = (mainWindow.getProductDetails()+mainWindow.getTotalAmount()).toCharArray();
+		
+		for (int c = 0; c<receipt.length-1;c++) {
+			try {
+				station.printer.print(receipt[c]);
+			} catch (EmptyException e) {
+				
+				//out of paper or ink
+				//stop printing- display message to customer
+				
+				//suspend station
+				systemDisable();
+				payWindowMessage("printer error- please wait for attendant");
+				
+				//notify attendant->via ReceiptPrinterObserver
+
+				//send duplicate receipt to print at attendant station?
+				
+			//	e.printStackTrace();
+				
+			} catch (OverloadException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		station.printer.cutPaper();
+		System.out.println(station.printer.removeReceipt());
+
+	}
+	
+	//method to allow attendant class to updated based on changes on customer end
+	public DiyInterface getMainWindow() {
+		return mainWindow;
+	}
+	
+	public ReceiptPrinterD getPrinter() {
+		return station.printer;
+	}
+	
 	
 	public void setPriceOnGui() {
 		mainWindow.setamountToBePayedLabel(amountToBePayed);
@@ -839,6 +935,35 @@ public class DIYSystem {
 		else if (payWindowDebit != null)
 			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
 	}
+	
+	public void weightDiscrepancy(ElectronicScale baggingArea, double currentWeight) throws OverloadException {
+		//Compare current weight vs previous weight
+		double expected_weight = getCurrentExpectedWeight();
+		//double current_weight = baggingArea.getCurrentWeight();
 
+		if (expected_weight < currentWeight){
+			//Station to disabled scanning
+			station.scanner.disable();
+			//GUI to disable scanning and bagging
+			disableScanningAndBagging();
+			//Signal attendant to help
+			requestAttendant = true;
+		}
+		else if (expected_weight == currentWeight){
+			station.scanner.enable();
+			enableScanningAndBagging();
+		}
 
-}
+	}
+	
+	public boolean get_requestAttendant(){
+		return requestAttendant;
+	}
+	
+	public void outOfBags() {
+		mainWindow.setMsg("Out of bags. Please wait for attendant");
+	}
+	
+	public void bagsRefilled() {
+		mainWindow.setMsg("");
+	}

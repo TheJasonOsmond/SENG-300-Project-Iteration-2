@@ -294,6 +294,10 @@ public class DiyInterface extends Panel {
 	public void setamountToBePayedLabel(double amountToBePayed) {
 		TotalTxtField.setText("Total: $" + Double.toString(amountToBePayed));
 	}
+	
+	public String getTotalAmount() {
+		return TotalTxtField.getText();
+	}
 
 	public void addProductDetails(String name, double price, double weight) {
 		String itemDesc = ItemList.getText() + "Name: " + name + " -> Weight: " + Double.toString(weight)
@@ -306,6 +310,10 @@ public class DiyInterface extends Panel {
 				"***PAYMENT SUCCESSFUL -> Price: - $" + 
 				Double.toString(amountPaid) + "\n";
 		ItemList.setText(itemDesc);
+	}
+	
+	public String getProductDetails() {
+		return ItemList.getText();
 	}
 
 	public void updateWeightLabel(double weight) {
@@ -322,6 +330,10 @@ public class DiyInterface extends Panel {
 
 	public void enableScanning() {
 		ScanItem.setEnabled(true);
+	}
+	
+	public JTextPane getTextPane() {
+		return ItemList;
 	}
 
 	public void disableBagging() {
@@ -351,9 +363,9 @@ public class DiyInterface extends Panel {
 	public void disableAddBagging() {
 		AddBag.setEnabled(false);
 	}
+
 	private void exit() {
 		System.exit(0); 
 	}
-	
 
 }
