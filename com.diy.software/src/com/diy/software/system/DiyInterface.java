@@ -103,6 +103,11 @@ public class DiyInterface extends Panel {
 			}
 		});
 
+		/**placeholder for now
+		 * 
+		 */
+		AddBag = new JButton("AddBag");
+		AddBag.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		/**
 		 * Creates Pay Now button.
 		 * Iteration II Updated PayNow to PayNowCredit (variable name change
@@ -173,10 +178,33 @@ public class DiyInterface extends Panel {
 		TotalTxtField.setFont(new Font("Tahoma", Font.BOLD, 14));
 		TotalTxtField.setText("Total:");
 		TotalTxtField.setColumns(10);
+		
+		
+		/**Creates combo box for selecting cards
+		 * @author simrat_benipal, Eusa
+		 */
+
+		//Create the Combo box for selecting cards.
+		ArrayList<String> creditCardsSB = new ArrayList<>();
+		ArrayList<String> debitCardsSB = new ArrayList<>();
+		for(Card card : sysRef.getUserData().customer.wallet.cards) {
+			if(card.kind.contains("VISA") || card.kind.contains("Master")) {
+				String data = card.cardholder + ", " + card.kind;
+				creditCardsSB.add(data);
+			}
+			if(card.kind.contains("Debit") || card.kind.contains("Interac")) {
+				String data = card.cardholder + ", " + card.kind;
+				debitCardsSB.add(data);
+			}
+		}
+		comboBoxCredit = new JComboBox<>(creditCardsSB.toArray());
+		comboBoxCredit.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		comboBoxDebit = new JComboBox<>(debitCardsSB.toArray());
+		comboBoxDebit.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		/**
 		 * Creates the Combo box for selecting cards.
-		 */
+		
 		//String card[] = { "VISA", "Master Card", "Other" };
 		//ArrayList <String> cards = new ArrayList<String>();
 		String cards[] = new String[sysRef.getUserData().customer.wallet.cards.size()] ;
@@ -191,13 +219,13 @@ public class DiyInterface extends Panel {
 			i++;
 		}
 		//Updated to show automatic list using Customer Data (Wallet)
-		//@simrat
+		//@simrat @Eusa
 		comboBoxCredit = new JComboBox<Object>(cards);
 		comboBoxCredit.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
 		/** @author simrat_benipal
 		 * For debit card payments
-		 */
+		
 		
 		String debitCards[] = new String[sysRef.getUserData().customer.wallet.cards.size()] ;
 		int j = 0;
@@ -215,7 +243,7 @@ public class DiyInterface extends Panel {
 		//String Debitcard[] = { "A Debit Card", "Interac", "Other" };
 		comboBoxDebit = new JComboBox<Object>(debitCards);
 		comboBoxDebit.setFont(new Font("Tahoma", Font.PLAIN, 14));
-
+*/
 		/**
 		 * Creates the total weight text field.
 		 */
@@ -257,6 +285,8 @@ public class DiyInterface extends Panel {
 								GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(ErrorMSG, GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(AddBag, GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(BaggingAreaButton, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)

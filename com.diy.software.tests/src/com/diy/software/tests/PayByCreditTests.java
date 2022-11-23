@@ -41,7 +41,7 @@ public class PayByCreditTests {
 	public void setUp() throws Exception {
 		
 		testCustomerData = new CustomerData();
-		testSystem = new DIYSystem(testCustomerData);
+		testSystem = new DIYSystem(testCustomerData, null);
 		
 		// create listener
 		cardReaderObs = new CardReaderObserver(testSystem);
