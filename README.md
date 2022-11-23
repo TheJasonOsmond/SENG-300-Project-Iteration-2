@@ -2,7 +2,7 @@
 Group 5
 
 Functionality to do list:
-* Weight Discrepancy -- Mai & Brandon (in-progress)
+* Weight Discrepancy -- Mai & Brandon (done)
 * Enter Membership Number by Typing -- Rose & Saja & Benjamin (unknown)
 * Add Own Bags -- Mai & Brandon (done)
 * Purchase Bags -- Mai & Brandon (done)
