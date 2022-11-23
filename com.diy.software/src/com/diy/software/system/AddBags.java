@@ -136,7 +136,7 @@ public class AddBags implements ActionListener {
 					if (value == JOptionPane.OK_OPTION) {
 						//station.updateExpectedWeight(0.1);
 						//station.updateGUIItemList("Owned bag", 0,0.1);
-						//station.notifyBagWeightChange("Bags have been added by customer");
+						station.notifyBagWeightChange("Bags have been added by customer");
 						//System.out.println("Owned bags are added to the station");
 						//try {
 						//	station.weightDiscrepancy(0.1);

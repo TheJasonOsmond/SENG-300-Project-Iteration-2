@@ -6,8 +6,12 @@ import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
 import com.jimmyselectronics.EmptyException;
+import com.jimmyselectronics.Item;
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
+import com.jimmyselectronics.necchi.Barcode;
+import com.jimmyselectronics.necchi.BarcodedItem;
+import com.jimmyselectronics.necchi.Numeral;
 import com.jimmyselectronics.opeechee.BlockedCardException;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
@@ -42,7 +46,12 @@ public class DIYSystem {
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
 	private ReceiptPrinterObserver printerObs;
+	//private Barcode barcode;
 
+	//private CustomerBag shopping_bag;
+	Barcode barcode = new Barcode(new Numeral[]{ Numeral.zero, Numeral.zero, Numeral.zero, Numeral.zero }); // 1234
+
+	CustomerBag shopping_bag = new CustomerBag(barcode, 10);
 	
 	//Cusomter IO Windows
 	private Payment payWindow;
@@ -63,13 +72,15 @@ public class DIYSystem {
 	private boolean requestAttendant = true;
 	private boolean systemEnabled = true;
 
+
 	private TouchScreen touchScreen;
 	private ElectronicScale baggingArea;
 	private BagDispenser bagDispenser;
 	private static double scaleMaximumWeightConfiguration = 5000.0;
 	private static double scaleSensitivityConfiguration = 0.5;
-	
-	
+
+
+
 	public DIYSystem(CustomerData c, AttendantStation a) {
 		customerData = c;
 		attendant = a;
@@ -376,7 +387,14 @@ public class DIYSystem {
 	
 	public void notifyBagWeightChange(String message) {
 		//TODO What kind of item do we add here?
-		//baggingArea.add(null);
+		//Add shopping bag to bagging area
+		baggingArea.add(shopping_bag);
+		//notify weight change to the electronic scale observer
+		scaleObs.weightChanged(station.scale, shopping_bag.getWeight());
+		//Notify weight change to attendant station
+		attendant.notifyWeightChange();
+
+
 	}
 	
 	/**

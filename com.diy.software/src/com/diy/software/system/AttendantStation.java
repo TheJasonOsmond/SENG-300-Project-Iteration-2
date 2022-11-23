@@ -270,11 +270,11 @@ public class AttendantStation{
 
 	public void notifyWeightChange() {
 		sendAlert("Unauthorized weight change at station. Please approve");
-		//approveWeightButton.setEnabled(true);
-		//if (!system.get(diyNum).isEnabled()) {
-		//	enableStationButton.setEnabled(false);
-		//	disableStationButton.setEnabled(false);
-		//}
+		approveWeightButton.setEnabled(true);
+		if (!system.get(diyNum).isEnabled()) {
+			enableStationButton.setEnabled(false);
+			disableStationButton.setEnabled(false);
+		}
 	}
 
 	
