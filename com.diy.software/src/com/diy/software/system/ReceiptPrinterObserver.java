@@ -66,6 +66,8 @@ public class ReceiptPrinterObserver implements ReceiptPrinterListener{
 		sysRef.attendant.sendAlert("Paper added to Printer");
 		
 		//try printing again?
+		// Make system enable again? - by attendant
+		sysRef.systemEnable();
 		
 	}
 
@@ -75,6 +77,8 @@ public class ReceiptPrinterObserver implements ReceiptPrinterListener{
 		sysRef.attendant.sendAlert("Ink added to Printer");
 		
 		//try printing again?
+		// Make system enable again? - by attendant
+		sysRef.systemEnable();
 		
 	}
 	
