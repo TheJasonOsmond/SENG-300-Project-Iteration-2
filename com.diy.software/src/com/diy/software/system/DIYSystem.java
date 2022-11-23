@@ -71,7 +71,7 @@ public class DIYSystem {
 	private CoinValidatorObserverImpl coinValidatorObs;
 	private AddBags bagWindow;
 	
-	//Cusomter IO Windows
+	//Customer IO Windows
 	private Payment payWindow;
 	private PaymentDebit payWindowDebit;
 	private PaymentCash payWindowCash;
@@ -103,7 +103,7 @@ public class DIYSystem {
 	private ArrayList<Long> coinDenominations = new ArrayList<Long>();
 	private long[] acceptedCoinDemominations = {1,2}; //HARDCODE ACCEPTED COINS
 	private Currency currency = Currency.getInstance(Locale.CANADA);
-	private CoinTray coinTray;
+//	private CoinTray coinTray;
 	
 	
 	
@@ -627,10 +627,10 @@ public class DIYSystem {
 	/**
 	 * Inserts a coin into the coin slot
 	 */
-	public void InsertCoin(Currency curr) { //TODO
+	public void InsertCoin(Currency curr, long denomination) { //TODO
 		
 		try {
-			Coin c = new Coin(curr, 1l);
+			Coin c = new Coin(curr, denomination);
 			station.coinSlot.receive(c);
 		} catch(DisabledException e) {
 			payWindowCash.setMessage("The coin slot is currently disabled");
@@ -638,19 +638,15 @@ public class DIYSystem {
 			payWindowCash.setMessage("The machine is full of coins");
 		}
 		
-		
-		
-		
-		
 	}
 	
 	/**
 	 * Inserts a banknote into the banknote slot
 	 */
-	public void InsertBanknote(Currency curr) { //TODO
+	public void InsertBanknote(Currency curr, long denomination) { //TODO
 		
 		try {
-			Banknote b = new Banknote(curr, station.banknoteDenominations[0]);
+			Banknote b = new Banknote(curr, denomination);
 			station.banknoteInput.receive(b);
 		} catch(DisabledException e) {
 			payWindowCash.setMessage("The banknote slot is currently disabled");
@@ -659,23 +655,35 @@ public class DIYSystem {
 		}
 	}
 	
-	private void SetupCoinValidator() { //TODO
-		for (Long denom: acceptedCoinDemominations)
-			coinDenominations.add(denom);
+	private void SetupCoinValidator() {
+		for (Long denomination: acceptedCoinDemominations)
+			coinDenominations.add(denomination);
 		coinValidator = new CoinValidator(currency, coinDenominations);
 		
+		CoinTray rejectSink = new CoinTray(100); //Rejection sink 
+		CoinTray overflowSink = new CoinTray(100); //Overflow sink
+//		rejectSink.connect(); rejectSink.activate(); 
+//		overflowSink.connect(); overflowSink.activate();
+		
 		//Generate extra coin sinks for setup
-		CoinTray coinTray = new CoinTray(100);
-		CoinTray coinTray2 = new CoinTray(100);
 		HashMap<Long, Sink<Coin>> standardSinks = new HashMap();
+		//For each denom, create and activate a storage space and observer 
 		for (Long denomination : acceptedCoinDemominations) {
-			CoinStorageUnit coinStorage = new CoinStorageUnit(50);
+			/*
+			 * TODO May be better to implement this as a Coin Dispenser
+			 * Then when transaction is finalized, move from dispensers to storage
+			 */
+			CoinStorageUnit coinStorage = new CoinStorageUnit(50); 
 			coinStorage.connect();
 			coinStorage.activate();
+			
+			CoinStoreDenomObs coinStorageObs = new CoinStoreDenomObs(this, denomination);
+			coinStorage.attach(coinStorageObs);
+			
 			standardSinks.put(denomination, coinStorage);
 		}
 		try {
-			coinValidator.setup(coinTray, standardSinks, coinTray2);
+			coinValidator.setup(rejectSink, standardSinks, overflowSink);
 		}catch(NullPointerSimulationException e){
 			System.out.println(e);
 			return;
@@ -687,18 +695,42 @@ public class DIYSystem {
 		station.coinSlot.sink = coinValidator;	
 
 		station.coinSlot.connect();
-		coinValidator.connect();
 		station.coinSlot.activate();
+		coinValidator.connect();
 		coinValidator.activate();
 		
+		
+	}
+	
+	/*
+	 * TODO Currently cash is stored and never returned
+	 * This means if the customer exits this value is kept
+	 * Can be exploited with 
+	 * If we implement a way to return cash 
+	 */
+	
+	/**
+	 * Called when a denomination storage unit receives a coin
+	 * @param cashAmount
+	 */
+	public void ValidCashReceived(long cashAmount) {
+		System.out.println("Valid Cash Received = " + cashAmount);
+		payWindowCash.addCashReceived(cashAmount); 
+		payWindowCash.updateCashDisplay(); //Update UI of cash Inserted
 		
 	}
 	
 	/**
 	 * Finalizes Pay with cash sequence
 	 */
-	public void payByCash(double amount) {
-		payWindowCash.setMessage("TODO:send change and print receipt");
+	public void payByCash( double amount) {
+		if (amount <= 0) {
+			payWindowCash.setMessage("Please Insert Cash Before Confirming");
+			return;
+		}
+		System.out.println("Confirm Cash Payment of $"+ amount);
+		
+		
 	}
 	
 

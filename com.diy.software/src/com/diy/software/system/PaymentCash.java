@@ -29,18 +29,19 @@ import java.awt.GridBagConstraints;
 public class PaymentCash {
 	JFrame payFrame;
 	JPanel payPanel;
-	JLabel instructLabel, confirmLabel, cashDisplay;
-	JButton confirm, insertCoin, insertNote;
+	JLabel remainingLabel, confirmLabel, cashDisplay;
+	JButton confirm, btnCoin1, btnCoin2, insertNote;
 	DIYSystem station;
 	
-	double cashInserted;
-	
+	private double cashReceived;
+	private double amountRemaining;
 	private boolean payWasSuccessful = false;
 	private JButton btnCloseWindow;
 
 	public PaymentCash(DIYSystem sys) {
 		//this is just copy paste from Payment.java for now...
 		station = sys;
+		amountRemaining = station.getReceiptPrice();
 		Currency curr = Currency.getInstance(Locale.CANADA);
 		
 		payFrame = new JFrame("***** Pay by Cash *****");
@@ -60,39 +61,42 @@ public class PaymentCash {
 		confirmLabel = new JLabel("");
 		confirmLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-		instructLabel = new JLabel("Choose coins to insert");
-		instructLabel.setHorizontalAlignment(JLabel.CENTER);
-		payPanel.add(instructLabel);
+		remainingLabel = new JLabel("Amount Remaining: $" +  amountRemaining);
+		remainingLabel.setHorizontalAlignment(JLabel.CENTER);
+		payPanel.add(remainingLabel);
 		
 		//this displays the amount of cash inserted
-		cashDisplay = new JLabel("Cash Inserted: $0.0");
+		cashDisplay = new JLabel("Cash Inserted: $0.00");
 		cashDisplay.setHorizontalAlignment(SwingConstants.CENTER);
 		payPanel.add(cashDisplay);
 		
 		//press to insert a coin; this could be done better........
-		insertCoin = new JButton("Insert ¢1 Coin");
-		insertCoin.addActionListener(e -> {
-			station.InsertCoin(curr);
-			cashInserted += 0.1;
-			updateCashDisplay();
+		btnCoin1 = new JButton("Insert $1 Coin");
+		btnCoin1.addActionListener(e -> {
+			station.InsertCoin(curr, 1l);
 		});
-		payPanel.add(insertCoin);
+		payPanel.add(btnCoin1);
+		
+		//Insert $2 Coin
+		btnCoin2 = new JButton("Insert $2 Coin");
+		btnCoin2.addActionListener(e -> {
+			station.InsertCoin(curr, 2l);
+		});
+		payPanel.add(btnCoin2);
 		
 		insertNote = new JButton("Insert $1 Banknote");
 		insertNote.addActionListener(e -> {
-			station.InsertBanknote(curr);
-			cashInserted += 1.0;
-			updateCashDisplay();
+			station.InsertBanknote(curr, 1l);
 		});
 		payPanel.add(insertNote);
 		
 		// pinLabel = new JLabel("PIN", SwingConstants.LEFT);
-		confirm = new JButton("Confirm Payment Details");
-
+		
 		// When the Confirm button is pressed, tell the system to start the payment
 		// process
+		confirm = new JButton("Confirm Payment Details");
 		confirm.addActionListener(e -> {
-			station.payByCash(cashInserted);
+			station.payByCash(cashReceived);
 		});
 		payPanel.add(confirm);
 
@@ -110,8 +114,11 @@ public class PaymentCash {
 		payFrame.setSize(400, 400);
 	}
 
-	private void updateCashDisplay() {
-		cashDisplay.setText("Cash Inserted: $" + cashInserted);
+	public void updateCashDisplay() {
+		cashDisplay.setText("Cash Inserted: $" + 
+				(double) Math.ceil(cashReceived * 100) / 100);
+		remainingLabel.setText("Amount Remaining: $" +  amountRemaining);
+		blockCashExceedTotal();
 	}
 	
 	/**
@@ -136,6 +143,39 @@ public class PaymentCash {
 		this.payWasSuccessful = status;
 	}
 
+	public void addCashReceived(long amountAdded) {
+		cashReceived += amountAdded;
+		deductRemaining(amountAdded);
+	}
+	
+	private void deductRemaining(long amount) {
+		if( amountRemaining > amount){
+			amountRemaining -= amount;
+			return;
+		}
+		amountRemaining = 0;
+		return;
+	}
+	
+	
+	private void blockCashExceedTotal() {
+		if (cashReceived >= station.getReceiptPrice())
+			blockCashInsertion();
+		
+	}
+	
+	private void blockCashInsertion() {
+		btnCoin1.setEnabled(false);
+		btnCoin2.setEnabled(false);
+		insertNote.setEnabled(false);
+	}
+	
+	private void unblockCashInsertion(){
+		btnCoin1.setEnabled(true);
+		btnCoin2.setEnabled(true);
+		insertNote.setEnabled(true);
+	}
+	
 	private void closeWindow() {
 		station.enableScanningAndBagging();
 		
