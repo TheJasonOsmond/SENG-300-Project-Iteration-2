@@ -281,6 +281,10 @@ public class DIYSystem {
 	public double getCurrentExpectedWeight() {
 		return baggingAreaExpectedWeight;
 	}
+	public double getCurrentWeight() throws OverloadException {
+		baggingAreaCurrentWeight = baggingArea.getCurrentWeight();
+		return baggingAreaCurrentWeight;
+	}
 	
 	public double updateExpectedWeight(ElectronicScale baggingArea, double itemExpectedWeight) throws OverloadException {
 		baggingAreaCurrentWeight = baggingArea.getCurrentWeight();
@@ -567,7 +571,7 @@ public class DIYSystem {
 			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
 	}
 	
-	public void weightDiscrepancy(ElectronicScale baggingArea, double currentWeight) throws OverloadException {
+	public void weightDiscrepancy( double currentWeight) throws OverloadException {
 		//Compare current weight vs previous weight
 		double expected_weight = getCurrentExpectedWeight();
 		//double current_weight = baggingArea.getCurrentWeight();
@@ -578,7 +582,8 @@ public class DIYSystem {
 			//GUI to disable scanning and bagging
 			disableScanningAndBagging();
 			//Signal attendant to help
-			requestAttendant = true;
+			attendant.notifyWeightChange();
+
 		}
 		else if (expected_weight == currentWeight){
 			station.scanner.enable();

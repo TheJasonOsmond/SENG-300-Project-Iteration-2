@@ -1,5 +1,7 @@
 package com.diy.software.system;
 
+import com.jimmyselectronics.OverloadException;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -132,7 +134,12 @@ public class AddBags implements ActionListener {
 				// If OK pressed, close dialog and block station. Otherwise, just go back to the dialog.
 					int value = ((Integer)pane.getValue()).intValue();
 					if (value == JOptionPane.OK_OPTION) {
-					    station.notifyBagWeightChange("Bags have been added by customer");
+						try {
+							station.weightDiscrepancy(station.getCurrentWeight());
+						} catch (OverloadException ex) {
+							throw new RuntimeException(ex);
+						}
+						//station.notifyBagWeightChange("Bags have been added by customer");
 					    closeWindow();
 					} else if (value == JOptionPane.CANCEL_OPTION) {
 					    System.out.println("Operation Canceled.");
