@@ -615,6 +615,7 @@ public class DIYSystem {
 			return;
 		}
 		}
+		printReceipt();
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -700,6 +701,7 @@ public class DIYSystem {
 			payWindowDebit.setMessage(e.getMessage());
 			return;
 		}
+		printReceipt();
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -753,6 +755,7 @@ public class DIYSystem {
 			return;
 		}
 		}
+		printReceipt();
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -800,6 +803,7 @@ public class DIYSystem {
 			payWindowDebit.setMessage(e.getMessage());
 			return;
 		}
+		printReceipt();
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -887,6 +891,7 @@ public class DIYSystem {
 				//suspend station
 				systemDisable();
 				payWindowMessage("printer error- please wait for attendant");
+				System.out.println("printer error ");
 				
 				//notify attendant->via ReceiptPrinterObserver
 

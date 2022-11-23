@@ -119,7 +119,8 @@ public class AttendantStation{
 		rightPanel.add(infoPanel, BorderLayout.SOUTH);
 
 		
-		frame.getContentPane().add(rightPanel);
+		//frame.getContentPane().add(rightPanel);
+		frame.add(rightPanel);
 		
 	}
 	
@@ -152,18 +153,21 @@ public class AttendantStation{
 		itemPanel.add(printerPanel, BorderLayout.SOUTH);
 		printerPanel.add(addBagButton);
 		leftPanel.add(itemPanel);	
-		frame.getContentPane().add(leftPanel);
+		//frame.getContentPane().add(leftPanel);
+		frame.add(leftPanel);
 	}
 	public void addListeners() {
 		
 		currentDIY.getTextPane().addPropertyChangeListener(e->{
 			billTextArea.setText(currentDIY.getProductDetails());
 			totalLabel.setText(currentDIY.getTotalAmount());
+			System.out.println("here");
 			//weightlabel.setText(null);
 		});
 		
 		addPaperButton.addActionListener(e->{
 			try {
+				System.out.println("Add Paper buttom presses");
 				system.get(diyNum).getPrinter().addPaper(500);
 			} catch (OverloadException e1) {
 				addPaperButton.setText("Paper Tray Full");
