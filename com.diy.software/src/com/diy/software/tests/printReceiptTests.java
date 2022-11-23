@@ -1,7 +1,6 @@
 package com.diy.software.tests;
 import com.diy.hardware.DoItYourselfStationAR;
 import com.diy.software.system.DIYSystem;
-import com.diy.software.system.ReceiptPrinterObserver;
 import com.jimmyselectronics.EmptyException;
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.abagnale.ReceiptPrinterD;
@@ -14,7 +13,6 @@ public class printReceiptTests {
 
     private DIYSystem system;
     private DoItYourselfStationAR station;
-    private ReceiptPrinterObserver listener;
     private ReceiptPrinterD printer;
 
     @Before
