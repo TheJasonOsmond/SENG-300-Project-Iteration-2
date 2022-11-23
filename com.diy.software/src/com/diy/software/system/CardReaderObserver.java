@@ -70,8 +70,6 @@ public class CardReaderObserver implements CardReaderListener {
 		//get a hold number from the customers bank on the amount due
 		holdNumber = sys.getUserData().getBank().authorizeHold(data.getNumber(), sys.getAmountToPay());
 		
-		System.out.println("paying for "+ sys.getAmountToPay());
-		
 		//Check to see if the hold was successful...
 		if(holdNumber == -1) {
 			//The hold was not processed, do nothing
