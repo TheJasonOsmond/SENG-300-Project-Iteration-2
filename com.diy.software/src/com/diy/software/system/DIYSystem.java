@@ -1,6 +1,9 @@
 package com.diy.software.system;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Currency;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
@@ -14,6 +17,18 @@ import com.jimmyselectronics.opeechee.Card;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
+import com.unitedbankingservices.DisabledException;
+import com.unitedbankingservices.TooMuchCashException;
+import com.unitedbankingservices.banknote.Banknote;
+import com.unitedbankingservices.coin.Coin;
+import com.unitedbankingservices.coin.CoinValidator;
+
+import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
+import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
+
+import com.jimmyselectronics.abagnale.ReceiptPrinterD;
+import com.jimmyselectronics.abagnale.ReceiptPrinterListener;
+
 
 
 /** ITERATION 1.0
@@ -41,6 +56,7 @@ public class DIYSystem {
 	//Cusomter IO Windows
 	private Payment payWindow;
 	private PaymentDebit payWindowDebit;
+	private PaymentCash payWindowCash;
 	private DiyInterface mainWindow;
 	
 	//Hold an instance of the customer
@@ -59,6 +75,15 @@ public class DIYSystem {
 	private ElectronicScale baggingArea;
 	private static double scaleMaximumWeightConfiguration = 5000.0;
 	private static double scaleSensitivityConfiguration = 0.5;
+	
+	private double amountToPay;
+	
+	
+	private ArrayList<Long> coinDenominations = new ArrayList<Long>();
+//	private long[] acceptedCoinDemominations = {(long) 0.1,1}; //HARDCODE ACCEPTED COINS
+//	private Currency currency = Currency.getInstance(Locale.CANADA);
+//	private CoinValidator coinValidator;
+	
 	
 	
 	private Card debitCardSelected = null;
@@ -103,7 +128,15 @@ public class DIYSystem {
 			}
 		}
 		
+	
 		
+		try {
+			station.printer.addPaper(100);
+			station.printer.addInk(10000);
+		} catch (OverloadException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		//Set default weight for the system to reference
 		try {
@@ -119,7 +152,12 @@ public class DIYSystem {
 		scannerObs = new BarcodeScannerObserver(this);
 		scaleObs = new ElectronicScaleObserver(this);
 		touchObs = new TouchScreenObserver();
-			
+		
+		//Setup Cash validators
+//		for (long denom: acceptedCoinDemominations) //Could also be done in a function
+//			coinDenominations.add(denom);
+//		coinValidator = new CoinValidator(currency, coinDenominations);
+		
 		//Register the observer to the CardReader on the DIY Station
 		station.cardReader.register(cardReaderObs);
 		//station.baggingArea.register(scaleObs);
@@ -376,15 +414,39 @@ public class DIYSystem {
 		disableScanningAndBagging();
 		payWindowDebit = new PaymentDebit(this);
 	
+
+	/**
+	 * @author Jesse Dirks
+	 * Start the pay by cash process from the main window
+	 */
+	public void payByCashStart() {
+		if (amountToBePayed <= 0) { //maybe we should allow 0 cost payments and just finish the payment immediately if they pay for nothing
+			return;
+			//throw new InvalidArgumentSimulationException("cost must be greater than 0");
+		}
+		//Customer class does not contain any cash.
+		disableScanningAndBagging();
+		payWindowCash = new PaymentCash(this);
 	}
 	
+	public void addBag() {
+		disableScanningAndBagging();
+		bagWindow = new AddBags(this);
+	}
+	
+	public void notifyBagWeightChange(String message) {
+		//TODO What kind of item do we add here?
+		//baggingArea.add(null);
+	}
+	
+
 	/**
-	 * Finalizes the pay by credit sequenece
+	 * Finalizes the pay by credit sequence
 	 * @param pin, the pin from customer input
 	 * @param payWindow, the paywindow that called this for displaying messages
 	 */
-	public void payByCredit(String pin) {
-		
+	public void payByCredit(String pin, double amountToPay) {
+		this.amountToPay = amountToPay;
 		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
 		try {
 			customerData.customer.insertCard(pin.intern());
@@ -404,6 +466,7 @@ public class DIYSystem {
 			payWindow.setMessage(e.getMessage());
 			return;
 		} finally {
+			//Data read on card reader observer
 			station.cardReader.remove();
 		}
 
@@ -500,6 +563,44 @@ public class DIYSystem {
 	}
 	
 	/**
+	 * Inserts a coin into the coin slot
+	 */
+	public void InsertCoin(Currency curr) {
+		
+		try {
+			Coin c = new Coin(curr, station.coinDenominations.get(0));
+			station.coinSlot.receive(c);
+		} catch(DisabledException e) {
+			payWindowCash.setMessage("The coin slot is currently disabled");
+		} catch(TooMuchCashException e) {
+			payWindowCash.setMessage("The machine is full of coins");
+		}
+	}
+	
+	/**
+	 * Inserts a banknote into the banknote slot
+	 */
+	public void InsertBanknote(Currency curr) {
+		
+		try {
+			Banknote b = new Banknote(curr, station.banknoteDenominations[0]);
+			station.banknoteInput.receive(b);
+		} catch(DisabledException e) {
+			payWindowCash.setMessage("The banknote slot is currently disabled");
+		} catch(TooMuchCashException e) {
+			payWindowCash.setMessage(e.getMessage());
+		}
+	}
+	
+	
+	/**
+	 * Finalizes Pay with cash sequence
+	 */
+	public void payByCash(double amount) {
+		payWindowCash.setMessage("TODO:send change and print receipt");
+	}
+	
+
 	 * Finalizes the pay by Debit sequenece (using TAP)
 	 * @author simrat_benipal
 	 * @param nothing, we can tap without PIN
@@ -640,8 +741,7 @@ public class DIYSystem {
 		disablePayOnGui();
 	}
 	
-	
-	/**
+		/**
 	 * send a message to the pay window for showing to the customer
 	 * @param msg
 	 */
@@ -651,6 +751,8 @@ public class DIYSystem {
 			payWindow.disablePaying();
 		else if (payWindowDebit != null)
 			payWindowDebit.disablePaying();
+		else if (payWindowCash != null)
+			payWindowCash.disablePaying();
 			
 	}
 	
@@ -693,6 +795,18 @@ public class DIYSystem {
 	 */
 	public void resetReceiptPrice() {
 		amountToBePayed = 0;
+		setPriceOnGui();
+	}
+	
+	/**
+	 */
+	public void decreaseReceiptPrice(double price) {
+		amountToBePayed -= price;
+		setPriceOnGui();
+	}
+	
+	public double getAmountToPay() {;
+		return amountToPay;
 	}
 	
 	public void setPriceOnGui() {
@@ -709,6 +823,10 @@ public class DIYSystem {
 
 	public void updateGUIItemList(String desc, double weight, double price) {
 		mainWindow.addProductDetails(desc, price, weight);
+	}
+	
+	public void updateGUIItemListPayment(double amountPaid) {
+		mainWindow.addPaymentToItems(amountPaid);
 	}
 	
 	public void updateWeightOnGUI(double weight) {
