@@ -14,17 +14,15 @@ public class AddBags implements ActionListener {
 	JLabel bagLabel, confirmLabel;
 	JButton purchaseBag;
 	DIYSystem station;
-	AttendantStation aStation;
-	BagDispenser bagDispenser;
 	
 	private JButton btnCloseWindow;
 	private JButton addOwnBags;
 	int bag_purchased;
+	double bag_weight = 0.10;
+	double bag_price = 0.10;
 
-	public AddBags(DIYSystem sys, AttendantStation asys) {
+	public AddBags(DIYSystem sys) {
 		station = sys;
-		aStation = asys;
-		bagDispenser = sys.getBagDispenserData();
 		bagFrame = new JFrame("*****Add Bags*****");
 		bagFrame.setResizable(true);
 		bagFrame.setUndecorated(false);
@@ -93,23 +91,6 @@ public class AddBags implements ActionListener {
 
 					int value1 = ((Integer)confirm_bag_amount.getValue()).intValue();
 					if (value1 == JOptionPane.OK_OPTION) {
-					
-						bagDispenser.dispense(bag_purchased);
-						
-						if (bagDispenser.isDispenserEmpty()) {
-							System.out.println("Empty");
-							sys.systemDisable();
-							aStation.noBags(bagDispenser.getAmountOfBags());
-							sys.outOfBags();
-							updateSystem();
-							bagFrame.dispose();
-							// TODO ATTENDANT STATION POPUP AND BLOCKS STATION
-							// ON WINDOW POPUP CLOSE, UPDATE PRICE
-						} else {
-							updateSystem();
-							closeWindow();
-						}
-						
 						//Update expected weight and price
 						double new_item_weight;
 						new_item_weight = Math.round((double) bag_purchased * bag_weight * 100.0) / 100.0;
@@ -121,7 +102,6 @@ public class AddBags implements ActionListener {
 						station.notifyBagWeightChange("Bags have been added by customer");
 						System.out.println("Bags have been added by customer");
 						closeWindow();
-
 					} else if (value1 == JOptionPane.CANCEL_OPTION) {
 						System.out.println("Operation Canceled.");
 						closeWindow();
@@ -173,8 +153,6 @@ public class AddBags implements ActionListener {
 		station.enableScanningAndBagging();
 		bagFrame.dispose();
 	}
-	
-
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -185,12 +163,5 @@ public class AddBags implements ActionListener {
 	}
 	public int getBag_purchased(){
 		return bag_purchased;
-	}
-	
-	public void updateSystem() {
-		station.updateExpectedWeight(bagDispenser.calcTotalBagWeight(bag_purchased));
-		station.updateGUIItemList("Store bag", bagDispenser.calcTotalBagPrice(bag_purchased), bagDispenser.calcTotalBagWeight(bag_purchased));
-		station.notifyBagWeightChange("Bags have been added by customer");
-		System.out.println("Bags have been added by customer");
 	}
 }
