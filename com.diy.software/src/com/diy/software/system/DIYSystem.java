@@ -723,12 +723,12 @@ public class DIYSystem {
 	/**
 	 * Finalizes Pay with cash sequence
 	 */
-	public void payByCash( double amount) {
+	public void payByCash(double amount) {
 		if (amount <= 0) {
 			payWindowCash.setMessage("Please Insert Cash Before Confirming");
 			return;
 		}
-		System.out.println("Confirm Cash Payment of $"+ amount);
+		System.out.println("TODO: Confirm Cash Payment of $"+ amount);
 		
 		
 	}
@@ -899,6 +899,8 @@ public class DIYSystem {
 			payWindow.setMessage(msg);
 		else if (payWindowDebit != null)
 			payWindowDebit.setMessage(msg);
+		else if (payWindowCash != null)
+			payWindowCash.setMessage(msg);
 	}
 		
 	

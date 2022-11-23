@@ -9,11 +9,11 @@ import com.unitedbankingservices.coin.CoinStorageUnitObserver;
  */
 public class CoinStoreDenomObs implements CoinStorageUnitObserver {
 	
-	private DIYSystem sysRef;
+	private DIYSystem sys;
 	private long denomination;
 	
 	public CoinStoreDenomObs(DIYSystem s, long denomination) {
-		this.sysRef = s;
+		this.sys = s;
 		this.denomination = denomination;
 	}
 	
@@ -34,7 +34,10 @@ public class CoinStoreDenomObs implements CoinStorageUnitObserver {
 	 *            The storage unit where the event occurred.
 	 */
 	public void coinAdded(CoinStorageUnit unit) {
-		sysRef.ValidCashReceived(denomination);
+		sys.decreaseReceiptPrice(denomination);
+		sys.ValidCashReceived(denomination);
+		sys.payWindowMessage("Your cash has been accepted: $" + denomination);
+		sys.updateGUIItemListPayment(denomination);
 	}
 
 	/**

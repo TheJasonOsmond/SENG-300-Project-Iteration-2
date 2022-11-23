@@ -118,7 +118,7 @@ public class PaymentCash {
 		cashDisplay.setText("Cash Inserted: $" + 
 				(double) Math.ceil(cashReceived * 100) / 100);
 		remainingLabel.setText("Amount Remaining: $" +  amountRemaining);
-		blockCashExceedTotal();
+		blockIfCashExceedTotal();
 	}
 	
 	/**
@@ -158,8 +158,8 @@ public class PaymentCash {
 	}
 	
 	
-	private void blockCashExceedTotal() {
-		if (cashReceived >= station.getReceiptPrice())
+	private void blockIfCashExceedTotal() {
+		if (station.getReceiptPrice() <= 0)
 			blockCashInsertion();
 		
 	}
