@@ -1,10 +1,10 @@
 package com.diy.software.system;
 
-import java.awt.BorderLayout;
+/** Updated to add Tap, swipe Credit Card payments */
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.concurrent.TimeUnit;
+
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -13,16 +13,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
-import java.awt.FlowLayout;
+
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import java.awt.CardLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
 
 public class Payment {
 	JFrame payFrame;
@@ -32,12 +27,16 @@ public class Payment {
 	JButton confirm, btnCloseWindow, btnPayFull;
 	DIYSystem station;
 	
+	JButton tapCard;
+	JButton swipeCard;
+	JButton insertCard;
+	
 	private boolean payWasSuccessful = false;
 	
 
 	public Payment(DIYSystem sys) {
 		station = sys;
-		payFrame = new JFrame("***** Pay by Card *****");
+		payFrame = new JFrame("***** Pay by Card (Credit) *****");
 		payFrame.setResizable(true);
 		payFrame.setUndecorated(false);
 		payFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -84,8 +83,8 @@ public class Payment {
 		
 		//payPanel.add(Box.createVerticalStrut(1)); //invisible separator
 
-		// pinLabel = new JLabel("PIN", SwingConstants.LEFT);
-		confirm = new JButton("Confirm Payment Details");
+		pinLabel = new JLabel("PIN", SwingConstants.LEFT);
+		confirm = new JButton("Insert Card");
 
 		// When the Confirm button is pressed, tell the system to start the payment
 		// process
@@ -95,6 +94,24 @@ public class Payment {
 		});
 
 		payPanel.add(confirm);
+		
+		/**
+		 * Adding 'Tap' Button
+		 */
+		tapCard = new JButton("Tap Card");
+		//no need to insert this, just do transaction 
+		tapCard.addActionListener(e -> station.payByCreditTap());
+		payPanel.add(tapCard);
+
+	
+		
+		/**
+		 * Adding 'Swipe' Button
+		 */
+		swipeCard = new JButton("Swipe Card");
+		swipeCard.addActionListener(e -> station.payByCreditSwipe());
+		payPanel.add(swipeCard);
+		
 
 
 //
@@ -156,6 +173,8 @@ public class Payment {
 	
 	public void disablePaying() {
 		this.confirm.setEnabled(false);
+		this.swipeCard.setEnabled(false);
+		this.tapCard.setEnabled(false);
 	}
 	
 	public void updatePayStatus(boolean status) {

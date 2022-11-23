@@ -1,14 +1,6 @@
 package com.diy.software.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-
-import java.util.Random;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import com.diy.hardware.BarcodedProduct;
 import com.diy.hardware.DoItYourselfStationAR;
 import com.diy.hardware.external.ProductDatabases;
@@ -19,8 +11,12 @@ import com.jimmyselectronics.necchi.Barcode;
 import com.jimmyselectronics.necchi.BarcodedItem;
 import com.jimmyselectronics.necchi.IllegalDigitException;
 import com.jimmyselectronics.necchi.Numeral;
+import org.junit.Before;
+import org.junit.Test;
 
-import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
+import java.util.Random;
+
+import static org.junit.Assert.*;
 
 public class ScanItemTests {
 

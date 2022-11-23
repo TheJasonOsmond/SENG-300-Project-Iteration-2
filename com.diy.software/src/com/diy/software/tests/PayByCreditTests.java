@@ -1,36 +1,14 @@
 package com.diy.software.tests;
 
-import static org.junit.Assert.*;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Random;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import com.diy.hardware.BarcodedProduct;
-//import com.diy.hardware.DoItYourselfStation;
+import ca.ucalgary.seng300.simulation.SimulationException;
 import com.diy.hardware.DoItYourselfStationAR;
-import com.diy.hardware.external.ProductDatabases;
-import com.diy.simulation.Customer;
-import com.diy.software.system.Bank;
 import com.diy.software.system.CardReaderObserver;
 import com.diy.software.system.CustomerData;
 import com.diy.software.system.DIYSystem;
-import com.diy.software.system.Payment;
-import com.diy.software.system.Utility;
-import com.jimmyselectronics.Item;
-import com.jimmyselectronics.necchi.Barcode;
-import com.jimmyselectronics.necchi.BarcodedItem;
-import com.jimmyselectronics.necchi.IllegalDigitException;
-import com.jimmyselectronics.necchi.Numeral;
-import com.jimmyselectronics.opeechee.Card;
-import com.jimmyselectronics.opeechee.CardReader;
-import com.jimmyselectronics.opeechee.CardReaderListener;
+import org.junit.Before;
+import org.junit.Test;
 
-import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
-import ca.ucalgary.seng300.simulation.SimulationException;
+import static org.junit.Assert.*;
 
 
 public class PayByCreditTests {

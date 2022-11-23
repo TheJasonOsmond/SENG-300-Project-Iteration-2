@@ -20,6 +20,7 @@ import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import com.diy.hardware.BarcodedProduct;
+import com.jimmyselectronics.opeechee.Card;
 
 /**
  * The DIY Interface running through the touchscreen class.
@@ -137,27 +138,13 @@ public class DiyInterface extends Panel {
 			}
 		});
 		
-		ExitButton = new JButton("Exit");
-		ExitButton.setFont(new Font("Tahoma", Font.PLAIN, 25));
-		ExitButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				exit();
-			}
-		});
-		
-		/** @author Quang(Brandon) Nguyen
-		 * Added in Iteration II for adding bags
-		 */
-		AddBag = new JButton("Add Bag(s)");
-		AddBag.setFont(new Font("Tahoma", Font.PLAIN, 25));
-		AddBag.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				System.out.println("Add bag button has been pressed.");
-				sysRef.addBag();
-				;
-			}
-		});
+		//ExitButton = new JButton("Exit");
+		//ExitButton.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		//ExitButton.addActionListener(new ActionListener() {
+		//	public void actionPerformed(ActionEvent e) {
+		//		exit();
+		//	}
+		//});
 		/**
 		 * Creates the Item list for items scanned.
 		 */
@@ -190,16 +177,43 @@ public class DiyInterface extends Panel {
 		/**
 		 * Creates the Combo box for selecting cards.
 		 */
-		String card[] = { "VISA", "Master Card", "Other" };
-		comboBoxCredit = new JComboBox<Object>(card);
+		//String card[] = { "VISA", "Master Card", "Other" };
+		//ArrayList <String> cards = new ArrayList<String>();
+		String cards[] = new String[sysRef.getUserData().customer.wallet.cards.size()] ;
+		int i = 0;
+		for(Card card1 : sysRef.getUserData().customer.wallet.cards)
+		{
+			//name of card
+			if(card1.kind.contains("VISA") || card1.kind.contains("Master"))
+			{
+				cards[i] = card1.cardholder + " , " + card1.kind;
+			}
+			i++;
+		}
+		//Updated to show automatic list using Customer Data (Wallet)
+		//@simrat
+		comboBoxCredit = new JComboBox<Object>(cards);
 		comboBoxCredit.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
 		/** @author simrat_benipal
 		 * For debit card payments
 		 */
 		
-		String Debitcard[] = { "A Debit Card", "Interac", "Other" };
-		comboBoxDebit = new JComboBox<Object>(Debitcard);
+		String debitCards[] = new String[sysRef.getUserData().customer.wallet.cards.size()] ;
+		int j = 0;
+		for(Card card1 : sysRef.getUserData().customer.wallet.cards)
+		{
+			//name of card
+			if(card1.kind.contains("Debit") || card1.kind.contains("Interac"))
+			{
+				debitCards[j] = card1.cardholder + " , " + card1.kind;
+			}
+			j++;
+		}
+		//Updated to show automatic list using Customer Data (Wallet)
+		//@simrat
+		//String Debitcard[] = { "A Debit Card", "Interac", "Other" };
+		comboBoxDebit = new JComboBox<Object>(debitCards);
 		comboBoxDebit.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		/**
@@ -222,12 +236,11 @@ public class DiyInterface extends Panel {
 						.addComponent(PayNowCash, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(ScanItem, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(AddBag, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(ExitButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						//.addComponent(ExitButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(BaggingAreaButton, GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
 						.addComponent(comboBoxDebit, Alignment.TRAILING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(comboBoxCredit, Alignment.TRAILING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						
-						
+					
 						.addComponent(ErrorMSG).addComponent(TotalWeight))
 						.addPreferredGap(ComponentPlacement.UNRELATED)
 						.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
@@ -249,8 +262,6 @@ public class DiyInterface extends Panel {
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(ScanItem, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
-						.addComponent(AddBag, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(PayNowCredit, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(comboBoxCredit, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
@@ -261,7 +272,6 @@ public class DiyInterface extends Panel {
 						.addComponent(PayNowDebit, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE))
 						.addGroup(gl_panel.createSequentialGroup().addGap(12).addComponent(ItemList,
 								GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE)))
-						
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(comboBoxDebit, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
@@ -275,18 +285,14 @@ public class DiyInterface extends Panel {
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addComponent(PayNowCash, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
 				.addPreferredGap(ComponentPlacement.RELATED)
-				.addComponent(ExitButton, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
-				.addPreferredGap(ComponentPlacement.RELATED)
+				//.addComponent(ExitButton, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
+				//.addPreferredGap(ComponentPlacement.RELATED)
 				.addContainerGap()));
 		this.setLayout(gl_panel);
 	}
 
 	public void setamountToBePayedLabel(double amountToBePayed) {
 		TotalTxtField.setText("Total: $" + Double.toString(amountToBePayed));
-	}
-	
-	public String getTotalAmount() {
-		return TotalTxtField.getText();
 	}
 
 	public void addProductDetails(String name, double price, double weight) {
@@ -301,13 +307,9 @@ public class DiyInterface extends Panel {
 				Double.toString(amountPaid) + "\n";
 		ItemList.setText(itemDesc);
 	}
-	
-	public String getProductDetails() {
-		return ItemList.getText();
-	}
 
 	public void updateWeightLabel(double weight) {
-		TotalWeight.setText("Total Weight: " + Double.toString(weight) + " grams");
+		TotalWeight.setText("Total Weight:77 " + Double.toString(weight) + " grams");
 	}
 
 	public void setMsg(String msg) {
@@ -320,10 +322,6 @@ public class DiyInterface extends Panel {
 
 	public void enableScanning() {
 		ScanItem.setEnabled(true);
-	}
-	
-	public JTextPane getTextPane() {
-		return ItemList;
 	}
 
 	public void disableBagging() {
@@ -357,4 +355,5 @@ public class DiyInterface extends Panel {
 		System.exit(0); 
 	}
 	
+
 }

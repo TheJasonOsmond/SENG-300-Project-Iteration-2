@@ -1,5 +1,6 @@
 package com.diy.software.tests;
 
+
 import static org.junit.Assert.*;
 
 import java.util.Calendar;
@@ -15,22 +16,15 @@ import com.diy.hardware.DoItYourselfStationAR;
 import com.diy.hardware.external.ProductDatabases;
 import com.diy.simulation.Customer;
 import com.diy.software.system.Bank;
+import ca.ucalgary.seng300.simulation.SimulationException;
+import com.diy.hardware.DoItYourselfStationAR;
 import com.diy.software.system.CardReaderObserver;
 import com.diy.software.system.CustomerData;
 import com.diy.software.system.DIYSystem;
-import com.diy.software.system.Payment;
-import com.diy.software.system.Utility;
-import com.jimmyselectronics.Item;
-import com.jimmyselectronics.necchi.Barcode;
-import com.jimmyselectronics.necchi.BarcodedItem;
-import com.jimmyselectronics.necchi.IllegalDigitException;
-import com.jimmyselectronics.necchi.Numeral;
-import com.jimmyselectronics.opeechee.Card;
-import com.jimmyselectronics.opeechee.CardReader;
-import com.jimmyselectronics.opeechee.CardReaderListener;
+import org.junit.Before;
+import org.junit.Test;
 
-import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
-import ca.ucalgary.seng300.simulation.SimulationException;
+import static org.junit.Assert.*;
 
 
 public class PayByCreditTests {
@@ -38,8 +32,7 @@ public class PayByCreditTests {
 	private static final String CORRECT_PIN = "0000";
 	private DIYSystem testSystem;
 	private CustomerData testCustomerData;
-	//private DoItYourselfStation selfCheckout;
-	private DoItYourselfStationAR selfCheckout;
+  private DoItYourselfStationAR selfCheckout;
 	private CardReaderObserver cardReaderObs;
 	
 	
@@ -53,7 +46,6 @@ public class PayByCreditTests {
 		// create listener
 		cardReaderObs = new CardReaderObserver(testSystem);
 
-		//selfCheckout = new DoItYourselfStation();
 		selfCheckout = new DoItYourselfStationAR();
 		selfCheckout.plugIn();
 		selfCheckout.turnOn();		
