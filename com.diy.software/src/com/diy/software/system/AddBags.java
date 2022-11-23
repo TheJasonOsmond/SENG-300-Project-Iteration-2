@@ -93,7 +93,7 @@ public class AddBags implements ActionListener {
 
 					int value1 = ((Integer)confirm_bag_amount.getValue()).intValue();
 					if (value1 == JOptionPane.OK_OPTION) {
-						
+					
 						bagDispenser.dispense(bag_purchased);
 						
 						if (bagDispenser.isDispenserEmpty()) {
@@ -110,7 +110,18 @@ public class AddBags implements ActionListener {
 							closeWindow();
 						}
 						
-						
+						//Update expected weight and price
+						double new_item_weight;
+						new_item_weight = Math.round((double) bag_purchased * bag_weight * 100.0) / 100.0;
+						double total_bag_price;
+						total_bag_price = Math.round((double) bag_purchased * bag_price * 100.0) / 100.0;
+						station.updateExpectedWeight(new_item_weight);
+						//TODO Should we update item list in the main system? Because we need the attendant station block to appear.
+						station.updateGUIItemList("Store bag", total_bag_price, new_item_weight);
+						station.notifyBagWeightChange("Bags have been added by customer");
+						System.out.println("Bags have been added by customer");
+						closeWindow();
+
 					} else if (value1 == JOptionPane.CANCEL_OPTION) {
 						System.out.println("Operation Canceled.");
 						closeWindow();
