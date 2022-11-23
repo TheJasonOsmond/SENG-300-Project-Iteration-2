@@ -20,6 +20,7 @@ public class printReceiptTests {
         station = new DoItYourselfStationAR();
         printer = new ReceiptPrinterD();
 
+
         station.plugIn();
         station.turnOn();
 
@@ -45,6 +46,10 @@ public class printReceiptTests {
         station.printer.print('c');
 
         // If it sends alert [no paper]
+
+        // If printer disabled
+        assertEquals(station.printer.isDisabled(), true);
+
     }
 
     @Test (expected = EmptyException.class)
@@ -53,6 +58,9 @@ public class printReceiptTests {
         station.printer.print('c');
 
         // If it sends alert [no ink]
+
+        // If printer disabled
+        assertEquals(station.printer.isDisabled(), true);
     }
 
     @Test (expected = EmptyException.class)
@@ -60,6 +68,9 @@ public class printReceiptTests {
         station.printer.print('c');
 
         // If it sends both alert [no ink], [no paper]
+
+        // If printer disabled
+        assertEquals(station.printer.isDisabled(), true);
     }
 
     @Test
@@ -69,6 +80,9 @@ public class printReceiptTests {
         station.printer.print('c');
 
         // If it sends alert [low ink]
+
+        // If printer not disabled
+        assertEquals(station.printer.isDisabled(), false);
     }
 
     @Test
@@ -79,6 +93,9 @@ public class printReceiptTests {
 
         // If it sends alert [low paper]
 
+        // If printer not disabled
+        assertEquals(station.printer.isDisabled(), false);
+
     }
 
     @Test
@@ -88,6 +105,9 @@ public class printReceiptTests {
         station.printer.print('c');
 
         // If it sends alert for both [low paper], [low ink]
+
+        // If printer not disabled
+        assertEquals(station.printer.isDisabled(), false);
     }
 
 }
