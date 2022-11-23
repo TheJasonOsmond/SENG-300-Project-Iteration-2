@@ -11,6 +11,7 @@ import com.jimmyselectronics.EmptyException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Currency;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
@@ -28,9 +29,12 @@ import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
 
 import com.unitedbankingservices.DisabledException;
+import com.unitedbankingservices.Sink;
 import com.unitedbankingservices.TooMuchCashException;
 import com.unitedbankingservices.banknote.Banknote;
 import com.unitedbankingservices.coin.Coin;
+import com.unitedbankingservices.coin.CoinDispenserAR;
+import com.unitedbankingservices.coin.CoinStorageUnit;
 import com.unitedbankingservices.coin.CoinValidator;
 
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
@@ -64,6 +68,7 @@ public class DIYSystem {
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
 	private ReceiptPrinterObserver printerObs;
+	private CoinValidatorObserverImpl coinValidatorObs;
 	private AddBags bagWindow;
 	
 	//Cusomter IO Windows
@@ -94,10 +99,11 @@ public class DIYSystem {
 	private double amountToPay;
 	
 	
+	private CoinValidator coinValidator;
 	private ArrayList<Long> coinDenominations = new ArrayList<Long>();
-	//	private long[] acceptedCoinDemominations = {(long) 0.1,1}; //HARDCODE ACCEPTED COINS
-	//	private Currency currency = Currency.getInstance(Locale.CANADA);
-	//	private CoinValidator coinValidator;
+	private long[] acceptedCoinDemominations = {1,2}; //HARDCODE ACCEPTED COINS
+	private Currency currency = Currency.getInstance(Locale.CANADA);
+	private CoinTray coinTray;
 	
 	
 	
@@ -178,12 +184,11 @@ public class DIYSystem {
 		scaleObs = new ElectronicScaleObserver(this);
 		touchObs = new TouchScreenObserver();
 		printerObs = new ReceiptPrinterObserver(this);
+		coinValidatorObs = new CoinValidatorObserverImpl(this);
 
 		
 		//Setup Cash validators
-	//		for (long denom: acceptedCoinDemominations) //Could also be done in a function
-	//			coinDenominations.add(denom);
-	//		coinValidator = new CoinValidator(currency, coinDenominations);
+		SetupCoinValidator();
 		
 		//Register the observer to the CardReader on the DIY Station
 		station.cardReader.register(cardReaderObs);
@@ -463,9 +468,9 @@ public class DIYSystem {
 	 * Start the pay by cash process from the main window
 	 */
 	public void payByCashStart() {
-		if (amountToBePayed <= 0) { //maybe we should allow 0 cost payments and just finish the payment immediately if they pay for nothing
-			return;
-			//throw new InvalidArgumentSimulationException("cost must be greater than 0");
+		if(amountToBePayed <= 0 ) {
+			mainWindow.setMsg("Please Scan at least one item");
+			return; //TODO: display error that cant make payment on no money
 		}
 		//Customer class does not contain any cash.
 		disableScanningAndBagging();
@@ -622,22 +627,27 @@ public class DIYSystem {
 	/**
 	 * Inserts a coin into the coin slot
 	 */
-	public void InsertCoin(Currency curr) {
+	public void InsertCoin(Currency curr) { //TODO
 		
 		try {
-			Coin c = new Coin(curr, station.coinDenominations.get(0));
+			Coin c = new Coin(curr, 1l);
 			station.coinSlot.receive(c);
 		} catch(DisabledException e) {
 			payWindowCash.setMessage("The coin slot is currently disabled");
 		} catch(TooMuchCashException e) {
 			payWindowCash.setMessage("The machine is full of coins");
 		}
+		
+		
+		
+		
+		
 	}
 	
 	/**
 	 * Inserts a banknote into the banknote slot
 	 */
-	public void InsertBanknote(Currency curr) {
+	public void InsertBanknote(Currency curr) { //TODO
 		
 		try {
 			Banknote b = new Banknote(curr, station.banknoteDenominations[0]);
@@ -649,6 +659,40 @@ public class DIYSystem {
 		}
 	}
 	
+	private void SetupCoinValidator() { //TODO
+		for (Long denom: acceptedCoinDemominations)
+			coinDenominations.add(denom);
+		coinValidator = new CoinValidator(currency, coinDenominations);
+		
+		//Generate extra coin sinks for setup
+		CoinTray coinTray = new CoinTray(100);
+		CoinTray coinTray2 = new CoinTray(100);
+		HashMap<Long, Sink<Coin>> standardSinks = new HashMap();
+		for (Long denomination : acceptedCoinDemominations) {
+			CoinStorageUnit coinStorage = new CoinStorageUnit(50);
+			coinStorage.connect();
+			coinStorage.activate();
+			standardSinks.put(denomination, coinStorage);
+		}
+		try {
+			coinValidator.setup(coinTray, standardSinks, coinTray2);
+		}catch(NullPointerSimulationException e){
+			System.out.println(e);
+			return;
+		}catch(InvalidArgumentSimulationException e) {
+			System.out.println(e);
+			return;
+		}
+		coinValidator.attach(coinValidatorObs);
+		station.coinSlot.sink = coinValidator;	
+
+		station.coinSlot.connect();
+		coinValidator.connect();
+		station.coinSlot.activate();
+		coinValidator.activate();
+		
+		
+	}
 	
 	/**
 	 * Finalizes Pay with cash sequence

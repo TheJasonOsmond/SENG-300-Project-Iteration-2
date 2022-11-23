@@ -62,10 +62,11 @@ public class PaymentCash {
 
 		instructLabel = new JLabel("Choose coins to insert");
 		instructLabel.setHorizontalAlignment(JLabel.CENTER);
-		
 		payPanel.add(instructLabel);
+		
 		//this displays the amount of cash inserted
 		cashDisplay = new JLabel("Cash Inserted: $0.0");
+		cashDisplay.setHorizontalAlignment(SwingConstants.CENTER);
 		payPanel.add(cashDisplay);
 		
 		//press to insert a coin; this could be done better........
@@ -106,7 +107,7 @@ public class PaymentCash {
 		payFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		payFrame.setVisible(true);
 		payFrame.pack();
-		payFrame.setSize(400, 200);
+		payFrame.setSize(400, 400);
 	}
 
 	private void updateCashDisplay() {
