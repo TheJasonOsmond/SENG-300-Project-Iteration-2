@@ -55,9 +55,9 @@ public class ElectronicScaleObserver implements ElectronicScaleListener {
 			//Station to disabled scanning
 			//sysRef.;
 			//GUI to disable scanning and bagging
-			sysRef.disableScanningAndBagging();
+			sysRef.systemDisable();
 			//Signal attendant to help
-			attendant.notifyWeightChange();
+			//attendant.notifyWeightChange();
 
 		} else if (expected_weight == current_weight) {
 			//station.scanner.enable();

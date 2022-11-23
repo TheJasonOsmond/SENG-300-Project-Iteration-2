@@ -143,7 +143,9 @@ public class AddBags implements ActionListener {
 						//} catch (OverloadException ex) {
 						//	throw new RuntimeException(ex);
 						//}
-					    closeWindow();
+						//station.disableScanning();
+						bagFrame.dispose();
+					    //closeWindow();
 					} else if (value == JOptionPane.CANCEL_OPTION) {
 					    System.out.println("Operation Canceled.");
 					    closeWindow();

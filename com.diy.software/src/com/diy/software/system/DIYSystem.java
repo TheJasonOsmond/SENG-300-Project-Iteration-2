@@ -388,12 +388,16 @@ public class DIYSystem {
 	public void notifyBagWeightChange(String message) {
 		//TODO What kind of item do we add here?
 		//Add shopping bag to bagging area
+
 		baggingArea.add(shopping_bag);
+		//systemDisable();
 		//notify weight change to the electronic scale observer
 		scaleObs.weightChanged(station.scale, shopping_bag.getWeight());
 		//Notify weight change to attendant station
 		attendant.notifyWeightChange();
-
+		//systemDisable();
+		//Block station
+		//disableScanningAndBagging();
 
 	}
 	
