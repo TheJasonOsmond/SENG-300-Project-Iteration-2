@@ -64,7 +64,7 @@ public class DIYSystem {
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
 	private ReceiptPrinterObserver printerObs;
-
+	private AddBags bagWindow;
 	
 	//Cusomter IO Windows
 	private Payment payWindow;
@@ -95,9 +95,9 @@ public class DIYSystem {
 	
 	
 	private ArrayList<Long> coinDenominations = new ArrayList<Long>();
-//	private long[] acceptedCoinDemominations = {(long) 0.1,1}; //HARDCODE ACCEPTED COINS
-//	private Currency currency = Currency.getInstance(Locale.CANADA);
-//	private CoinValidator coinValidator;
+	//	private long[] acceptedCoinDemominations = {(long) 0.1,1}; //HARDCODE ACCEPTED COINS
+	//	private Currency currency = Currency.getInstance(Locale.CANADA);
+	//	private CoinValidator coinValidator;
 	
 	
 	
@@ -181,9 +181,9 @@ public class DIYSystem {
 
 		
 		//Setup Cash validators
-//		for (long denom: acceptedCoinDemominations) //Could also be done in a function
-//			coinDenominations.add(denom);
-//		coinValidator = new CoinValidator(currency, coinDenominations);
+	//		for (long denom: acceptedCoinDemominations) //Could also be done in a function
+	//			coinDenominations.add(denom);
+	//		coinValidator = new CoinValidator(currency, coinDenominations);
 		
 		//Register the observer to the CardReader on the DIY Station
 		station.cardReader.register(cardReaderObs);
@@ -456,7 +456,7 @@ public class DIYSystem {
 		//Boot up the pin window
 		disableScanningAndBagging();
 		payWindowDebit = new PaymentDebit(this);
-	
+	}
 
 	/**
 	 * @author Jesse Dirks
@@ -530,7 +530,10 @@ public class DIYSystem {
 	 * Finalizes the pay by Debit sequenece
 	 * @param pin, the pin from customer input
 	 */
-	public void payByDebit(String pin) {
+	public void payByDebit(String pin, double amountToPay) 
+	{
+		//for partial payments
+		this.amountToPay = amountToPay;
 		//normal insertion of card
 		
 		
@@ -568,9 +571,10 @@ public class DIYSystem {
 	 * @param nothing, we can tap without PIN
 	 */
 	
-	public void payByDebitTap() 
+	public void payByDebitTap(double amountToPay) 
 	{
-		
+		//for partial payments
+		this.amountToPay = amountToPay;
 		//check if the card has tap enabled or not
 		if(!debitCardSelected.isTapEnabled)
 		{
@@ -654,13 +658,15 @@ public class DIYSystem {
 	}
 	
 
-	 * Finalizes the pay by Debit sequenece (using TAP)
+	/* Finalizes the pay by Debit sequenece (using TAP)
 	 * @author simrat_benipal
 	 * @param nothing, we can tap without PIN
 	 */
 	
-	public void payByDebitSwipe() 
+	public void payByDebitSwipe(double amountToPay) 
 	{
+		//for partial payments
+		this.amountToPay = amountToPay;
 		
 		
 		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
@@ -703,8 +709,10 @@ public class DIYSystem {
 	 * @author simrat_benipal 
 	 * Iteration 2.0 
 	 */
-	public void payByCreditTap() 
+	public void payByCreditTap(double amountToPay) 
 	{
+		//for partial payments
+		this.amountToPay = amountToPay;
 		//check if the card has tap enabled or not
 		if(!creditCardSelected.isTapEnabled)
 		{
@@ -754,9 +762,11 @@ public class DIYSystem {
 	 * @author simrat_benipal
 	 * @param nothing, we can tap without PIN
 	 */
-	
-	public void payByCreditSwipe() 
+	public void payByCreditSwipe(double amountToPay) 
 	{
+		//for partial payments
+		this.amountToPay = amountToPay;
+		
 		
 		
 		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
@@ -967,3 +977,4 @@ public class DIYSystem {
 	public void bagsRefilled() {
 		mainWindow.setMsg("");
 	}
+}

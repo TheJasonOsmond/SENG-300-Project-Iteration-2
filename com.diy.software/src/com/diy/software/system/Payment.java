@@ -31,6 +31,7 @@ public class Payment {
 	JButton swipeCard;
 	JButton insertCard;
 	
+	double partialPaymentAmount;
 	private boolean payWasSuccessful = false;
 	
 
@@ -88,8 +89,11 @@ public class Payment {
 
 		// When the Confirm button is pressed, tell the system to start the payment
 		// process
+		//get partial payment
+		//make the payment same as before
 		confirm.addActionListener(e -> {
-			payAmount();		
+			if(getPartialPayment())//gets the partial payment amount
+				station.payByCredit(pin.getText(), partialPaymentAmount);//pay for that amount
 			
 		});
 
@@ -100,18 +104,22 @@ public class Payment {
 		 */
 		tapCard = new JButton("Tap Card");
 		//no need to insert this, just do transaction 
-		tapCard.addActionListener(e -> station.payByCreditTap());
+		tapCard.addActionListener(e -> {
+			if(getPartialPayment())
+				station.payByCreditTap(partialPaymentAmount);
+		});
 		payPanel.add(tapCard);
 
 	
-		
 		/**
 		 * Adding 'Swipe' Button
 		 */
 		swipeCard = new JButton("Swipe Card");
-		swipeCard.addActionListener(e -> station.payByCreditSwipe());
+		swipeCard.addActionListener(e -> {
+			if(getPartialPayment())
+					station.payByCreditSwipe(partialPaymentAmount);
+		});
 		payPanel.add(swipeCard);
-		
 
 
 //
@@ -128,7 +136,6 @@ public class Payment {
 			closeWindow();
 		});
 		payPanel.add(btnCloseWindow);
-		
 		payPanel.add(confirmLabel);
 
 		payFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -137,24 +144,33 @@ public class Payment {
 		payFrame.setSize(400, 400);
 	}
 
-	private void payAmount() {
+	private boolean getPartialPayment() {
 		double amount;
+		
 		try { //Convert to double
 			amount = Double.parseDouble(amountToPay.getText());
+			amount = (double) Math.round(amount * 100) / 100; //rounds to 100th
+			System.out.println("partial payment amount "+amount);
+			System.out.println("total amount to pay "+station.getReceiptPrice());
+			if (amount > station.getReceiptPrice())
+			{
+				setMessage("Cannot pay for more than total ");
+				return false;
+			}
+			if(amount <= 0) {
+				setMessage("Invalid Amount. Amount must be greater than 0.");
+				return false;
+			}
+			
+			partialPaymentAmount = amount;
+			return true;
+			//this is amount that is to be paid
+			//station.payByCredit(pin.getText(), amount);
 			
 		} catch (NumberFormatException e){
 			setMessage("Invalid Amount");
-			return;
+			return false;
 		}
-		amount = (double) Math.round(amount * 100) / 100; //rounds to 100th
-		
-		if(amount <= 0) {
-			setMessage("Invalid Amount. Amount must be greater than 0.");
-			return;
-		}
-				
-		station.payByCredit(pin.getText(), amount);
-	
 	}
 	
 	/**
