@@ -15,6 +15,7 @@ import com.diy.hardware.BarcodedProduct;
 import com.diy.hardware.DoItYourselfStationAR;
 import com.diy.hardware.external.ProductDatabases;
 import com.diy.simulation.Customer;
+import com.diy.software.system.AttendantStation;
 import com.diy.software.system.Bank;
 import ca.ucalgary.seng300.simulation.SimulationException;
 import com.diy.hardware.DoItYourselfStationAR;
@@ -41,7 +42,10 @@ public class PayByCreditTests {
 	public void setUp() throws Exception {
 		
 		testCustomerData = new CustomerData();
-		testSystem = new DIYSystem(testCustomerData, null);
+ 		CustomerData customers[] = {testCustomerData};
+ 		AttendantStation attendant = new AttendantStation(customers);
+ 		
+ 		testSystem = attendant.getCurrentDIY();
 		
 		// create listener
 		cardReaderObs = new CardReaderObserver(testSystem);
@@ -53,7 +57,7 @@ public class PayByCreditTests {
 		// initiate pay by credit 
 		testSystem.resetReceiptPrice();
 		testSystem.changeReceiptPrice(1.0);
-		testSystem.payByCreditStart("VISA");		
+		testSystem.payByCreditStart(", VISA");		
 		
 	}
 

@@ -1,6 +1,7 @@
 package com.diy.software.tests;
 
 import com.diy.hardware.DoItYourselfStationAR;
+import com.diy.software.system.AttendantStation;
 import com.diy.software.system.CardReaderObserver;
 import com.diy.software.system.CustomerData;
 import com.diy.software.system.DIYSystem;
@@ -18,15 +19,19 @@ public class PayByDebitTests {
 
     @Before
     public void setUp() {
-        testCustomerData = new CustomerData(); // Create predefined customer data
-        testSystem = new DIYSystem(testCustomerData, null); // Create Test System
-        cardReaderObs = new CardReaderObserver(testSystem); // Create Card Reader Observer
-        testStation = new DoItYourselfStationAR(); // Create DIY Station
-        testStation.plugIn();
-        testStation.turnOn();
+    	
+    	testCustomerData = new CustomerData();
+ 		CustomerData customers[] = {testCustomerData};
+ 		AttendantStation attendant = new AttendantStation(customers);
+ 		
+ 		testSystem = attendant.getCurrentDIY();
+         
         testSystem.resetReceiptPrice();
         testSystem.changeReceiptPrice(1.0); // Set amount to pay to $1.0
         testSystem.payByDebitStart(", A Debit Card"); // Pass in card data and start the payment process
+        
+        
+       
     }
 
     /**
