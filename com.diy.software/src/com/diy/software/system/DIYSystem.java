@@ -1,7 +1,9 @@
 package com.diy.software.system;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Currency;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
@@ -19,6 +21,7 @@ import com.unitedbankingservices.DisabledException;
 import com.unitedbankingservices.TooMuchCashException;
 import com.unitedbankingservices.banknote.Banknote;
 import com.unitedbankingservices.coin.Coin;
+import com.unitedbankingservices.coin.CoinValidator;
 
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
@@ -76,6 +79,14 @@ public class DIYSystem {
 	
 	private double amountToPay;
 	
+	
+	private ArrayList<Long> coinDenominations = new ArrayList<Long>();
+//	private long[] acceptedCoinDemominations = {(long) 0.1,1}; //HARDCODE ACCEPTED COINS
+//	private Currency currency = Currency.getInstance(Locale.CANADA);
+//	private CoinValidator coinValidator;
+	
+	
+	
 	public DIYSystem(CustomerData c) {
 		customerData = c;
 		initialize();
@@ -100,6 +111,7 @@ public class DIYSystem {
 		baggingArea.turnOn();
 		touchScreen.turnOn();
 		
+		
 		try {
 			station.printer.addPaper(100);
 			station.printer.addInk(10000);
@@ -122,7 +134,11 @@ public class DIYSystem {
 		scannerObs = new BarcodeScannerObserver(this);
 		scaleObs = new ElectronicScaleObserver(this);
 		touchObs = new TouchScreenObserver();
-
+		
+		//Setup Cash validators
+//		for (long denom: acceptedCoinDemominations) //Could also be done in a function
+//			coinDenominations.add(denom);
+//		coinValidator = new CoinValidator(currency, coinDenominations);
 		
 		//Register the observer to the CardReader on the DIY Station
 		station.cardReader.register(cardReaderObs);
@@ -459,6 +475,7 @@ public class DIYSystem {
 			payWindowCash.setMessage(e.getMessage());
 		}
 	}
+	
 	
 	/**
 	 * Finalizes Pay with cash sequence
