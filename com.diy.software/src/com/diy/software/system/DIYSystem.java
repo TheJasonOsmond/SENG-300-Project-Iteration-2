@@ -33,6 +33,8 @@ import com.unitedbankingservices.banknote.Banknote;
 import com.unitedbankingservices.coin.Coin;
 import com.unitedbankingservices.coin.CoinValidator;
 
+import ca.powerutility.PowerGrid;
+import ca.powerutility.PowerSurge;
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 
@@ -936,6 +938,10 @@ public class DIYSystem {
 			} catch (OverloadException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+			catch (PowerSurge p)
+			{
+				PowerGrid.reconnectToMains();
 			}
 			
 		}
