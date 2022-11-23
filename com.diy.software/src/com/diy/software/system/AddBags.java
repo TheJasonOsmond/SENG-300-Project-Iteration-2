@@ -37,6 +37,7 @@ public class AddBags implements ActionListener {
 		bagFrame = new JFrame("*****Add Bags*****");
 		bagFrame.setResizable(true);
 		bagFrame.setUndecorated(false);
+		bagFrame.setLocationRelativeTo(null);
 		bagFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		bagFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
