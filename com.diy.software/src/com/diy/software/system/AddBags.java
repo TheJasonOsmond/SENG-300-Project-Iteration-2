@@ -20,6 +20,9 @@ public class AddBags implements ActionListener {
 	private JButton btnCloseWindow;
 	private JButton addOwnBags;
 	int bag_purchased;
+	
+	double bag_weight = 0.10;
+	double bag_price = 0.10;
 
 	public AddBags(DIYSystem sys, AttendantStation asys) {
 		station = sys;
