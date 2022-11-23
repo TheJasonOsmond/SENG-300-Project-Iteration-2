@@ -69,6 +69,9 @@ public class DIYSystem {
 	//Cusomter IO Windows
 	private Payment payWindow;
 	private PaymentDebit payWindowDebit;
+	
+	private Membership membershipWindow;
+	
 	private PaymentCash payWindowCash;
 	private DiyInterface mainWindow;
 	
@@ -473,6 +476,16 @@ public class DIYSystem {
 	}
 	
 	/**
+	 * @author Saja Abufarha
+	 * Start the Enter Membership Number process from the main window
+	 */
+	public void enterMembershipStart(String type) {		
+		//Boot up the membership window
+		disableScanningAndBagging();
+		membershipWindow = new Membership(this);
+	}
+	
+	/**
 	 * @author brandonn38
 	 * Start the process of adding a bag
 	 */
@@ -488,6 +501,19 @@ public class DIYSystem {
 	public void notifyBagWeightChange(String message) {
 		//TODO What kind of item do we add here?
 		//baggingArea.add(null);
+		updateWeightOnGUI(baggingAreaCurrentWeight);
+	}
+	/**
+	 * @author Saja Abufarha
+	 * Gets error message to signals the Customer I/O regarding the weight discrepancy. 
+	 * Will be called by Roze's code
+	 * 
+	 * Updates the message on the GUI
+	 * @param message
+	 */
+	public void notifyWeightDiscrepancy(String message) {
+		mainWindow.updateWeightDiscrepancyLabel(message);
+
 	}
 	
 
@@ -564,6 +590,14 @@ public class DIYSystem {
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
+	
+	
+	public void enterMembership(String membershipNumber) {
+
+		// TODO Auto-generated method stub
+		
+	}
+	
 	
 	/**
 	 * Finalizes the pay by Debit sequenece (using TAP)
