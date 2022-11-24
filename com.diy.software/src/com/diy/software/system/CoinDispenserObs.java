@@ -8,12 +8,12 @@ import com.unitedbankingservices.coin.ICoinDispenser;
 /**
  * Observes events emanating from a coin storage unit.
  */
-public class ChangeDispenserObs implements CoinDispenserObserver {
+public class CoinDispenserObs implements CoinDispenserObserver {
 	
 	private DIYSystem sys;
 	private long denomination;
 	
-	public ChangeDispenserObs(DIYSystem s, long denomination) {
+	public CoinDispenserObs(DIYSystem s, long denomination) {
 		this.sys = s;
 		this.denomination = denomination;
 	}
@@ -51,7 +51,9 @@ public class ChangeDispenserObs implements CoinDispenserObserver {
 	 */
 	@Override
 	public void coinAdded(ICoinDispenser dispenser, Coin coin) {
-
+		sys.decreaseReceiptPrice(coin.getValue());
+		sys.ValidCashReceived(coin.getValue());
+		sys.payWindowMessage("Your coin has been accepted: $" + coin.getValue());
 	}
 
 	/**
@@ -79,7 +81,9 @@ public class ChangeDispenserObs implements CoinDispenserObserver {
 	 *            The coins that were loaded.
 	 */
 	@Override
-	public void coinsLoaded(ICoinDispenser dispenser, Coin... coins) {}
+	public void coinsLoaded(ICoinDispenser dispenser, Coin... coins) {
+		System.out.println("Coin Dispenser $"+ denomination + " loaded with " + coins.length + " coins");
+	}
 
 	/**
 	 * Announces that the indicated sequence of coins has been removed to the

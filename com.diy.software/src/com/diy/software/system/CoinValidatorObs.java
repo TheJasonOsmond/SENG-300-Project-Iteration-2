@@ -6,12 +6,12 @@ import com.unitedbankingservices.coin.CoinValidator;
 import com.unitedbankingservices.coin.CoinValidatorObserver;
 
 
-public class CoinValidatorObserverImpl implements CoinValidatorObserver {
+public class CoinValidatorObs implements CoinValidatorObserver {
 
 	
 	private DIYSystem sysRef;
 	
-	public CoinValidatorObserverImpl(DIYSystem s) {
+	public CoinValidatorObs(DIYSystem s) {
 		sysRef = s;
 	}
 	

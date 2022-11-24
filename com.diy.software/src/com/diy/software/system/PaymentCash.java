@@ -74,7 +74,7 @@ public class PaymentCash {
 		//press to insert a coin; this could be done better........
 		btnCoin1 = new JButton("Insert $1 Coin");
 		btnCoin1.addActionListener(e -> {
-			station.InsertCoin(curr, 1l);
+			station.InsertCoin(curr, Long.valueOf(1L));
 		});
 		payPanel.add(btnCoin1);
 		
@@ -85,9 +85,9 @@ public class PaymentCash {
 		});
 		payPanel.add(btnCoin2);
 		
-		insertNote = new JButton("Insert $1 Banknote");
+		insertNote = new JButton("Insert $5 Banknote");
 		insertNote.addActionListener(e -> {
-			station.InsertBanknote(curr, 1l);
+			station.InsertBanknote(station.getCurrency(), 5);
 		});
 		payPanel.add(insertNote);
 		
