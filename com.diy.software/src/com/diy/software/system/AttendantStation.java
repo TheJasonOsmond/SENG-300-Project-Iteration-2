@@ -153,7 +153,7 @@ public class AttendantStation{
 		addBagButton.setEnabled(false);
 		alertLabel = new JLabel("");
 		//printerPanel.add(alertLabel);
-		printerPanel.add(approveWeightButton);
+		
 		printerPanel.add(addBagButton);
 		printerPanel.add(disableStationButton);
 		printerPanel.add(enableStationButton);
@@ -162,6 +162,7 @@ public class AttendantStation{
 		itemPanel.add(alertLabel, BorderLayout.CENTER);
 		itemPanel.add(printerPanel, BorderLayout.SOUTH);
 		printerPanel.add(addBagButton);
+		printerPanel.add(approveWeightButton);
 		leftPanel.add(itemPanel);	
 		//frame.getContentPane().add(leftPanel);
 		frame.add(leftPanel);
