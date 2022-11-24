@@ -4,6 +4,7 @@ import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import com.diy.hardware.BarcodedProduct;
 import com.diy.hardware.DoItYourselfStationAR;
 import com.diy.hardware.external.ProductDatabases;
+import com.diy.software.system.AttendantStation;
 import com.diy.software.system.CustomerData;
 import com.diy.software.system.DIYSystem;
 import com.jimmyselectronics.Item;
@@ -34,11 +35,10 @@ public class ScanItemTests {
 	public void setUp() throws Exception {
 		
 		testCustomerData = new CustomerData();
-		testSystem = new DIYSystem(testCustomerData);
-
-		selfCheckout = new DoItYourselfStationAR();
-		selfCheckout.plugIn();
-		selfCheckout.turnOn();
+ 		CustomerData customers[] = {testCustomerData};
+ 		AttendantStation attendant = new AttendantStation(customers);
+ 		
+ 		testSystem = attendant.getCurrentDIY();
 		
 		// populate product database with random products
 		// Utility.fillDatbases();

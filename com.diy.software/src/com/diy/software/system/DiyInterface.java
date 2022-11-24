@@ -73,6 +73,9 @@ public class DiyInterface extends Panel {
 	private JButton BaggingAreaButton;
 	private JButton ExitButton;
 	
+	private JButton enterMembership;
+	private JTextArea weightMSG;
+	
 	private JTextArea TotalWeight;
 	//private JComboBox<?> comboBox;
 	private JComboBox<?> comboBoxCredit;
@@ -103,6 +106,18 @@ public class DiyInterface extends Panel {
 			}
 		});
 
+		/**
+		 * Creates an AddBag button to allow customer to add their own bags.
+		 */
+		AddBag = new JButton("Add Bag(s)");
+		AddBag.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		AddBag.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Add Bag button has been pressed");
+				sysRef.addBag();
+			}
+		});
+		
 		/**
 		 * Creates Pay Now button.
 		 * Iteration II Updated PayNow to PayNowCredit (variable name change
@@ -137,6 +152,30 @@ public class DiyInterface extends Panel {
 				sysRef.payByCashStart();
 			}
 		});
+		/**
+		 * @author Saja Abufarha
+		 * Creates Enter Membership Number button.
+		 */
+		enterMembership = new JButton("Enter Membership Number");
+		enterMembership.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		enterMembership.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				System.out.println("Enter Membership Number button has been pressed");
+				sysRef.enterMembershipStart((String) comboBoxCredit.getSelectedItem());
+				;
+			}
+		});
+		
+		/**
+		 *  @author Saja Abufarha
+		 *  Will be used to set the weight-discrepancy text 
+		 * 
+		 * **/
+		weightMSG = new JTextArea();
+		weightMSG.setEditable(false);
+		weightMSG.setFont(new Font("Tahoma", Font.BOLD, 14));
+		weightMSG.setText(" ");
 		
 		//ExitButton = new JButton("Exit");
 		//ExitButton.setFont(new Font("Tahoma", Font.PLAIN, 25));
@@ -173,10 +212,33 @@ public class DiyInterface extends Panel {
 		TotalTxtField.setFont(new Font("Tahoma", Font.BOLD, 14));
 		TotalTxtField.setText("Total:");
 		TotalTxtField.setColumns(10);
+		
+		
+		/**Creates combo box for selecting cards
+		 * @author simrat_benipal, Eusa
+		 */
+
+		//Create the Combo box for selecting cards.
+		ArrayList<String> creditCardsSB = new ArrayList<>();
+		ArrayList<String> debitCardsSB = new ArrayList<>();
+		for(Card card : sysRef.getUserData().customer.wallet.cards) {
+			if(card.kind.contains("VISA") || card.kind.contains("Master")) {
+				String data = card.cardholder + ", " + card.kind;
+				creditCardsSB.add(data);
+			}
+			if(card.kind.contains("Debit") || card.kind.contains("Interac")) {
+				String data = card.cardholder + ", " + card.kind;
+				debitCardsSB.add(data);
+			}
+		}
+		comboBoxCredit = new JComboBox<>(creditCardsSB.toArray());
+		comboBoxCredit.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		comboBoxDebit = new JComboBox<>(debitCardsSB.toArray());
+		comboBoxDebit.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		/**
 		 * Creates the Combo box for selecting cards.
-		 */
+		
 		//String card[] = { "VISA", "Master Card", "Other" };
 		//ArrayList <String> cards = new ArrayList<String>();
 		String cards[] = new String[sysRef.getUserData().customer.wallet.cards.size()] ;
@@ -191,13 +253,13 @@ public class DiyInterface extends Panel {
 			i++;
 		}
 		//Updated to show automatic list using Customer Data (Wallet)
-		//@simrat
+		//@simrat @Eusa
 		comboBoxCredit = new JComboBox<Object>(cards);
 		comboBoxCredit.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
 		/** @author simrat_benipal
 		 * For debit card payments
-		 */
+		
 		
 		String debitCards[] = new String[sysRef.getUserData().customer.wallet.cards.size()] ;
 		int j = 0;
@@ -215,7 +277,7 @@ public class DiyInterface extends Panel {
 		//String Debitcard[] = { "A Debit Card", "Interac", "Other" };
 		comboBoxDebit = new JComboBox<Object>(debitCards);
 		comboBoxDebit.setFont(new Font("Tahoma", Font.PLAIN, 14));
-
+*/
 		/**
 		 * Creates the total weight text field.
 		 */
@@ -232,6 +294,9 @@ public class DiyInterface extends Panel {
 				.createSequentialGroup().addContainerGap()
 				.addGroup(gl_panel.createParallelGroup(Alignment.LEADING, false)
 						.addComponent(PayNowDebit, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						
+						.addComponent(enterMembership, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						
 						.addComponent(PayNowCredit, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(PayNowCash, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(ScanItem, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -241,7 +306,7 @@ public class DiyInterface extends Panel {
 						.addComponent(comboBoxDebit, Alignment.TRAILING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(comboBoxCredit, Alignment.TRAILING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 					
-						.addComponent(ErrorMSG).addComponent(TotalWeight))
+						.addComponent(ErrorMSG).addComponent(TotalWeight).addComponent(weightMSG))
 						.addPreferredGap(ComponentPlacement.UNRELATED)
 						.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
 						.addComponent(TotalTxtField, GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE)
@@ -256,7 +321,14 @@ public class DiyInterface extends Panel {
 						.addComponent(TotalWeight, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
 								GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
+						
+						.addComponent(weightMSG, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						
 						.addComponent(ErrorMSG, GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(AddBag, GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(BaggingAreaButton, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
@@ -264,6 +336,10 @@ public class DiyInterface extends Panel {
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(PayNowCredit, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
+						
+						.addComponent(enterMembership, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						
 						.addComponent(comboBoxCredit, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
 								GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
@@ -319,6 +395,12 @@ public class DiyInterface extends Panel {
 	public void updateWeightLabel(double weight) {
 		TotalWeight.setText("Total Weight:77 " + Double.toString(weight) + " grams");
 	}
+	
+	// Will use to set the weight-discrepancy text
+		public void updateWeightDiscrepancyLabel(String msg) {
+			// get msg from DIYSystem
+			weightMSG.setText(msg);
+		}
 
 	public void setMsg(String msg) {
 		ErrorMSG.setText(msg);
@@ -354,6 +436,14 @@ public class DiyInterface extends Panel {
 		PayNowCredit.setEnabled(false);
 		PayNowDebit.setEnabled(false);
 		PayNowCash.setEnabled(false);
+	}
+	
+	public void enableMembership() {
+		enterMembership.setEnabled(true);
+	}
+	
+	public void disableMembership() {
+		enterMembership.setEnabled(false);
 	}
 	
 	public void enableAddBagging() {

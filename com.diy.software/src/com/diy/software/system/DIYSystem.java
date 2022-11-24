@@ -16,6 +16,7 @@ import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
 
+import com.jimmyselectronics.Item;
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
 import com.jimmyselectronics.disenchantment.TouchScreenListener;
@@ -33,6 +34,8 @@ import com.unitedbankingservices.banknote.Banknote;
 import com.unitedbankingservices.coin.Coin;
 import com.unitedbankingservices.coin.CoinValidator;
 
+import ca.powerutility.PowerGrid;
+import ca.powerutility.PowerSurge;
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 
@@ -64,11 +67,14 @@ public class DIYSystem {
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
 	private ReceiptPrinterObserver printerObs;
-
 	
 	//Cusomter IO Windows
+	private AddBags bagWindow;
 	private Payment payWindow;
 	private PaymentDebit payWindowDebit;
+	
+	private Membership membershipWindow;
+	
 	private PaymentCash payWindowCash;
 	private DiyInterface mainWindow;
 	
@@ -85,6 +91,7 @@ public class DIYSystem {
 	private boolean requestAttendant = true;
 	private boolean systemEnabled = true;
 
+
 	private TouchScreen touchScreen;
 	private ElectronicScale baggingArea;
 	private BagDispenser bagDispenser;
@@ -95,16 +102,16 @@ public class DIYSystem {
 	
 	
 	private ArrayList<Long> coinDenominations = new ArrayList<Long>();
-//	private long[] acceptedCoinDemominations = {(long) 0.1,1}; //HARDCODE ACCEPTED COINS
-//	private Currency currency = Currency.getInstance(Locale.CANADA);
-//	private CoinValidator coinValidator;
+	//	private long[] acceptedCoinDemominations = {(long) 0.1,1}; //HARDCODE ACCEPTED COINS
+	//	private Currency currency = Currency.getInstance(Locale.CANADA);
+	//	private CoinValidator coinValidator;
 	
 	
 	
 	private Card debitCardSelected = null;
 	private Card creditCardSelected = null;
-	
-	
+
+
 	public DIYSystem(CustomerData c, AttendantStation a) {
 		customerData = c;
 		attendant = a;
@@ -175,15 +182,15 @@ public class DIYSystem {
 		//Setup the required observers		
 		cardReaderObs = new CardReaderObserver(this);
 		scannerObs = new BarcodeScannerObserver(this);
-		scaleObs = new ElectronicScaleObserver(this);
+		scaleObs = new ElectronicScaleObserver(this, this.attendant);
 		touchObs = new TouchScreenObserver();
 		printerObs = new ReceiptPrinterObserver(this);
 
 		
 		//Setup Cash validators
-//		for (long denom: acceptedCoinDemominations) //Could also be done in a function
-//			coinDenominations.add(denom);
-//		coinValidator = new CoinValidator(currency, coinDenominations);
+	//		for (long denom: acceptedCoinDemominations) //Could also be done in a function
+	//			coinDenominations.add(denom);
+	//		coinValidator = new CoinValidator(currency, coinDenominations);
 		
 		//Register the observer to the CardReader on the DIY Station
 		station.cardReader.register(cardReaderObs);
@@ -225,6 +232,7 @@ public class DIYSystem {
 		//mainWindow.disableBagging();
 		mainWindow.disablePaying();
 		mainWindow.disableScanning();
+		mainWindow.disableMembership();
 	}
 	
 	public void systemEnable() {
@@ -243,6 +251,7 @@ public class DIYSystem {
 		//mainWindow.enableBagging();
 		mainWindow.enablePaying();
 		mainWindow.enableScanning();
+		mainWindow.enableMembership();
 	}
 	
 	public boolean isEnabled() {
@@ -298,6 +307,8 @@ public class DIYSystem {
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
 		mainWindow.enableBagging();
+		mainWindow.disableMembership();
+		mainWindow.disableAddBagging();
 		mainWindow.setMsg("Bag Your Item:");
 	}
 	
@@ -307,17 +318,23 @@ public class DIYSystem {
 		mainWindow.enablePaying();
 		mainWindow.enableScanning();
 		mainWindow.disableBagging();
+		mainWindow.enableMembership();
+		mainWindow.enableAddBagging();
 	}
 	
 	public void disableScanningAndBagging() {
 		mainWindow.disableBagging();
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
+		mainWindow.disableMembership();
+		mainWindow.disableAddBagging();
 	}
 	
 	public void enableScanningAndBagging() {
 		mainWindow.enableScanning();
 		mainWindow.enablePaying();
+		mainWindow.enableMembership();
+		mainWindow.enableAddBagging();
 	}
 	
 	public boolean getWasPaymentPosted() {
@@ -328,13 +345,17 @@ public class DIYSystem {
 		this.wasPaymentPosted = state;
 	}
 	
-	private void sendMsgToGui(String string) {
+	public void sendMsgToGui(String string) {
 		// TODO Auto-generated method stub
 		mainWindow.setMsg(string);
 	}
 
 	public double getCurrentExpectedWeight() {
 		return baggingAreaExpectedWeight;
+	}
+	public double getCurrentWeight() throws OverloadException {
+		baggingAreaCurrentWeight = baggingArea.getCurrentWeight();
+		return baggingAreaCurrentWeight;
 	}
 	
 	public double updateExpectedWeight(ElectronicScale baggingArea, double itemExpectedWeight) throws OverloadException {
@@ -456,7 +477,7 @@ public class DIYSystem {
 		//Boot up the pin window
 		disableScanningAndBagging();
 		payWindowDebit = new PaymentDebit(this);
-	
+	}
 
 	/**
 	 * @author Jesse Dirks
@@ -473,6 +494,29 @@ public class DIYSystem {
 	}
 	
 	/**
+	 * @author Saja Abufarha
+	 * Start the Enter Membership Number process from the main window
+	 */
+	public void enterMembershipStart(String type) {		
+		//Boot up the membership window
+		disableScanningAndBagging();
+		membershipWindow = new Membership(this);
+	}
+	
+	/**
+	 * @author Saja Abufarha
+	 * Gets error message to signals the Customer I/O regarding the weight discrepancy. 
+	 * Will be called by Roze's code
+	 * 
+	 * Updates the message on the GUI
+	 * @param message
+	 */
+	public void notifyWeightDiscrepancy(String message) {
+		mainWindow.updateWeightDiscrepancyLabel(message);
+
+	}
+	
+	/**
 	 * @author brandonn38
 	 * Start the process of adding a bag
 	 */
@@ -481,15 +525,22 @@ public class DIYSystem {
 		bagWindow = new AddBags(this, attendant);
 	}
 	
+	
+	/**
+	 * Gets the data of the bag dispenser
+	 * @return The bagDispenser data
+	 */
 	public BagDispenser getBagDispenserData() {
-		return this.bagDispenser;
+		return bagDispenser;
 	}
 	
-	public void notifyBagWeightChange(String message) {
-		//TODO What kind of item do we add here?
-		//baggingArea.add(null);
+	/**
+	 * Gets a reference of the bagging area
+	 * @return The reference of the bagging area
+	 */
+	public ElectronicScale getBaggingAreaRef() {
+		return baggingArea;
 	}
-	
 
 	/**
 	 * Finalizes the pay by credit sequence
@@ -530,7 +581,10 @@ public class DIYSystem {
 	 * Finalizes the pay by Debit sequenece
 	 * @param pin, the pin from customer input
 	 */
-	public void payByDebit(String pin) {
+	public void payByDebit(String pin, double amountToPay) 
+	{
+		//for partial payments
+		this.amountToPay = amountToPay;
 		//normal insertion of card
 		
 		
@@ -562,8 +616,7 @@ public class DIYSystem {
 		disablePayOnGui();
 	}
 	
-<<<<<<< Updated upstream
-=======
+
 	/**
 	 * Rose
 	*/
@@ -575,7 +628,7 @@ public class DIYSystem {
 		else
 			systemEnable();
 	}
-	
+  
 	public void enterMembership(String membershipNumber) {
 		// MembershipWindow.memberNumber.getText() == membershipNumber;
 		
@@ -588,17 +641,17 @@ public class DIYSystem {
 			requestAttendant = true;
 	}
 	
-	
->>>>>>> Stashed changes
+  
 	/**
 	 * Finalizes the pay by Debit sequenece (using TAP)
 	 * @author simrat_benipal
 	 * @param nothing, we can tap without PIN
 	 */
 	
-	public void payByDebitTap() 
+	public void payByDebitTap(double amountToPay) 
 	{
-		
+		//for partial payments
+		this.amountToPay = amountToPay;
 		//check if the card has tap enabled or not
 		if(!debitCardSelected.isTapEnabled)
 		{
@@ -639,6 +692,7 @@ public class DIYSystem {
 			return;
 		}
 		}
+		printReceipt();
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -682,13 +736,15 @@ public class DIYSystem {
 	}
 	
 
-	 * Finalizes the pay by Debit sequenece (using TAP)
+	/* Finalizes the pay by Debit sequenece (using TAP)
 	 * @author simrat_benipal
 	 * @param nothing, we can tap without PIN
 	 */
 	
-	public void payByDebitSwipe() 
+	public void payByDebitSwipe(double amountToPay) 
 	{
+		//for partial payments
+		this.amountToPay = amountToPay;
 		
 		
 		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
@@ -722,6 +778,7 @@ public class DIYSystem {
 			payWindowDebit.setMessage(e.getMessage());
 			return;
 		}
+		printReceipt();
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -731,12 +788,14 @@ public class DIYSystem {
 	 * @author simrat_benipal 
 	 * Iteration 2.0 
 	 */
-	public void payByCreditTap() 
+	public void payByCreditTap(double amountToPay) 
 	{
+		//for partial payments
+		this.amountToPay = amountToPay;
 		//check if the card has tap enabled or not
 		if(!creditCardSelected.isTapEnabled)
 		{
-			payWindowDebit.setMessage("This card cannot tap!");
+			payWindow.setMessage("This card cannot tap!");
 			return;
 		}
 		else
@@ -757,22 +816,23 @@ public class DIYSystem {
 			//and this return CardData Object
 		} catch(BlockedCardException e) 
 		{
-			payWindowDebit.setMessage("The card has been blocked!");
+			payWindow.setMessage("The card has been blocked!");
 			return;
 		} catch(IllegalStateException e) 
 		{
-			payWindowDebit.setMessage(e.getMessage());
+			payWindow.setMessage(e.getMessage());
 			return;
 		} catch(ChipFailureException e) 
 		{
-			payWindowDebit.setMessage("Random Tap Failure! Try Again!!");
+			payWindow.setMessage("Random Tap Failure! Try Again!!");
 			return;
 		} catch(IOException e) 
 		{
-			payWindowDebit.setMessage(e.getMessage());
+			payWindow.setMessage(e.getMessage());
 			return;
 		}
 		}
+		printReceipt();
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -782,9 +842,11 @@ public class DIYSystem {
 	 * @author simrat_benipal
 	 * @param nothing, we can tap without PIN
 	 */
-	
-	public void payByCreditSwipe() 
+	public void payByCreditSwipe(double amountToPay) 
 	{
+		//for partial payments
+		this.amountToPay = amountToPay;
+		
 		
 		
 		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
@@ -803,21 +865,22 @@ public class DIYSystem {
 			//and this return CardData Object
 		} catch(BlockedCardException e) 
 		{
-			payWindowDebit.setMessage("The card has been blocked!");
+			payWindow.setMessage("The card has been blocked!");
 			return;
 		} catch(IllegalStateException e) 
 		{
-			payWindowDebit.setMessage(e.getMessage());
+			payWindow.setMessage(e.getMessage());
 			return;
 		} catch(ChipFailureException e) 
 		{
-			payWindowDebit.setMessage("Random Swipe Failure! Try Again!!");
+			payWindow.setMessage("Random Swipe Failure! Try Again!!");
 			return;
 		} catch(IOException e) 
 		{
-			payWindowDebit.setMessage(e.getMessage());
+			payWindow.setMessage(e.getMessage());
 			return;
 		}
+		printReceipt();
 		//WE GET HERE, THE PAYMENT WAS PROCESSED
 		disablePayOnGui();
 	}
@@ -905,6 +968,7 @@ public class DIYSystem {
 				//suspend station
 				systemDisable();
 				payWindowMessage("printer error- please wait for attendant");
+				System.out.println("printer error ");
 				
 				//notify attendant->via ReceiptPrinterObserver
 
@@ -915,6 +979,10 @@ public class DIYSystem {
 			} catch (OverloadException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+			catch (PowerSurge p)
+			{
+				PowerGrid.reconnectToMains();
 			}
 			
 		}
@@ -964,27 +1032,7 @@ public class DIYSystem {
 			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
 	}
 	
-	public void weightDiscrepancy(ElectronicScale baggingArea, double currentWeight) throws OverloadException {
-		//Compare current weight vs previous weight
-		double expected_weight = getCurrentExpectedWeight();
-		//double current_weight = baggingArea.getCurrentWeight();
 
-		if (expected_weight < currentWeight){
-			//Station to disabled scanning
-			station.scanner.disable();
-			//GUI to disable scanning and bagging
-			disableScanningAndBagging();
-			//Signal attendant to help
-			requestAttendant = true;
-		}
-		else if (expected_weight == currentWeight){
-			station.scanner.enable();
-			enableScanningAndBagging();
-		}
-
-	}
-	
-	
 	public boolean get_requestAttendant(){
 		return requestAttendant;
 	}
@@ -996,3 +1044,4 @@ public class DIYSystem {
 	public void bagsRefilled() {
 		mainWindow.setMsg("");
 	}
+}
