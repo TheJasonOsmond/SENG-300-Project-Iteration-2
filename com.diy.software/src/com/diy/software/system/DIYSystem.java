@@ -737,24 +737,7 @@ public class DIYSystem {
 		updateGUIItemListPayment(amount);
 	}
 	
-	/**
-	 * Simulates Collecting Change 
-	 */
-	public double collectChange() {
-		ArrayList<Coin> coinsCollected = (ArrayList<Coin>) station.coinTray.collectCoins();
-		double totalChangeCollected = 0;
-		for (Coin coin : coinsCollected) {
-			totalChangeCollected += (double) coin.getValue();
-		}
-		if (station.banknoteInput.hasDanglingBanknote()) {
-			Banknote b = station.banknoteInput.removeDanglingBanknote();
-			totalChangeCollected += (double) b.getValue();
-		}
-		
-		payWindowCash.changeCollected();
-		
-		return totalChangeCollected;
-	}	
+
 	
 	
 	/**
@@ -937,6 +920,10 @@ public class DIYSystem {
 		for (Coin coin : coinsCollected) {
 			System.out.println("Collected a $"+ coin.getValue() + " coin");
 			totalChangeCollected += (double) coin.getValue();
+		}
+		if (station.banknoteInput.hasDanglingBanknote()) {
+			Banknote b = CollectBanknoteFromInput();
+			totalChangeCollected += (double) b.getValue();
 		}
 		
 		payWindowCash.changeCollected();

@@ -85,8 +85,8 @@ public class PaymentCash {
 		});
 		payPanel.add(btnCoin2);
 		
-		insertNote = new JButton("Insert $5 Banknote");
-		insertNote.addActionListener(e -> {
+		btnNote5 = new JButton("Insert $5 Banknote");
+		btnNote5.addActionListener(e -> {
 			if (station.InsertBanknote(station.getCurrency(), 5) == false) {
 				enableCollectChange();
 			}
