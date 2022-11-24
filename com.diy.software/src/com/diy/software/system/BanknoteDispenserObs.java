@@ -51,9 +51,9 @@ public class BanknoteDispenserObs implements BanknoteDispenserObserver {
 	 */
 	@Override
 	public void billAdded(IBanknoteDispenser dispenser, Banknote banknote) {
-		sys.decreaseReceiptPrice(banknote.getValue());
-		sys.ValidCashReceived(banknote.getValue());
-		sys.payWindowMessage("Your note has been accepted: $" + banknote.getValue());
+//		sys.decreaseReceiptPrice(banknote.getValue());
+//		sys.ValidCashReceived(banknote.getValue());
+//		sys.payWindowMessage("Your note has been accepted: $" + banknote.getValue());
 	}
 
 	/**
@@ -66,7 +66,9 @@ public class BanknoteDispenserObs implements BanknoteDispenserObserver {
 	 *            The banknote that was removed.
 	 */
 	@Override
-	public void banknoteRemoved(IBanknoteDispenser dispenser, Banknote banknote) {}
+	public void banknoteRemoved(IBanknoteDispenser dispenser, Banknote banknote) {
+		sys.decreaseChangeDue(banknote.getValue());
+	}
 
 	/**
 	 * Called to announce that the indicated sequence of banknotes has been added to

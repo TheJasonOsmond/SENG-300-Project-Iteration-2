@@ -75,6 +75,7 @@ public class DIYSystem {
 	private CoinValidatorObs coinValidatorObs;
 	private BanknoteValidatorObs banknoteValidatorObs;
 	private BanknoteStorageUnitObs banknoteStorageObs;
+	private BanknoteSlotROutputObs banknoteSlotROutputObs;
 	private AddBags bagWindow;
 	
 	//Customer IO Windows
@@ -108,7 +109,7 @@ public class DIYSystem {
 	private final Currency currency = Currency.getInstance(Locale.CANADA);
 	
 	private long[] acceptedCoinDemominations = {2l,1l}; //HARDCODE ACCEPTED COINS IN DECREASING ORDER
-	private int[] acceptedNoteDemominations = {20, 10, 5}; //HARDCODE ACCEPTED NOTES IN DECREASING ORDER
+	private int[] acceptedNoteDemominations = {100, 50, 20, 10, 5}; //HARDCODE ACCEPTED NOTES IN DECREASING ORDER
 	
 	private double changeDue = 0; //amount we owe customer
 	private double changeReturned = 0;
@@ -198,6 +199,7 @@ public class DIYSystem {
 		coinValidatorObs = new CoinValidatorObs(this);
 		banknoteValidatorObs = new BanknoteValidatorObs(this);
 		banknoteStorageObs =  new BanknoteStorageUnitObs(this);
+		banknoteSlotROutputObs = new BanknoteSlotROutputObs(this);
 		
 		
 		
@@ -213,12 +215,14 @@ public class DIYSystem {
 		//Attach Listeners to cash sinks
 		station.banknoteValidator.attach(banknoteValidatorObs);
 		station.banknoteStorage.attach(banknoteStorageObs);
+		station.banknoteOutput.attach(banknoteSlotROutputObs);
 		attachToCoinDispensers();
 		attachToNoteDispensers();
 		
 		//Setup cash payments
 //		SetupCoinValidator();
 		simulateLoadAllCoinDispensers(15);
+		simulateLoadAllNoteDispensers(15);
 		
 		//Setup the Customer and start using the DIY station
 		customerData.customer.useStation(station);
@@ -713,21 +717,6 @@ public class DIYSystem {
 		updateGUIItemListPayment(amount);
 	}
 	
-	/**
-	 * Simulates Collecting Change 
-	 */
-	public double collectChange() {
-		ArrayList<Coin> coinsCollected = (ArrayList<Coin>) station.coinTray.collectCoins();
-		double totalChangeCollected = 0;
-		for (Coin coin : coinsCollected) {
-			totalChangeCollected += (double) coin.getValue();
-		}
-		
-		payWindowCash.changeCollected();
-		
-		return totalChangeCollected;
-	}	
-	
 	
 	/**
 	 * Adds Listeners to all the coin dispensers
@@ -785,6 +774,40 @@ public class DIYSystem {
 	}
 	
 	/**
+	 * Probably call this with Attendant Station
+	 * @author Jason Osmond
+	 * @param amountToLoad
+	 * 		Number of notes to simulate loading for each denomination
+	 */
+	public void simulateLoadAllNoteDispensers(int amountToLoad) {
+		for (int denomination: station.banknoteDenominations) {
+			//Get dispenser
+			BanknoteDispenserAR noteDispenser = 
+					station.banknoteDispensers.get(denomination);
+			if (noteDispenser == null)
+				continue;
+			
+			//Simulate coins
+			Banknote[] banknotes = new Banknote[amountToLoad];
+			
+			for (int i = 0; i < banknotes.length; i++)
+				banknotes[i] = new Banknote(currency, denomination);
+			
+			//Try to load into dispenser
+			try {
+				noteDispenser.load(banknotes);
+			}catch (TooMuchCashException e){
+				System.out.println(e);
+				continue;
+			}catch (NoPowerException e) {
+				System.out.println(e);
+				continue;
+			}			
+		}
+	}
+	
+	
+	/**
 	 * Dispenses all change into the coin tray
 	 * Change returned favors larger denominations
 	 * @author Jason Osmond
@@ -792,11 +815,10 @@ public class DIYSystem {
 	public void dispenseChangeDue() {
 		//Looks at each denomination and if denom is larger than change due
 		//BEST WHEN: Denominations are be sorted in DECREASING order
-		for(long denomination : station.coinDenominations) {
-			while (changeDue >= denomination 
-					|| (denomination == 0.05 && changeDue >= 0.03)){//Round to the nearest nickel
+		for(int denomination : acceptedNoteDemominations) {
+			while (changeDue + 0.02 >= denomination){//Round to the nearest nickel
 				try {
-					CoinDispenserAR dispenser = station.coinDispensers.get(denomination);
+					BanknoteDispenserAR dispenser = station.banknoteDispensers.get(denomination);
 					dispenser.emit();
 				}catch (OutOfCashException e) {
 					e.printStackTrace();
@@ -804,6 +826,29 @@ public class DIYSystem {
 				} catch (TooMuchCashException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					break;
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					break;
+				}
+				//TODO Dispensing in this case does not 100% guarantee the customer has received the cash
+				
+			}
+		}
+		//dispense coins
+		for(long denomination : station.coinDenominations) {
+			while (changeDue + 0.02 >= denomination){//Round to the nearest nickel
+				try {
+					CoinDispenserAR dispenser = station.coinDispensers.get(denomination);
+					dispenser.emit();
+//					CollectBanknoteFromOutput();
+				}catch (OutOfCashException e) {
+//					e.printStackTrace();
+					break; //move to next denomination
+				} catch (TooMuchCashException e) {
+//					 TODO Auto-generated catch block
+//					e.printStackTrace();
 					break;
 				} catch (DisabledException e) {
 					// TODO Auto-generated catch block
@@ -825,7 +870,41 @@ public class DIYSystem {
 			
 	}
 	
+	public Banknote CollectBanknoteFromOutput() {
+		try {
+			Banknote note = station.banknoteOutput.removeDanglingBanknote();
+			System.out.println("Collected a $"+ note.getValue() + " note");
+			return note;			
+		}catch (NullPointerSimulationException e) {
+			return null;
+		}
+	}
+	
+	public Banknote CollectBanknoteFromInput() {
+		try {
+			return station.banknoteOutput.removeDanglingBanknote();			
+		}catch (NullPointerSimulationException e) {
+			return null;
+		}
+	}
 
+	/**
+	 * Simulates Collecting Change 
+	 * @author Jason Osmond
+	 */
+	public double collectChange() {
+		ArrayList<Coin> coinsCollected = (ArrayList<Coin>) station.coinTray.collectCoins();
+		double totalChangeCollected = 0;
+		for (Coin coin : coinsCollected) {
+			System.out.println("Collected a $"+ coin.getValue() + " coin");
+			totalChangeCollected += (double) coin.getValue();
+		}
+		
+		payWindowCash.changeCollected();
+		
+		return totalChangeCollected;
+	}	
+	
 	
 
 	/* Finalizes the pay by Debit sequenece (using TAP)

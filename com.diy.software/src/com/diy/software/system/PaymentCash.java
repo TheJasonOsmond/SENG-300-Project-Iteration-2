@@ -37,7 +37,7 @@ public class PaymentCash {
 	
 	private JButton confirm, btncollectChange, btnCloseWindow;
 	private JButton	btnCoin1, btnCoin2; 
-	private JButton insertNote;
+	private JButton btnNote5, btnNote100;
 	
 	private double cashReceived = 0, changeCollected = 0;
 	private boolean payWasSuccessful = false;
@@ -85,11 +85,17 @@ public class PaymentCash {
 		});
 		payPanel.add(btnCoin2);
 		
-		insertNote = new JButton("Insert $5 Banknote");
-		insertNote.addActionListener(e -> {
+		btnNote5 = new JButton("Insert $5 Banknote");
+		btnNote5.addActionListener(e -> {
 			station.InsertBanknote(station.getCurrency(), 5);
 		});
-		payPanel.add(insertNote);
+		payPanel.add(btnNote5);
+		
+		btnNote100 = new JButton("Insert $100 Banknote");
+		btnNote100.addActionListener(e -> {
+			station.InsertBanknote(station.getCurrency(), 100);
+		});
+		payPanel.add(btnNote100);
 		
 		// pinLabel = new JLabel("PIN", SwingConstants.LEFT);
 		
@@ -212,7 +218,9 @@ public class PaymentCash {
 	private void blockCashInsertion() {
 		btnCoin1.setEnabled(false);
 		btnCoin2.setEnabled(false);
-		insertNote.setEnabled(false);
+		btnNote5.setEnabled(false);
+		btnNote100.setEnabled(false);
+		
 	}
 	
 //	private void unblockCashInsertion(){
