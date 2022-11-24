@@ -3,7 +3,7 @@ Group 5
 
 Functionality to do list:
 * Weight Discrepancy -- Mai & Brandon (done)
-* Enter Membership Number by Typing -- Rose & Saja & Benjamin (unknown)
+* Enter Membership Number by Typing -- Rose & Saja & Benjamin (done)
 * Add Own Bags -- Mai & Brandon (done)
 * Purchase Bags -- Mai & Brandon (done)
 * Pay with Cash -- Jason & Jesse (in-progress)
@@ -13,11 +13,11 @@ Functionality to do list:
 
 
 Testing to do list: 
-* Weight Discrepancy -- Mai & Brandon & Dayee(in-progress)
+* Weight Discrepancy -- Mai & Brandon & Dayee(done)
 * Enter Membership Number by Typing -- Rose & Saja (unknown)
-* Add Own Bags -- Mai & Brandon & Dayee(in-progress)
-* Purchase Bags -- Mai & Brandon & Dayee(in-progress) 
+* Add Own Bags -- Mai & Brandon & Dayee(done)
+* Purchase Bags -- Mai & Brandon & Dayee(done) 
 * Pay with Cash -- Jason & Jesse (in-progress)
-* Pay with Debit/Credit Card -- Eusa  and Simrat (in-progress)
+* Pay with Debit/Credit Card -- Eusa  and Simrat (done)
 * Add Item [after partial payment] - Jason & Jesse (unknown)
 * Print Receipt (Low Paper & Low Ink) -- Benjamin & Dayee (done)
