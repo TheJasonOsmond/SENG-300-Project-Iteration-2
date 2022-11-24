@@ -13,7 +13,7 @@ Functionality to do list:
 
 
 Testing to do list: 
-* Weight Discrepancy -- Mai & Brandon & Dayee(done)
+* Weight Discrepancy -- Rose & Saja (unknown)
 * Enter Membership Number by Typing -- Rose & Saja (unknown)
 * Add Own Bags -- Mai & Brandon & Dayee(done)
 * Purchase Bags -- Mai & Brandon & Dayee(done) 
