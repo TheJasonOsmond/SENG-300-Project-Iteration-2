@@ -8,12 +8,12 @@ import com.unitedbankingservices.coin.ICoinDispenser;
 /**
  * Observes events emanating from a coin storage unit.
  */
-public class CoinDispenserObs implements CoinDispenserObserver {
+public class ChangeDispenserObs implements CoinDispenserObserver {
 	
 	private DIYSystem sys;
 	private long denomination;
 	
-	public CoinDispenserObs(DIYSystem s, long denomination) {
+	public ChangeDispenserObs(DIYSystem s, long denomination) {
 		this.sys = s;
 		this.denomination = denomination;
 	}
@@ -25,7 +25,9 @@ public class CoinDispenserObs implements CoinDispenserObserver {
 	 *            The dispenser where the event occurred.
 	 */
 	@Override
-	public void coinsFull(ICoinDispenser dispenser) {}
+	public void coinsFull(ICoinDispenser dispenser) {
+		
+	}
 
 	/**
 	 * Announces that the indicated coin dispenser is empty of coins.
@@ -34,7 +36,9 @@ public class CoinDispenserObs implements CoinDispenserObserver {
 	 *            The dispenser where the event occurred.
 	 */
 	@Override
-	public void coinsEmpty(ICoinDispenser dispenser) {}
+	public void coinsEmpty(ICoinDispenser dispenser) {
+		
+	}
 
 	/**
 	 * Announces that the indicated coin has been added to the indicated coin
@@ -47,10 +51,7 @@ public class CoinDispenserObs implements CoinDispenserObserver {
 	 */
 	@Override
 	public void coinAdded(ICoinDispenser dispenser, Coin coin) {
-		sys.decreaseReceiptPrice(denomination);
-		sys.ValidCashReceived(denomination);
-		sys.payWindowMessage("Your cash has been accepted: $" + denomination);
-		sys.updateGUIItemListPayment(denomination);
+
 	}
 
 	/**
@@ -63,7 +64,9 @@ public class CoinDispenserObs implements CoinDispenserObserver {
 	 *            The coin that was removed.
 	 */
 	@Override
-	public void coinRemoved(ICoinDispenser dispenser, Coin coin) {}
+	public void coinRemoved(ICoinDispenser dispenser, Coin coin) {
+		sys.decreaseChangeDue(coin.getValue());
+	}
 
 	/**
 	 * Announces that the indicated sequence of coins has been added to the

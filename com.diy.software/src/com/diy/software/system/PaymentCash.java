@@ -25,7 +25,10 @@ import javax.swing.GroupLayout.Alignment;
 import java.awt.CardLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
-
+/**
+ * 
+ * @author Jason Osmond
+ */
 public class PaymentCash {
 	private DIYSystem station;
 	private JFrame payFrame;
@@ -36,13 +39,12 @@ public class PaymentCash {
 	private JButton	btnCoin1, btnCoin2; 
 	private JButton insertNote;
 	
-	private double cashReceived = 0, amountRemaining, changeDue = 0;
+	private double cashReceived = 0, changeCollected = 0;
 	private boolean payWasSuccessful = false;
 
 	public PaymentCash(DIYSystem sys) {
 		//this is just copy paste from Payment.java for now...
 		station = sys;
-		amountRemaining = station.getReceiptPrice();
 		Currency curr = Currency.getInstance(Locale.CANADA);
 		
 		payFrame = new JFrame("***** Pay by Cash *****");
@@ -59,10 +61,8 @@ public class PaymentCash {
 		payPanel.setLayout(new GridLayout(0, 1));
 		payPanel.setBorder(BorderFactory.createEmptyBorder(30,30,10,30));
 		payFrame.getContentPane().add(payPanel);
-		confirmLabel = new JLabel("");
-		confirmLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-		remainingLabel = new JLabel("Amount Remaining: $" +  amountRemaining);
+		remainingLabel = new JLabel("Amount Remaining: $" +  station.getReceiptPrice());
 		remainingLabel.setHorizontalAlignment(JLabel.CENTER);
 		payPanel.add(remainingLabel);
 		
@@ -93,32 +93,38 @@ public class PaymentCash {
 		
 		// pinLabel = new JLabel("PIN", SwingConstants.LEFT);
 		
-		// When the Confirm button is pressed, tell the system to start the payment
-		// process
-		confirm = new JButton("Confirm Payment Details");
-		confirm.addActionListener(e -> {
-			station.payByCash(cashReceived);
-			checkIfChangeisDue();
-		});
-		payPanel.add(confirm);
+
 		
 		//Collect Change
 		btncollectChange = new JButton("Collect Change");
 		btncollectChange.addActionListener(e -> {
-			station.collectChange();
-			System.out.println("Collect Change Pressed");
-			//station.payByCash(cashReceived);
+			changeCollected = station.collectChange();
+//			station.updateGUIItemListCollectCash(changeCollected);
+//			closeWindow();
 		});
 		payPanel.add(btncollectChange);
 
-		btnCloseWindow = new JButton("Exit");
-		btnCloseWindow.addActionListener(e -> {
-			if (cashReceived > 0);
-				station.updateGUIItemListPayment(cashReceived);
-			closeWindow();
-		});
+//		btnCloseWindow = new JButton("Exit");
+//		btnCloseWindow.addActionListener(e -> {
+//			if (cashReceived > 0);
+//				station.updateGUIItemListPayment(cashReceived);
+//			closeWindow();
+//		});
 		
-		payPanel.add(btnCloseWindow);
+//		payPanel.add(btnCloseWindow);
+		
+		// When the Confirm button is pressed, tell the system to start the payment
+		// process
+		confirm = new JButton("Confirm Payment & Exit");
+		confirm.addActionListener(e -> {
+			station.payByCash(cashReceived);
+			if(!checkIfChangeisDue())
+				closeWindow();
+		});
+		payPanel.add(confirm);
+		
+		confirmLabel = new JLabel("");
+		confirmLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		payPanel.add(confirmLabel);
 		
 		disableCollectChange();
@@ -128,13 +134,24 @@ public class PaymentCash {
 		payFrame.pack();
 		payFrame.setSize(400, 600);
 	}
-
+	
+	public void cashReceived(long cashAmount) {
+		cashReceived += cashAmount;
+		updateCashDisplay();
+	}
+	
 	public void updateCashDisplay() {
 		cashDisplay.setText("Cash Inserted: $" + 
 				(double) Math.ceil(cashReceived * 100) / 100);
-		remainingLabel.setText("Amount Remaining: $" +  amountRemaining);
+		remainingLabel.setText("Amount Remaining: $" +  station.getReceiptPrice());
 		blockIfCashExceedTotal();
 	}
+	
+	public void changeCollected() {
+		closeWindow();
+	}
+	
+	
 	
 	/**
 	 * Triggered from the system to update the message that the customer can see
@@ -150,35 +167,16 @@ public class PaymentCash {
 		return this.confirmLabel.getText();
 	}
 	
-	public void addChangeDue(double amount) {
-		if(amount > 0) { //change must be non-negative
-			changeDue += amount;			
-		}
-		
-	}
-	
-	public void deductChangeDue(double amount) {
-		if(amount >= changeDue) { //change must be non-negative
-			changeDue = 0;	
-			return;
-		}
-		changeDue -= amount;	
-	}
-	
-	
-	public void collectChange(double amountCollected) {
-		deductChangeDue(amountCollected);
-		if (changeDue == 0) {
-			closeWindow();			
-		}
-	}
-	
-	public void checkIfChangeisDue() {
-		if(changeDue > 0) {
+	public boolean checkIfChangeisDue() { //TODO Should be done in the station
+		if(station.getChangeDue() > 0) {
 			enableCollectChange();
-			disableCloseWindow();
+//			disableCloseWindow();
 			disablePaying();
-		}		
+			station.dispenseChangeDue();
+			setMessage("Please Collect Change Before Proceeding");
+			return true;
+		}	
+		return false;
 	}
 	
 	private void disableCollectChange() {
@@ -189,9 +187,9 @@ public class PaymentCash {
 	}
 	
 	
-	public void disableCloseWindow() {
-		btnCloseWindow.setEnabled(false);
-	}
+//	public void disableCloseWindow() {
+//		btnCloseWindow.setEnabled(false);
+//	}
 		
 	
 	public void disablePaying() {
@@ -202,20 +200,6 @@ public class PaymentCash {
 	
 	public void updatePayStatus(boolean status) {
 		this.payWasSuccessful = status;
-	}
-
-	public void addCashReceived(long amountAdded) {
-		cashReceived += amountAdded;
-		deductRemaining(amountAdded);
-	}
-	
-	private void deductRemaining(long amount) {
-		if( amountRemaining > amount){
-			amountRemaining -= amount;
-			return;
-		}
-		amountRemaining = 0;
-		return;
 	}
 	
 	
@@ -231,11 +215,11 @@ public class PaymentCash {
 		insertNote.setEnabled(false);
 	}
 	
-	private void unblockCashInsertion(){
-		btnCoin1.setEnabled(true);
-		btnCoin2.setEnabled(true);
-		insertNote.setEnabled(true);
-	}
+//	private void unblockCashInsertion(){
+//		btnCoin1.setEnabled(true);
+//		btnCoin2.setEnabled(true);
+//		insertNote.setEnabled(true);
+//	}
 	
 	private void closeWindow() {
 		station.enableScanningAndBagging();

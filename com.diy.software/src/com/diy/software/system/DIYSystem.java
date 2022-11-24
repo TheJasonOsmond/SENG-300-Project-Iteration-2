@@ -29,6 +29,7 @@ import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
 
 import com.unitedbankingservices.DisabledException;
+import com.unitedbankingservices.OutOfCashException;
 import com.unitedbankingservices.Sink;
 import com.unitedbankingservices.TooMuchCashException;
 import com.unitedbankingservices.banknote.Banknote;
@@ -37,6 +38,7 @@ import com.unitedbankingservices.coin.CoinDispenserAR;
 import com.unitedbankingservices.coin.CoinStorageUnit;
 import com.unitedbankingservices.coin.CoinValidator;
 
+import ca.powerutility.NoPowerException;
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 
@@ -82,6 +84,7 @@ public class DIYSystem {
 	
 	//System Variables
 	private double amountToBePayed; //TOTAL AMOUNT OWED BY CUSTOMER, INCREMENTED ON SUCCESSFULL ITEM SCAN VIA BARCODESCANNEROBSERVER
+
 	private double baggingAreaCurrentWeight;
 	private double baggingAreaExpectedWeight;
 	private boolean wasSuccessScan = false;
@@ -99,13 +102,14 @@ public class DIYSystem {
 	private double amountToPay;
 	
 	
+	public CoinTray coinTray; //Physical tray for customer to pick up coins
 	private CoinValidator coinValidator;
 	private ArrayList<Long> coinDenominations = new ArrayList<Long>();
 	private long[] acceptedCoinDemominations = {1,2}; //HARDCODE ACCEPTED COINS
 	private Currency currency = Currency.getInstance(Locale.CANADA);
-	private CoinTray coinTray;
-	
-	
+	private HashMap<Long, CoinDispenserAR> changeDispensers;
+	private double changeDue = 0; //amount we owe customer
+	private double changeReturned = 0;
 	
 	private Card debitCardSelected = null;
 	private Card creditCardSelected = null;
@@ -187,9 +191,11 @@ public class DIYSystem {
 		coinValidatorObs = new CoinValidatorObserverImpl(this);
 
 		
+		//Setup cash payments
 		coinTray = new CoinTray(50);
-		//Setup Cash validators
 		SetupCoinValidator();
+		setupChangeDispensers();
+		simulateLoadAllChangeDispensers(15);
 		
 		//Register the observer to the CardReader on the DIY Station
 		station.cardReader.register(cardReaderObs);
@@ -466,7 +472,7 @@ public class DIYSystem {
 	}
 
 	/**
-	 * @author Jesse Dirks
+	 * @author Jesse Dirks, Jason Osmond
 	 * Start the pay by cash process from the main window
 	 */
 	public void payByCashStart() {
@@ -628,6 +634,7 @@ public class DIYSystem {
 	
 	/**
 	 * Inserts a coin into the coin slot
+	 * @author Jason Osmond
 	 */
 	public void InsertCoin(Currency curr, long denomination) { //TODO
 		
@@ -644,6 +651,7 @@ public class DIYSystem {
 	
 	/**
 	 * Inserts a banknote into the banknote slot
+	 * @author Jason Osmond
 	 */
 	public void InsertBanknote(Currency curr, long denomination) { //TODO
 		
@@ -656,19 +664,22 @@ public class DIYSystem {
 			payWindowCash.setMessage(e.getMessage());
 		}
 	}
-	
+	/**
+	 * Initializes coin validator and all associated coin storage units
+	 * @author Jason Osmond
+	 */
 	private void SetupCoinValidator() {
 		for (Long denomination: acceptedCoinDemominations)
 			coinDenominations.add(denomination);
 		coinValidator = new CoinValidator(currency, coinDenominations);
 		
-		CoinTray rejectSink = coinTray; //Rejection sink 
-		CoinStorageUnit overflowSink = new CoinStorageUnit(100); //Overflow sink
+		CoinTray coinRejectSink = coinTray; //Rejection sink 
+		CoinStorageUnit coinOverflowSink = new CoinStorageUnit(1000); //Overflow sink
 //		rejectSink.connect(); rejectSink.activate(); 
-		overflowSink.connect(); overflowSink.activate();
+		coinOverflowSink.connect(); coinOverflowSink.activate();
 		
 		//Generate extra coin sinks for setup
-		HashMap<Long, Sink<Coin>> standardSinks = new HashMap();
+		HashMap<Long, Sink<Coin>> standardSinks = new HashMap<Long, Sink<Coin>>();
 		//For each denom, create and activate a storage space and observer 
 		for (Long denomination : acceptedCoinDemominations) {
 			/*
@@ -678,14 +689,12 @@ public class DIYSystem {
 			CoinStorageUnit coinStorage = new CoinStorageUnit(100); 
 			coinStorage.connect();
 			coinStorage.activate();
-			
-			CoinStoreDenomObs coinStorageObs = new CoinStoreDenomObs(this, denomination);
-			coinStorage.attach(coinStorageObs);
+			coinStorage.attach(new CoinStoreDenomObs(this, denomination));
 			
 			standardSinks.put(denomination, coinStorage);
 		}
 		try {
-			coinValidator.setup(rejectSink, standardSinks, overflowSink);
+			coinValidator.setup(coinRejectSink, standardSinks, coinOverflowSink);
 		}catch(NullPointerSimulationException e){
 			System.out.println(e);
 			return;
@@ -693,61 +702,150 @@ public class DIYSystem {
 			System.out.println(e);
 			return;
 		}
-		coinValidator.attach(coinValidatorObs); //coin Validator is not currently used
+		coinValidator.attach(coinValidatorObs); //coin validator is not currently used
 		station.coinSlot.sink = coinValidator;	
 
 		station.coinSlot.connect();
 		station.coinSlot.activate();
 		coinValidator.connect();
 		coinValidator.activate();
-		
-		
 	}
-	
-	/*
-	 * TODO Currently cash is stored and never returned
-	 * This means if the customer exits this value is kept
-	 * Can be exploited with 
-	 * If we implement a way to return cash 
-	 */
 	
 	/**
 	 * Called when a denomination storage unit receives a coin
+	 * @author Jason Osmond
 	 * @param cashAmount
 	 */
 	public void ValidCashReceived(long cashAmount) {
-		System.out.println("Valid Cash Received = " + cashAmount);
-		payWindowCash.addCashReceived(cashAmount); 
-		payWindowCash.updateCashDisplay(); //Update UI of cash Inserted
+		System.out.println("Valid Cash Received = " + cashAmount); 
+		payWindowCash.cashReceived(cashAmount); //Update UI of cash Inserted
 		
 	}
 	
 	/**
+	 * Called when customer presses confirm in Pay with cash screen
 	 * Finalizes Pay with cash sequence
+	 * Only affects GUI, actual transaction processed when cash is inserted
+	 * @author Jason Osmond
 	 */
 	public void payByCash(double amount) {
 		if (amount <= 0) {
 			payWindowCash.setMessage("Please Insert Cash Before Confirming");
 			return;
-		}
-		System.out.println("TODO: Confirm Cash Payment of $"+ amount);
-		
-		payWindowCash.addChangeDue(1);
+		}		
 		updateGUIItemListPayment(amount);
-		
-		
 	}
 	
-	public void collectChange() {
+	/**
+	 * Simulates Collecting Change 
+	 */
+	public double collectChange() {
 		ArrayList<Coin> coinsCollected = (ArrayList<Coin>) coinTray.collectCoins();
 		double totalChangeCollected = 0;
 		for (Coin coin : coinsCollected) {
 			totalChangeCollected += (double) coin.getValue();
 		}
-		totalChangeCollected = 1000; //TODO Implement this
-		payWindowCash.collectChange(totalChangeCollected);
-		updateGUIItemListCollectCash(totalChangeCollected);
+		
+
+		payWindowCash.changeCollected();
+		
+		return totalChangeCollected;
+	}	
+	
+	
+	/**
+	 * As there is no coinTray equivalent for bank notes,
+	 * change will be exclusively in coins
+	 * @author Jason Osmond
+	 */
+	private void setupChangeDispensers() {
+		changeDispensers = new HashMap<Long, CoinDispenserAR>();
+		for (long denomination : coinDenominations) {
+			CoinDispenserAR coinDispenser = new CoinDispenserAR(1000);
+			coinDispenser.connect();
+			coinDispenser.activate();
+			coinDispenser.sink = coinTray;
+			coinDispenser.attach(new ChangeDispenserObs(this, denomination));
+			changeDispensers.put(denomination, coinDispenser);
+		}
 	}
+	
+	/**
+	 * Probably call this with Attendant Station
+	 * @author Jason Osmond
+	 * @param amountToLoad
+	 * 		Number of coins to simulate loading
+	 */
+	public void simulateLoadAllChangeDispensers(long amountToLoad) {
+		for (long denomination: coinDenominations) {
+			//Get dispenser
+			CoinDispenserAR changeDispenser = 
+					changeDispensers.get(denomination);
+			if (changeDispenser == null)
+				continue;
+			
+			//Simulate coins
+			Coin[] coins = new Coin[(int) amountToLoad];
+			
+			for (int i = 0; i < coins.length; i++)
+				coins[i] = new Coin(currency, denomination);
+			
+			//Try to load into dispenser
+			try {
+				changeDispenser.load(coins);
+			}catch (TooMuchCashException e){
+				System.out.println(e);
+				continue;
+			}catch (NoPowerException e) {
+				System.out.println(e);
+				continue;
+			}			
+		}
+	}
+	
+	/**
+	 * Dispenses all change into the coin tray
+	 * Change returned favors larger denominations
+	 * @author Jason Osmond
+	 */
+	public void dispenseChangeDue() {
+		//Looks at each denomination and if denom is larger than change due
+		for(long denomination : coinDenominations) {
+			
+			while (changeDue >= denomination 
+					|| (denomination == 0.05 && changeDue >= 0.03)){//Round to the nearest nickel
+				try {
+					CoinDispenserAR dispenser = changeDispensers.get(denomination);
+					dispenser.emit();
+				}catch (OutOfCashException e) {
+					e.printStackTrace();
+					break; //move to next denomination
+				} catch (TooMuchCashException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					break;
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					break;
+				}
+			}
+		}
+		if(changeDue > 0.02) { //TODO Handle if change was not properly dispensed
+			System.out.println("Insufficient Change Returned: " + changeDue);
+		}
+		else if(changeDue < -.02) {
+			System.out.println("Too Much Change Returned: " + changeDue);
+		}
+		
+		//Update GUI after dispensing
+		changeReceiptPrice(changeReturned);
+		updateGUIItemListCollectCash(changeReturned);
+		
+		
+	}
+	
+
 	
 
 	/* Finalizes the pay by Debit sequenece (using TAP)
@@ -958,7 +1056,18 @@ public class DIYSystem {
 	 */
 	public void decreaseReceiptPrice(double price) {
 		amountToBePayed -= price;
+		if(amountToBePayed < 0) {
+			changeDue = -(amountToBePayed);
+		}
 		setPriceOnGui();
+	}
+	
+	public void decreaseChangeDue(double amount) {
+		changeDue -= amount;
+		changeReturned += amount;
+	}
+	public double getChangeDue() {
+		return changeDue;
 	}
 	
 	public double getAmountToPay() {;
