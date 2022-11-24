@@ -41,6 +41,7 @@ import com.unitedbankingservices.coin.CoinStorageUnit;
 import com.unitedbankingservices.coin.CoinValidator;
 
 import ca.powerutility.NoPowerException;
+import ca.powerutility.PowerSurge;
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 
@@ -659,7 +660,14 @@ public class DIYSystem {
 			payWindowCash.setMessage("The coin slot is currently disabled");
 		} catch(TooMuchCashException e) {
 			payWindowCash.setMessage("The machine is full of coins");
-		}
+		}/* catch(Throwable e) {
+			if (e instanceof PowerSurge) {
+				payWindowCash.setMessage("The system has encountered an unexpected Power surge");
+			}
+			else {
+				payWindowCash.setMessage("An unexpected error has occurred");
+			}
+		}*/
 		
 	}
 	
@@ -667,7 +675,7 @@ public class DIYSystem {
 	 * Inserts a banknote into the banknote slot
 	 * @author Jesse Dirks, Jason Osmond
 	 */
-	public void InsertBanknote(Currency curr, int denomination) { //TODO
+	public boolean InsertBanknote(Currency curr, int denomination) { //TODO
 		
 		try {
 			Banknote b = new Banknote(curr, denomination);
@@ -676,7 +684,19 @@ public class DIYSystem {
 			payWindowCash.setMessage("The banknote slot is currently disabled");
 		} catch(TooMuchCashException e) {
 			payWindowCash.setMessage(e.getMessage());
+		}/* catch(Throwable e) {
+			if (e instanceof PowerSurge) {
+				payWindowCash.setMessage("The system has encountered an unexpected Power surge");
+			}
+			else {
+				payWindowCash.setMessage("An unexpected error has occurred");
+			}
+		}*/
+		if (station.banknoteInput.hasDanglingBanknote()) {
+			payWindowCash.setMessage("Your banknote has been rejected and is dangling from the slot.");
+			return false;
 		}
+		return true;
 	}
 	
 	private int lastValidNoteValue;
@@ -721,6 +741,10 @@ public class DIYSystem {
 		double totalChangeCollected = 0;
 		for (Coin coin : coinsCollected) {
 			totalChangeCollected += (double) coin.getValue();
+		}
+		if (station.banknoteInput.hasDanglingBanknote()) {
+			Banknote b = station.banknoteInput.removeDanglingBanknote();
+			totalChangeCollected += (double) b.getValue();
 		}
 		
 		payWindowCash.changeCollected();
