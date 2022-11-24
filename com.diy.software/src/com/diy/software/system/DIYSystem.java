@@ -777,7 +777,7 @@ public class DIYSystem {
 		//check if the card has tap enabled or not
 		if(!creditCardSelected.isTapEnabled)
 		{
-			payWindowDebit.setMessage("This card cannot tap!");
+			payWindow.setMessage("This card cannot tap!");
 			return;
 		}
 		else
@@ -798,19 +798,19 @@ public class DIYSystem {
 			//and this return CardData Object
 		} catch(BlockedCardException e) 
 		{
-			payWindowDebit.setMessage("The card has been blocked!");
+			payWindow.setMessage("The card has been blocked!");
 			return;
 		} catch(IllegalStateException e) 
 		{
-			payWindowDebit.setMessage(e.getMessage());
+			payWindow.setMessage(e.getMessage());
 			return;
 		} catch(ChipFailureException e) 
 		{
-			payWindowDebit.setMessage("Random Tap Failure! Try Again!!");
+			payWindow.setMessage("Random Tap Failure! Try Again!!");
 			return;
 		} catch(IOException e) 
 		{
-			payWindowDebit.setMessage(e.getMessage());
+			payWindow.setMessage(e.getMessage());
 			return;
 		}
 		}
@@ -847,19 +847,19 @@ public class DIYSystem {
 			//and this return CardData Object
 		} catch(BlockedCardException e) 
 		{
-			payWindowDebit.setMessage("The card has been blocked!");
+			payWindow.setMessage("The card has been blocked!");
 			return;
 		} catch(IllegalStateException e) 
 		{
-			payWindowDebit.setMessage(e.getMessage());
+			payWindow.setMessage(e.getMessage());
 			return;
 		} catch(ChipFailureException e) 
 		{
-			payWindowDebit.setMessage("Random Swipe Failure! Try Again!!");
+			payWindow.setMessage("Random Swipe Failure! Try Again!!");
 			return;
 		} catch(IOException e) 
 		{
-			payWindowDebit.setMessage(e.getMessage());
+			payWindow.setMessage(e.getMessage());
 			return;
 		}
 		printReceipt();

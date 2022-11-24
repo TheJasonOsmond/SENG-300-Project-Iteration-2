@@ -1,6 +1,8 @@
 package com.diy.software.system;
 
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 
 
@@ -21,9 +23,14 @@ import javax.swing.BoxLayout;
 public class Membership {
 	JFrame memberFrame;
 	JPanel memberPanel;
-	JTextField memberNumber;
-	JLabel memberNumberLabel, confirmLabel;
+	JPanel bottomPanel;
+	
+	JLabel memberNumber,instructionLabel, alertLabel;
 	JButton confirm;
+	JButton clear;
+	JPanel numberPanel;
+	JButton[] numberButtons;
+	
 	DIYSystem station;
 	
 	private boolean enterSuccessful = false;
@@ -40,46 +47,81 @@ public class Membership {
 				station.reEnableScanner();
 			}
 		});
-		memberFrame.getContentPane().setLayout(new BoxLayout(memberFrame.getContentPane(), BoxLayout.X_AXIS));
+		
+		
+		memberFrame.setMinimumSize(new Dimension(400, 200));
+		memberFrame.getContentPane().setLayout(new BorderLayout());
+		
+		instructionLabel = new JLabel("Enter membership number");
+		instructionLabel.setHorizontalAlignment(JLabel.CENTER);
+		memberFrame.add(instructionLabel, BorderLayout.NORTH);
+		
+		
 		memberPanel = new JPanel();
-		memberPanel.setLayout(new GridLayout(0, 1));
-		memberPanel.setBorder(BorderFactory.createEmptyBorder(30,30,10,30));
-		memberFrame.getContentPane().add(memberPanel);
-		confirmLabel = new JLabel("");
-		confirmLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-		memberNumberLabel = new JLabel("Enter membership number");
-		memberNumberLabel.setHorizontalAlignment(JLabel.CENTER);
-		memberPanel.add(memberNumberLabel);
-		memberNumber = new JTextField();
+		memberPanel.setLayout(new GridLayout(2,1));
+		memberFrame.add(memberPanel, BorderLayout.CENTER);
+		
+		memberNumber = new JLabel();
 		memberNumber.setHorizontalAlignment(SwingConstants.CENTER);
 		memberPanel.add(memberNumber);
+		
+		numberPanel = new JPanel();
+		//numberPanel.setMinimumSize(new Dimension(150,200));
+		numberPanel.setLayout(new GridLayout(4,3));
+		
+		
+		numberButtons = new JButton[10];
+		//create and add number s
+		for (int i = 9; i>0;i-- ) {
+			numberButtons[i]= new JButton(String.valueOf(i));
+			numberButtons[i].addActionListener(e->{
+				memberNumber.setText(memberNumber.getText()+((JButton)e.getSource()).getText());
+			});
+			numberPanel.add(numberButtons[i]);
+		
+		}
+		
+		clear = new JButton("Clear");
+		clear.addActionListener(e -> {
+			memberNumber.setText("");
+		});
 
-		// pinLabel = new JLabel("PIN", SwingConstants.LEFT);
-		confirm = new JButton("Confirm ");
+		numberPanel.add(clear);
 
+		numberButtons[0]= new JButton("0");
+		numberButtons[0].addActionListener(e->{
+			memberNumber.setText(memberNumber.getText()+((JButton)e.getSource()).getText());
+		});
+		numberPanel.add(numberButtons[0]);
+		
+		
 		// When the Confirm button is pressed, tell the system to start 
-		
-		
-		//Add membership method to station 
+		confirm = new JButton("Confirm ");
 		confirm.addActionListener(e -> {
 			station.enterMembership(memberNumber.getText());
 		});
-
-		memberPanel.add(confirm);
+		numberPanel.add(confirm);
+				
+		
+		memberPanel.add(numberPanel);
 
 		btnCloseWindow = new JButton("Exit");
 		btnCloseWindow.addActionListener(e -> {
 			closeWindow();
 		});
 		
-		memberPanel.add(btnCloseWindow);
-		memberPanel.add(confirmLabel);
-
-		memberFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		memberFrame.setVisible(true);
+		bottomPanel = new JPanel(new GridLayout(1,2));
+		
+		alertLabel = new JLabel("");
+		alertLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		bottomPanel.add(alertLabel);
+		bottomPanel.add(btnCloseWindow);
+		
+		memberFrame.add(bottomPanel, BorderLayout.SOUTH);
+		
 		memberFrame.pack();
-		memberFrame.setSize(400, 200);
+		memberFrame.setVisible(true);
 	}
 
 	/**
@@ -89,11 +131,11 @@ public class Membership {
 	 * @throws InterruptedException
 	 */
 	public void setMessage(String msg) {
-		confirmLabel.setText(msg);
+		alertLabel.setText(msg);
 	}
 
 	public String getMessage() {
-		return this.confirmLabel.getText();
+		return this.alertLabel.getText();
 	}
 	
 	public void disable() {
