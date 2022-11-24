@@ -20,6 +20,7 @@ public class PayByDebitTests {
     @Before
     public void setUp() {
     	
+    	System.out.println("=================================");
     	testCustomerData = new CustomerData();
  		CustomerData customers[] = {testCustomerData};
  		AttendantStation attendant = new AttendantStation(customers);
@@ -38,10 +39,60 @@ public class PayByDebitTests {
      * Case where payment was successful
      */
     @Test
-    public void successfulPayment() {
+    public void successfulPaymentInsert() {
         testSystem.payByDebit("1234",testSystem.getReceiptPrice()); // Correct pin should now throw a BlockedCardException
         assertEquals(0, testSystem.getReceiptPrice(), .1); // Assert total still owed
         assertTrue(testSystem.getWasPaymentPosted()); // Assert payment NOT posted
+    }
+    
+    /**
+     * Case where payment was successful via tap
+     */
+    @Test
+    public void successfulPaymentTap() {
+        testSystem.payByDebitTap(testSystem.getReceiptPrice()); 
+        assertEquals(0, testSystem.getReceiptPrice(), 0.0); // Assert total still owed
+        assertTrue(testSystem.getWasPaymentPosted()); // Assert payment IS posted
+    }
+    
+    /**
+     * Case where partial payment was successful via tap
+     */
+    @Test
+    public void successfulPartialPaymentTap() {
+    	testSystem.resetReceiptPrice();
+        testSystem.changeReceiptPrice(100.0); // Set amount to pay to $100.0
+        testSystem.payByDebitTap(50); 
+        assertEquals(50, testSystem.getReceiptPrice(), 0.0); // Assert total should be 50
+        //remaining amount to pay should be 50
+      
+    }
+    
+    /**
+     * Case where payment was successful via swipe
+     */
+    @Test
+    public void successfulPaymentSwipe() {
+        testSystem.payByDebitSwipe(testSystem.getReceiptPrice()); 
+        assertEquals(0, testSystem.getReceiptPrice(), 0.0); // Assert total still owed
+        assertTrue(testSystem.getWasPaymentPosted()); // Assert payment IS posted
+    }
+    
+
+    /**
+     * Case where partial payment was successful
+     */
+    @Test
+    public void successfulPartialPayment() {
+    	testSystem.resetReceiptPrice();
+        testSystem.changeReceiptPrice(100.0); // Set amount to pay to $100.0
+        testSystem.payByDebit("1234",50);
+        System.out.println(testSystem.getReceiptPrice());
+        
+        assertEquals(50,testSystem.getReceiptPrice(), 0.0 );
+        //we should have $50 should left to pay in the whole receipt
+        
+     
     }
 
     /**
@@ -49,8 +100,8 @@ public class PayByDebitTests {
      */
     @Test
     public void blankPINEntered() {
-        testSystem.payByDebit("",testSystem.getReceiptPrice()); // Blank PIN should throw InvalidPINException
-        assertEquals(1, testSystem.getReceiptPrice(), .1); // Assert total still owed
+        testSystem.payByDebit("",testSystem.getReceiptPrice());
+        assertEquals(1, testSystem.getReceiptPrice(), 0.0); // Assert total still owed
         assertFalse(testSystem.getWasPaymentPosted()); // Assert payment NOT posted
     }
 
@@ -59,7 +110,8 @@ public class PayByDebitTests {
      */
     @Test
     public void wrongPINEntered(){
-        testSystem.payByDebit("0000", testSystem.getReceiptPrice()); // Wrong PIN should throw InvalidPINException
+        testSystem.payByDebit("0000", testSystem.getReceiptPrice());
+        //Receit Price will be same, and transaction will not be posted
         assertEquals(1, testSystem.getReceiptPrice(), .1); // Assert total still owed
         assertFalse(testSystem.getWasPaymentPosted()); // Assert payment NOT posted
     }
