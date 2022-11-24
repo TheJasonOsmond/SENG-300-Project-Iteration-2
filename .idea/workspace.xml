@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cce0a78-9ae7-43fb-927e-780be46e2a12" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/com.diy.software.tests/src/com/diy/software/tests/PayByDebitTests.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/com.diy.software.tests/src/com/diy/software/tests/PayByCreditTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software.tests/src/com/diy/software/tests/PayByCreditTests.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/CustomerData.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/CustomerData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DIYSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DIYSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DiyInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/com.diy.software/src/com/diy/software/system/DiyInterface.java" afterDir="false" />
-    </list>
+    <list default="true" id="7cce0a78-9ae7-43fb-927e-780be46e2a12" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
