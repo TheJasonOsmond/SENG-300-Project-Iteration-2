@@ -388,6 +388,9 @@ public class DIYSystem {
 		return baggingArea;
 	}
 	
+	public AddBags getAddBagsRef() {
+		return bagWindow;
+	}
 	/**
 	 * Finalizes the pay by credit sequenece
 	 * @param pin, the pin from customer input

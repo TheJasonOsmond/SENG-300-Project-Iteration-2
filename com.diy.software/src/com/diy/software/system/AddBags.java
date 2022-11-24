@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class AddBags implements ActionListener {
+public class AddBags {
 	JFrame bagFrame;
 	JPanel bagPanel;
 	JDialog addOwnBagDialog;
@@ -23,6 +23,9 @@ public class AddBags implements ActionListener {
 	private JButton addOwnBags;
 	int bag_purchased;
 	private CustomerBag shopping_bag;
+	int value;
+	boolean bagPurchasedSuccessful;
+	boolean bagAddedSuccessful;
 
 	/**
 	 * GUI for adding bags. User has a choice of adding their own bags or store bought bags.
@@ -33,17 +36,13 @@ public class AddBags implements ActionListener {
 		shopping_bag = new CustomerBag(10);
 		station = sys;
 		aStation = asys;
+		bag_purchased = 0;
 		bagDispenser = sys.getBagDispenserData();
 		bagFrame = new JFrame("*****Add Bags*****");
 		bagFrame.setResizable(true);
 		bagFrame.setUndecorated(false);
 		bagFrame.setLocationRelativeTo(null);
 		bagFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		bagFrame.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				station.reEnableScanner();
-			}
-		});
 		bagFrame.getContentPane().setLayout(new BoxLayout(bagFrame.getContentPane(), BoxLayout.X_AXIS));
 		bagPanel = new JPanel();
 		bagPanel.setLayout(new GridLayout(0, 1));
@@ -59,6 +58,7 @@ public class AddBags implements ActionListener {
 
 		purchaseBag = new JButton("Purchase Store Bags");
 			purchaseBag.addActionListener(e -> {
+				bagPurchasedSuccessful = false;
 				JOptionPane select_bag_amount = new JOptionPane();
 				String custInput = "";
 				boolean canceled = false;
@@ -115,7 +115,9 @@ public class AddBags implements ActionListener {
 							sys.outOfBags();
 							updateSystem();
 							bagFrame.dispose();
+							bagPurchasedSuccessful = true;
 						} else {
+							bagPurchasedSuccessful = true;
 							updateSystem();
 							closeWindow();
 						}
@@ -131,6 +133,7 @@ public class AddBags implements ActionListener {
 		
 		addOwnBags = new JButton("Add Own Bags");
 			addOwnBags.addActionListener(e -> {
+				bagAddedSuccessful = false;
 				JOptionPane pane = new JOptionPane("Please press \"OK\" to confirm you have placed your own bags in the bagging area.", 
 						JOptionPane.INFORMATION_MESSAGE, 
 						JOptionPane.OK_CANCEL_OPTION);
@@ -141,10 +144,11 @@ public class AddBags implements ActionListener {
 				// If OK pressed, close dialog and block station. Otherwise, just go back to the dialog.
 					int value = ((Integer)pane.getValue()).intValue();
 					if (value == JOptionPane.OK_OPTION) {
-						
+						bagAddedSuccessful = true;
 						// Simulates customer adding their shopping bag to the bagging area.
 						// This will trigger a weight change, blocking the system.
 						station.getBaggingAreaRef().add(shopping_bag);
+						
 						bagFrame.dispose();
 					} else if (value == JOptionPane.CANCEL_OPTION) {
 					    System.out.println("Operation Canceled.");
@@ -177,14 +181,6 @@ public class AddBags implements ActionListener {
 		bagFrame.dispose();
 	}
 	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		//bag_purchased = 0;
-		bag_purchased++;
-		purchaseBag.setText("The number of bags purchased is" + bag_purchased);
-
-	}
-	
 	/**
 	 * Gets the amount of bags purchased
 	 * @return Amount of bags purchased by customer
@@ -194,6 +190,29 @@ public class AddBags implements ActionListener {
 	}
 	
 	/**
+	 * Has a bag been purchased successfully?
+	 * @return If the bags were purchased successfully.
+	 */
+	public boolean bagPurchasedSuccessful() {
+		return bagPurchasedSuccessful;
+	}
+	
+	/**
+	 * Has a bag been added successfully?
+	 * @return If the bags were added successfully.
+	 */
+	public boolean bagAddedSuccessful() {
+		return bagAddedSuccessful;
+	}
+	
+	/**
+	 * Gets the bag dispenser reference.
+	 * @return The bag dispenser used when adding a bag
+	 */
+	public BagDispenser getBagDispenserRef() {
+		return bagDispenser;
+	}
+	/**
 	 * Updates the system's price, weight, and item list.
 	 */
 	public void updateSystem() {
@@ -201,5 +220,38 @@ public class AddBags implements ActionListener {
 		station.updateGUIItemList("Store bag", bagDispenser.calcTotalBagPrice(bag_purchased), bagDispenser.calcTotalBagWeight(bag_purchased));
 		station.changeReceiptPrice(bagDispenser.calcTotalBagPrice(bag_purchased));
 		System.out.println("Bags have been added by customer");
+	}
+	
+	/**
+	 * Triggers Store Bought Bags button, for testing purposes.
+	 */
+	public void triggerStoreBagButton() {
+		// Referenced from https://stackoverflow.com/questions/3079524/how-do-i-manually-invoke-an-action-in-swing
+		for(ActionListener a: purchaseBag.getActionListeners()) {
+		    a.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null) {
+		    });
+		}
+	}
+	
+	/**
+	 * Triggers Own Bags button, for testing purposes.
+	 */
+	public void triggerOwnBagButton() {
+		// Referenced from https://stackoverflow.com/questions/3079524/how-do-i-manually-invoke-an-action-in-swing
+		for(ActionListener a: addOwnBags.getActionListeners()) {
+		    a.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null) {
+		    });
+		}
+	}
+	
+	/**
+	 * Triggers Exit button, for testing purposes.
+	 */
+	public void triggerExitButton() {
+		// Referenced from https://stackoverflow.com/questions/3079524/how-do-i-manually-invoke-an-action-in-swing
+		for(ActionListener a: btnCloseWindow.getActionListeners()) {
+		    a.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null) {
+		    });
+		}
 	}
 }
