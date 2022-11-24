@@ -1125,6 +1125,10 @@ public class DIYSystem {
 		changeDue -= amount;
 		changeReturned += amount;
 	}
+	
+	public void resetChangeReturned() {
+		changeReturned = 0;
+	}
 	public double getChangeDue() {
 		return changeDue;
 	}

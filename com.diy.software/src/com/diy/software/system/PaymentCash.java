@@ -154,6 +154,7 @@ public class PaymentCash {
 	}
 	
 	public void changeCollected() {
+		station.resetChangeReturned();
 		closeWindow();
 	}
 	
