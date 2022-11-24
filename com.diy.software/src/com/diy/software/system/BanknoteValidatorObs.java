@@ -14,7 +14,6 @@ import com.unitedbankingservices.coin.CoinStorageUnitObserver;
 public class BanknoteValidatorObs implements BanknoteValidatorObserver {
 	
 	private DIYSystem sys;
-	private long denomination;
 	
 	public BanknoteValidatorObs(DIYSystem s) {
 		this.sys = s;
@@ -33,6 +32,7 @@ public class BanknoteValidatorObs implements BanknoteValidatorObserver {
 	 */
 	@Override
 	public void validBanknoteDetected(BanknoteValidator validator, Currency currency, long value) {
+		sys.updateLastValidNoteValue(value);
 		System.out.println("VALID BANKNOTE DETECTED: $" + value);
 	}
 

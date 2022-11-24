@@ -74,6 +74,7 @@ public class DIYSystem {
 	private ReceiptPrinterObserver printerObs;
 	private CoinValidatorObs coinValidatorObs;
 	private BanknoteValidatorObs banknoteValidatorObs;
+	private BanknoteStorageUnitObs banknoteStorageObs;
 	private AddBags bagWindow;
 	
 	//Customer IO Windows
@@ -196,6 +197,8 @@ public class DIYSystem {
 		
 		coinValidatorObs = new CoinValidatorObs(this);
 		banknoteValidatorObs = new BanknoteValidatorObs(this);
+		banknoteStorageObs =  new BanknoteStorageUnitObs(this);
+		
 		
 		
 		//Register the observers on the DIY Station
@@ -209,6 +212,7 @@ public class DIYSystem {
 
 		//Attach Listeners to cash sinks
 		station.banknoteValidator.attach(banknoteValidatorObs);
+		station.banknoteStorage.attach(banknoteStorageObs);
 		attachToCoinDispensers();
 		attachToNoteDispensers();
 		
@@ -674,6 +678,15 @@ public class DIYSystem {
 			payWindowCash.setMessage(e.getMessage());
 		}
 	}
+	
+	private int lastValidNoteValue;
+	
+	public int getLastValidNoteValue() {
+		return lastValidNoteValue;}
+	
+	public void updateLastValidNoteValue(long value){
+		lastValidNoteValue = (int) value;}
+	
 	
 	/**
 	 * Called when a denomination storage unit receives a coin
