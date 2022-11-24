@@ -669,7 +669,8 @@ public class DIYSystem {
 		//Built In method for Hash Maps
 		if (MemberDatabase.MEMBER_DATABASE.containsKey(Integer.parseInt(membershipNumber)))
 		{	
-			membershipWindow.setMessage("Success!");	
+			//membershipWindow.setMessage("Success!");
+			membershipWindow.setMessage("Welcome " + MemberDatabase.MEMBER_DATABASE.get(Integer.parseInt(membershipNumber))+"!");
 		}
 		else
 			membershipWindow.setMessage("Error! Try again.");
