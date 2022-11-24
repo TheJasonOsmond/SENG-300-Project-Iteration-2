@@ -10,10 +10,11 @@ public class ElectronicScaleObserver implements ElectronicScaleListener {
 
 	
 	private DIYSystem sysRef;
-	private AttendantStation attendant;
+	private AttendantStation attendantRef;
 	
-	public ElectronicScaleObserver(DIYSystem s) {
+	public ElectronicScaleObserver(DIYSystem s, AttendantStation a) {
 		this.sysRef = s;
+		this.attendantRef = a;
 
 	}
 
@@ -43,24 +44,20 @@ public class ElectronicScaleObserver implements ElectronicScaleListener {
 
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
-		//SUCCESSFULL ON ADDING ITEM TO BAGGING AREA
 		//UPDATE THE GUI THROUGH THE SYSTEM WITH THE NEW UPDATED WEIGHT
-		//TODO Fix this observer class, as the system needs to be blocked when a weightChanged event happens.
+		
 		double expected_weight = sysRef.getCurrentExpectedWeight();
 		double current_weight = 0;
 		current_weight = expected_weight + weightInGrams;
-		//double current_weight = baggingArea.getCurrentWeight();
 
-		if (expected_weight < current_weight) {
-			//Station to disabled scanning
-			//sysRef.;
-			//GUI to disable scanning and bagging
+		if (expected_weight < current_weight || expected_weight > current_weight) {
+			//Disable scanning and bagging
 			sysRef.systemDisable();
 			//Signal attendant to help
-			//attendant.notifyWeightChange();
+			attendantRef.notifyWeightChange();
 
 		} else if (expected_weight == current_weight) {
-			//station.scanner.enable();
+			//This case is for successful bagging.
 			sysRef.enableScanningAndBagging();
 			sysRef.bagItemSuccess(true);
 			sysRef.updateWeightOnGUI(weightInGrams);
