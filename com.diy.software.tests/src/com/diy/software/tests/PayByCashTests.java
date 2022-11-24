@@ -1,11 +1,5 @@
 package com.diy.software.tests;
-/*
-import com.diy.hardware.BarcodedProduct;
-//import com.diy.hardware.DoItYourselfStation;
-import com.diy.hardware.DoItYourselfStationAR;
-import com.diy.hardware.external.ProductDatabases;
-import com.diy.simulation.Customer;
-import com.diy.software.system.Bank;*/
+
 import ca.ucalgary.seng300.simulation.SimulationException;
 import com.diy.hardware.DoItYourselfStationAR;
 import com.diy.software.system.AttendantStation;
@@ -18,12 +12,13 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 
-public class PayByCreditTests {
+public class PayByCashTests {
 
 	private static final String CORRECT_PIN = "0000";
 	private DIYSystem testSystem;
 	private CustomerData testCustomerData;
-    private DoItYourselfStationAR selfCheckout;
+	//private DoItYourselfStation selfCheckout;
+	private DoItYourselfStationAR selfCheckout;
 	private AttendantStation attendantStation;
 	private CardReaderObserver cardReaderObs;
 	
@@ -38,6 +33,7 @@ public class PayByCreditTests {
 		// create listener
 		cardReaderObs = new CardReaderObserver(testSystem);
 
+		//selfCheckout = new DoItYourselfStation();
 		selfCheckout = new DoItYourselfStationAR();
 		selfCheckout.plugIn();
 		selfCheckout.turnOn();		
@@ -51,7 +47,7 @@ public class PayByCreditTests {
 
 	
 	/********************************************************************** 
-	// PAY BY CREDIT TESTS  
+	// PAY BY CASH TESTS  
 	/********************************************************************** 
 
 	/********************************************************************** 
