@@ -10,8 +10,19 @@ The databases have to be populated in order to be usable.
 
 public class MemberDatabase {
 
-	private MemberDatabase() {}
+	private MemberDatabase() 
+	{
+		//MEMBER_DATABASE.put(555,"J");
+		//adding data into Membership database
+	}
 	
 	public static final  Map<Integer,String> MEMBER_DATABASE = new HashMap<>();
 	
+	
+	/* Not required
+	public static boolean containsValue(int integer) {  
+		//return MEMBER_DATABASE.containsKey(555); 
+		return true;
+		}
+	*/
 }

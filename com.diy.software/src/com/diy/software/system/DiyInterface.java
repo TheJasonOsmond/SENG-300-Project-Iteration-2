@@ -162,7 +162,8 @@ public class DiyInterface extends Panel {
 			public void actionPerformed(ActionEvent e) {
 
 				System.out.println("Enter Membership Number button has been pressed");
-				sysRef.enterMembershipStart((String) comboBoxCredit.getSelectedItem());
+				//sysRef.enterMembershipStart((String) comboBoxCredit.getSelectedItem());
+				sysRef.enterMembershipStart();
 				;
 			}
 		});

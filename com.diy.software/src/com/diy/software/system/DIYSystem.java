@@ -497,10 +497,11 @@ public class DIYSystem {
 	 * @author Saja Abufarha
 	 * Start the Enter Membership Number process from the main window
 	 */
-	public void enterMembershipStart(String type) {		
+	public void enterMembershipStart() {		
 		//Boot up the membership window
 		disableScanningAndBagging();
 		membershipWindow = new Membership(this);
+		//creates the membership gui
 	}
 	
 	/**
@@ -662,10 +663,14 @@ public class DIYSystem {
 	public void enterMembership(String membershipNumber) {
 		// MembershipWindow.memberNumber.getText() == membershipNumber;
 		
-		membershipWindow = new Membership(this);
+		//membershipWindow = new Membership(this);
 		// Check if inputted membership number is in the MembershipDatabase
-		if (MemberDatabase.containsValue(Integer.parseInt(membershipNumber)))
-			membershipWindow.setMessage("Success!");
+		//System.out.println("+"+membershipNumber+"+");
+		//Built In method for Hash Maps
+		if (MemberDatabase.MEMBER_DATABASE.containsKey(Integer.parseInt(membershipNumber)))
+		{	
+			membershipWindow.setMessage("Success!");	
+		}
 		else
 			membershipWindow.setMessage("Error! Try again.");
 			requestAttendant = true;

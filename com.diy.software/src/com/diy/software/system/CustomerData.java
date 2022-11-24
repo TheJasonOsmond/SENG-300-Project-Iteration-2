@@ -45,6 +45,8 @@ public class CustomerData {
 		customer = new Customer();
 		setupBankAndCard();
 		fillShoppingCart();
+		// Adding data to the membership database
+		MemberDatabase.MEMBER_DATABASE.put(555,"J");
 	}
 	
 	/**
