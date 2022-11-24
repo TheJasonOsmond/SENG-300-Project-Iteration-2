@@ -46,6 +46,12 @@ public class DIYSystem {
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
 	private ReceiptPrinterObserver printerObs;
+	//private Barcode barcode;
+
+	//private CustomerBag shopping_bag;
+	Barcode barcode = new Barcode(new Numeral[]{ Numeral.zero, Numeral.zero, Numeral.zero, Numeral.zero }); // 1234
+
+	CustomerBag shopping_bag = new CustomerBag(barcode, 10);
 	
 	//Cusomter IO Windows
 	private Payment payWindow;
@@ -126,7 +132,7 @@ public class DIYSystem {
 		//Setup the required observers
 		cardReaderObs = new CardReaderObserver(this);
 		scannerObs = new BarcodeScannerObserver(this);
-		scaleObs = new ElectronicScaleObserver(this, this.attendant);
+		scaleObs = new ElectronicScaleObserver(this);
 		touchObs = new TouchScreenObserver();
 		printerObs = new ReceiptPrinterObserver(this);
 
@@ -375,22 +381,26 @@ public class DIYSystem {
 		bagWindow = new AddBags(this, attendant);
 	}
 	
-	/**
-	 * Gets the data of the bag dispenser
-	 * @return
-	 */
 	public BagDispenser getBagDispenserData() {
-		return bagDispenser;
+		return this.bagDispenser;
 	}
 	
-	
-	public ElectronicScale getBaggingAreaRef() {
-		return baggingArea;
+	public void notifyBagWeightChange(String message) {
+		//TODO What kind of item do we add here?
+		//Add shopping bag to bagging area
+
+		baggingArea.add(shopping_bag);
+		//systemDisable();
+		//notify weight change to the electronic scale observer
+		scaleObs.weightChanged(station.scale, shopping_bag.getWeight());
+		//Notify weight change to attendant station
+		attendant.notifyWeightChange();
+		//systemDisable();
+		//Block station
+		//disableScanningAndBagging();
+
 	}
 	
-	public AddBags getAddBagsRef() {
-		return bagWindow;
-	}
 	/**
 	 * Finalizes the pay by credit sequenece
 	 * @param pin, the pin from customer input
@@ -582,6 +592,28 @@ public class DIYSystem {
 		else if (payWindowDebit != null)
 			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
 	}
+	
+	/*public void weightDiscrepancy( double currentWeight) throws OverloadException {
+		//Compare current weight vs previous weight
+		double expected_weight = getCurrentExpectedWeight();
+		double current_weight = getCurrentWeight()+ currentWeight;
+		//double current_weight = baggingArea.getCurrentWeight();
+
+		if (expected_weight < current_weight){
+			//Station to disabled scanning
+			station.scanner.disable();
+			//GUI to disable scanning and bagging
+			disableScanningAndBagging();
+			//Signal attendant to help
+			attendant.notifyWeightChange();
+
+		}
+		else if (expected_weight == current_weight){
+			station.scanner.enable();
+			enableScanningAndBagging();
+		}
+
+	}*/
 	
 	public boolean get_requestAttendant(){
 		return requestAttendant;

@@ -20,8 +20,6 @@ import java.awt.event.ActionEvent;
  * Attendant station GUI from iteration 1 adapted to use with iteration 2
  * 
  * @author Benjamin Niles
- * @author Quang(Brandon) Nguyen
- * @author Mai
  *
  */
 public class AttendantStation{
@@ -206,7 +204,6 @@ public class AttendantStation{
 			} catch (OverloadException ex) {
 				throw new RuntimeException(ex);
 			}
-			sendAlert("");
 			enableStationButton.setEnabled(true);
 			disableStationButton.setEnabled(false);
 			approveWeightButton.setEnabled(false);
