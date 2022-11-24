@@ -41,7 +41,7 @@ public class PayByCashTests {
 		// initiate pay by credit 
 		testSystem.resetReceiptPrice();
 		testSystem.changeReceiptPrice(1.0);
-		testSystem.payByCashStart();		
+		testSystem.payByCreditStart("VISA");		
 		
 	}
 

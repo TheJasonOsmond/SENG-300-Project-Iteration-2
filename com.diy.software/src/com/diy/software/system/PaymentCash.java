@@ -27,7 +27,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 /**
  * 
- * @author Jason Osmond
+ * @author Jason Osmond & Jesse Dirks
  */
 public class PaymentCash {
 	private DIYSystem station;
@@ -71,7 +71,7 @@ public class PaymentCash {
 		cashDisplay.setHorizontalAlignment(SwingConstants.CENTER);
 		payPanel.add(cashDisplay);
 		
-		//press to insert a coin; this could be done better........
+		//press to insert a coin
 		btnCoin1 = new JButton("Insert $1 Coin");
 		btnCoin1.addActionListener(e -> {
 			station.InsertCoin(curr, Long.valueOf(1L));
@@ -85,9 +85,11 @@ public class PaymentCash {
 		});
 		payPanel.add(btnCoin2);
 		
-		btnNote5 = new JButton("Insert $5 Banknote");
-		btnNote5.addActionListener(e -> {
-			station.InsertBanknote(station.getCurrency(), 5);
+		insertNote = new JButton("Insert $5 Banknote");
+		insertNote.addActionListener(e -> {
+			if (station.InsertBanknote(station.getCurrency(), 5) == false) {
+				enableCollectChange();
+			}
 		});
 		payPanel.add(btnNote5);
 		
@@ -97,7 +99,6 @@ public class PaymentCash {
 		});
 		payPanel.add(btnNote100);
 		
-		// pinLabel = new JLabel("PIN", SwingConstants.LEFT);
 		
 
 		
