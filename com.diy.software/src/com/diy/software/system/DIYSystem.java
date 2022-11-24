@@ -619,7 +619,7 @@ public class DIYSystem {
 
 	/**
 	 * Rose
-	*/
+	
 	public void weightDiscrepancy(ElectronicScale baggingArea, double baggingAreaCurrentWeight) throws OverloadException {
 		if (!assertEquals(baggingAreaExpectedWeight, baggingAreaCurrentWeight, 0.01)){
 			systemDisable();
@@ -628,16 +628,38 @@ public class DIYSystem {
 		else
 			systemEnable();
 	}
+	*/
   
+	
+	public void weightDiscrepancy(ElectronicScale baggingArea, double currentWeight) throws OverloadException {
+		//Compare current weight vs previous weight
+		double expected_weight = getCurrentExpectedWeight();
+		//double current_weight = baggingArea.getCurrentWeight();
+
+		if (expected_weight < currentWeight){
+			//Station to disabled scanning
+			station.scanner.disable();
+			//GUI to disable scanning and bagging
+			disableScanningAndBagging();
+			//Signal attendant to help
+			requestAttendant = true;
+		}
+		else if (expected_weight == currentWeight){
+			station.scanner.enable();
+			enableScanningAndBagging();
+		}
+
+	}
+	
 	public void enterMembership(String membershipNumber) {
 		// MembershipWindow.memberNumber.getText() == membershipNumber;
 		
 		membershipWindow = new Membership(this);
 		// Check if inputted membership number is in the MembershipDatabase
-		if (MembershipDatabase.containsValue(Integer.parseInt(membershipNumber)))
-			MembershipWindow.setmessage("Success!");
+		if (MemberDatabase.containsValue(Integer.parseInt(membershipNumber)))
+			membershipWindow.setMessage("Success!");
 		else
-			MembershipWindow.setmessage("Error! Try again.");
+			membershipWindow.setMessage("Error! Try again.");
 			requestAttendant = true;
 	}
 	
