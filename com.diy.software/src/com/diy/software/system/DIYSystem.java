@@ -1,26 +1,52 @@
 package com.diy.software.system;
 
+
 import com.diy.hardware.DoItYourselfStationAR;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
 import com.jimmyselectronics.EmptyException;
-import com.jimmyselectronics.Item;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Currency;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.NoSuchElementException;
+import com.diy.hardware.*;
+import com.diy.hardware.external.ProductDatabases;
+
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
+import com.jimmyselectronics.disenchantment.TouchScreenListener;
 import com.jimmyselectronics.necchi.Barcode;
 import com.jimmyselectronics.necchi.BarcodedItem;
-import com.jimmyselectronics.necchi.Numeral;
 import com.jimmyselectronics.opeechee.BlockedCardException;
+import com.jimmyselectronics.opeechee.Card;
 import com.jimmyselectronics.opeechee.ChipFailureException;
 import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
+
+import com.unitedbankingservices.DisabledException;
+import com.unitedbankingservices.OutOfCashException;
+import com.unitedbankingservices.Sink;
+import com.unitedbankingservices.TooMuchCashException;
+import com.unitedbankingservices.banknote.Banknote;
+import com.unitedbankingservices.banknote.BanknoteDispenserAR;
+import com.unitedbankingservices.banknote.BanknoteValidator;
+import com.unitedbankingservices.coin.Coin;
+import com.unitedbankingservices.coin.CoinDispenserAR;
+import com.unitedbankingservices.coin.CoinStorageUnit;
+import com.unitedbankingservices.coin.CoinValidator;
+
+import ca.powerutility.NoPowerException;
+import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
+import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
+
 import com.jimmyselectronics.abagnale.ReceiptPrinterD;
 import com.jimmyselectronics.abagnale.ReceiptPrinterListener;
 
-import java.io.IOException;
-import java.util.NoSuchElementException;
 
 
 /** ITERATION 1.0
@@ -46,18 +72,22 @@ public class DIYSystem {
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
 	private ReceiptPrinterObserver printerObs;
+	private CoinValidatorObs coinValidatorObs;
+	private BanknoteValidatorObs banknoteValidatorObs;
+	private AddBags bagWindow;
 	
-	//Cusomter IO Windows
+	//Customer IO Windows
 	private Payment payWindow;
 	private PaymentDebit payWindowDebit;
+	private PaymentCash payWindowCash;
 	private DiyInterface mainWindow;
-	private AddBags bagWindow;
 	
 	//Hold an instance of the customer
 	private CustomerData customerData;
 	
 	//System Variables
 	private double amountToBePayed; //TOTAL AMOUNT OWED BY CUSTOMER, INCREMENTED ON SUCCESSFULL ITEM SCAN VIA BARCODESCANNEROBSERVER
+
 	private double baggingAreaCurrentWeight;
 	private double baggingAreaExpectedWeight;
 	private boolean wasSuccessScan = false;
@@ -66,15 +96,26 @@ public class DIYSystem {
 	private boolean requestAttendant = true;
 	private boolean systemEnabled = true;
 
-
 	private TouchScreen touchScreen;
 	private ElectronicScale baggingArea;
 	private BagDispenser bagDispenser;
 	private static double scaleMaximumWeightConfiguration = 5000.0;
 	private static double scaleSensitivityConfiguration = 0.5;
-
-
-
+	
+	private double amountToPay;
+	
+	private final Currency currency = Currency.getInstance(Locale.CANADA);
+	
+	private long[] acceptedCoinDemominations = {2l,1l}; //HARDCODE ACCEPTED COINS IN DECREASING ORDER
+	private int[] acceptedNoteDemominations = {20, 10, 5}; //HARDCODE ACCEPTED NOTES IN DECREASING ORDER
+	
+	private double changeDue = 0; //amount we owe customer
+	private double changeReturned = 0;
+	
+	private Card debitCardSelected = null;
+	private Card creditCardSelected = null;
+	
+	
 	public DIYSystem(CustomerData c, AttendantStation a) {
 		customerData = c;
 		attendant = a;
@@ -87,9 +128,14 @@ public class DIYSystem {
 	private void initialize() {
 		//Setup the DIY Station
 		//station = new DoItYourselfStation();
+		
+		DoItYourselfStationAR.configureCoinDenominations(acceptedCoinDemominations);
+		DoItYourselfStationAR.configureBanknoteDenominations(acceptedNoteDemominations);
+		
 		station = new DoItYourselfStationAR();
 
 		station.plugIn();
+
 		station.turnOn();
 		
 		//Initialize a bag dispenser with 50 bags.
@@ -97,18 +143,36 @@ public class DIYSystem {
 		
 		touchScreen = new TouchScreen();
 		baggingArea = new ElectronicScale(scaleMaximumWeightConfiguration, scaleSensitivityConfiguration);
+		baggingArea.plugIn();
+		//baggingArea.turnOn();
 		
 		station.plugIn();
 		baggingArea.plugIn();
 		touchScreen.plugIn();
+
+		//touchScreen.turnOn();
+		//These turnOn can result in power failure
+		boolean goodPower = false;
+		while (!goodPower)
+		{
+			try
+			{
+				station.turnOn();
+				baggingArea.turnOn();
+				touchScreen.turnOn();
+				goodPower = true;
+			}
+			catch (Exception e)
+			{
+				goodPower = false;
+			}
+		}
 		
-		station.turnOn();
-		baggingArea.turnOn();
-		touchScreen.turnOn();
+	
 		
 		try {
 			station.printer.addPaper(100);
-			station.printer.addInk(50);
+			station.printer.addInk(10000);
 		} catch (OverloadException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -123,15 +187,18 @@ public class DIYSystem {
 			e.printStackTrace();
 		}
 		
-		//Setup the required observers
+		//Setup the required observers		
 		cardReaderObs = new CardReaderObserver(this);
 		scannerObs = new BarcodeScannerObserver(this);
-		scaleObs = new ElectronicScaleObserver(this, this.attendant);
+		scaleObs = new ElectronicScaleObserver(this);
 		touchObs = new TouchScreenObserver();
 		printerObs = new ReceiptPrinterObserver(this);
-
 		
-		//Register the observer to the CardReader on the DIY Station
+		coinValidatorObs = new CoinValidatorObs(this);
+		banknoteValidatorObs = new BanknoteValidatorObs(this);
+		
+		
+		//Register the observers on the DIY Station
 		station.cardReader.register(cardReaderObs);
 		//station.baggingArea.register(scaleObs);
 		baggingArea.register(scaleObs);
@@ -139,6 +206,15 @@ public class DIYSystem {
 		//station.touchScreen.register(touchObs);
 		touchScreen.register(touchObs);
 		station.printer.register(printerObs);
+
+		//Attach Listeners to cash sinks
+		station.banknoteValidator.attach(banknoteValidatorObs);
+		attachToCoinDispensers();
+		attachToNoteDispensers();
+		
+		//Setup cash payments
+//		SetupCoinValidator();
+		simulateLoadAllCoinDispensers(15);
 		
 		//Setup the Customer and start using the DIY station
 		customerData.customer.useStation(station);
@@ -244,7 +320,6 @@ public class DIYSystem {
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
 		mainWindow.enableBagging();
-		mainWindow.disableAddBagging();
 		mainWindow.setMsg("Bag Your Item:");
 	}
 	
@@ -253,7 +328,6 @@ public class DIYSystem {
 		sendMsgToGui("Scan Next Item:");
 		mainWindow.enablePaying();
 		mainWindow.enableScanning();
-		mainWindow.enableAddBagging();
 		mainWindow.disableBagging();
 	}
 	
@@ -261,13 +335,12 @@ public class DIYSystem {
 		mainWindow.disableBagging();
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
-		mainWindow.disableAddBagging();
 	}
 	
 	public void enableScanningAndBagging() {
 		mainWindow.enableScanning();
 		mainWindow.enablePaying();
-		mainWindow.enableAddBagging();
+		
 	}
 	
 	public boolean getWasPaymentPosted() {
@@ -285,10 +358,6 @@ public class DIYSystem {
 
 	public double getCurrentExpectedWeight() {
 		return baggingAreaExpectedWeight;
-	}
-	public double getCurrentWeight() throws OverloadException {
-		baggingAreaCurrentWeight = baggingArea.getCurrentWeight();
-		return baggingAreaCurrentWeight;
 	}
 	
 	public double updateExpectedWeight(ElectronicScale baggingArea, double itemExpectedWeight) throws OverloadException {
@@ -340,9 +409,28 @@ public class DIYSystem {
 		//Select the card given by type from the main window
 		
 		if(amountToBePayed <= 0 ) {
+			mainWindow.setMsg("Please Scan at least one item");
 			return; //TODO: display error that cant make payment on no money
 		} 
+		if(type == null)
+		{
+			mainWindow.setMsg("Please select a valid Card");
+			return; // display error that cant make payment on no money
+		}
+			
+		
+		String[] arrOfStr = type.split(",");
+		type = arrOfStr[1].substring(1);//removing the leading space
 		//else we start the selection process
+		for(Card card : this.getUserData().customer.wallet.cards)
+			if(card.kind.equals(type)) 
+			{
+				creditCardSelected = card;
+				//to be used in next methods
+				//in tap method
+				break;
+			}
+		
 		customerData.customer.selectCard(type);
 		//Boot up the pin window
 		disableScanningAndBagging();
@@ -357,13 +445,54 @@ public class DIYSystem {
 		//Select the card given by type from the main window
 		
 		if(amountToBePayed <= 0 ) {
+			mainWindow.setMsg("Please Scan at least one item");
+			
 			return; //TODO: display error that cant make payment on no money
-		} 
+		}
+		//just an error check
+		if(type == null)
+		{
+			mainWindow.setMsg("Please select a valid Card");
+			return; // display error that cant make payment on no money
+		}
+		String[] arrOfStr = type.split(",");
+		type = arrOfStr[1].substring(1);//remove the leading zero
+		
+		for(Card card : this.getUserData().customer.wallet.cards)
+			if(card.kind.equals(type)) 
+			{
+				debitCardSelected = card;
+				//to be used in next methods
+				//in tap method
+				break;
+			}
+		System.out.println(debitCardSelected.isTapEnabled);
 		//else we start the selection process
+		//System.out.println("card selected = "+ type);
+		//Type contains "John Interac, Interac"
+		//split the string based on ',' and get the second 
+		//https://www.geeksforgeeks.org/split-string-java-examples/
+		//System.out.println("card selected = "+ arrOfStr[1].replace(" ", ""));
+		
+		//System.out.println(type);
 		customerData.customer.selectCard(type);
 		//Boot up the pin window
 		disableScanningAndBagging();
 		payWindowDebit = new PaymentDebit(this);
+	}
+
+	/**
+	 * @author Jesse Dirks, Jason Osmond
+	 * Start the pay by cash process from the main window
+	 */
+	public void payByCashStart() {
+		if(amountToBePayed <= 0 ) {
+			mainWindow.setMsg("Please Scan at least one item");
+			return; //TODO: display error that cant make payment on no money
+		}
+		//Customer class does not contain any cash.
+		disableScanningAndBagging();
+		payWindowCash = new PaymentCash(this);
 	}
 	
 	/**
@@ -375,28 +504,22 @@ public class DIYSystem {
 		bagWindow = new AddBags(this, attendant);
 	}
 	
-	/**
-	 * Gets the data of the bag dispenser
-	 * @return
-	 */
 	public BagDispenser getBagDispenserData() {
-		return bagDispenser;
+		return this.bagDispenser;
 	}
 	
-	
-	public ElectronicScale getBaggingAreaRef() {
-		return baggingArea;
+	public void notifyBagWeightChange(String message) {
+		//TODO What kind of item do we add here?
+		//baggingArea.add(null);
 	}
 	
-	public AddBags getAddBagsRef() {
-		return bagWindow;
-	}
+
 	/**
-	 * Finalizes the pay by credit sequenece
+	 * Finalizes the pay by credit sequence
 	 * @param pin, the pin from customer input
 	 */
-	public void payByCredit(String pin) {
-		
+	public void payByCredit(String pin, double amountToPay) {
+		this.amountToPay = amountToPay;
 		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
 		try {
 			customerData.customer.insertCard(pin.intern());
@@ -416,6 +539,7 @@ public class DIYSystem {
 			payWindow.setMessage(e.getMessage());
 			return;
 		} finally {
+			//Data read on card reader observer
 			station.cardReader.remove();
 		}
 
@@ -426,10 +550,15 @@ public class DIYSystem {
 	}
 	
 	/**
-	 * Finalizes the pay by credit sequenece
+	 * Finalizes the pay by Debit sequenece
 	 * @param pin, the pin from customer input
 	 */
-	public void payByDebit(String pin) {
+	public void payByDebit(String pin, double amountToPay) 
+	{
+		//for partial payments
+		this.amountToPay = amountToPay;
+		//normal insertion of card
+		
 		
 		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
 		try {
@@ -460,6 +589,379 @@ public class DIYSystem {
 	}
 	
 	/**
+	 * Finalizes the pay by Debit sequenece (using TAP)
+	 * @author simrat_benipal
+	 * @param nothing, we can tap without PIN
+	 */
+	
+	public void payByDebitTap(double amountToPay) 
+	{
+		//for partial payments
+		this.amountToPay = amountToPay;
+		//check if the card has tap enabled or not
+		if(!debitCardSelected.isTapEnabled)
+		{
+			payWindowDebit.setMessage("This card cannot tap!");
+			return;
+		}
+		else
+		{
+		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+		
+		try {
+			//a card has been selected because of payByDebitStart() method
+			//so just tap the selected card
+			station.cardReader.tap(debitCardSelected); //method in CardReader.Java
+			//every station has a CardReader Object
+			//This Card Reader should be powered-up and running
+			//this call will notify that the card is tapped in the CardReaderObserver
+			
+			//if thiis method returned success (based on probabilities of TapFailure
+			//then we execute 'notifyCardDataRead(data), method in listener 
+			
+			//and this return CardData Object
+		} catch(BlockedCardException e) 
+		{
+			payWindowDebit.setMessage("The card has been blocked!");
+			return;
+		} catch(IllegalStateException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		} catch(ChipFailureException e) 
+		{
+			payWindowDebit.setMessage("Random Tap Failure! Try Again!!");
+			return;
+		} catch(IOException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		}
+		}
+		//WE GET HERE, THE PAYMENT WAS PROCESSED
+		disablePayOnGui();
+	}
+	
+	/**
+	 * Inserts a coin into the coin slot
+	 * @author Jesse Dirks, Jason Osmond
+	 */
+	public void InsertCoin(Currency curr, Long denomination) { //TODO
+		
+		try {
+			Coin c = new Coin(curr, denomination);
+			station.coinSlot.receive(c);
+		} catch(DisabledException e) {
+			payWindowCash.setMessage("The coin slot is currently disabled");
+		} catch(TooMuchCashException e) {
+			payWindowCash.setMessage("The machine is full of coins");
+		}
+		
+	}
+	
+	/**
+	 * Inserts a banknote into the banknote slot
+	 * @author Jesse Dirks, Jason Osmond
+	 */
+	public void InsertBanknote(Currency curr, int denomination) { //TODO
+		
+		try {
+			Banknote b = new Banknote(curr, denomination);
+			station.banknoteInput.receive(b);
+		} catch(DisabledException e) {
+			payWindowCash.setMessage("The banknote slot is currently disabled");
+		} catch(TooMuchCashException e) {
+			payWindowCash.setMessage(e.getMessage());
+		}
+	}
+	
+	/**
+	 * Called when a denomination storage unit receives a coin
+	 * @author Jason Osmond
+	 * @param cashAmount
+	 */
+	public void ValidCashReceived(long cashAmount) {
+		System.out.println("Valid Cash Received = " + cashAmount); 
+		payWindowCash.cashReceived(cashAmount); //Update UI of cash Inserted
+		
+	}
+	
+	/**
+	 * Called when customer presses confirm in Pay with cash screen
+	 * Finalizes Pay with cash sequence
+	 * Only affects GUI, actual transaction processed when cash is inserted
+	 * @author Jason Osmond
+	 */
+	public void payByCash(double amount) {
+		if (amount <= 0) {
+			payWindowCash.setMessage("Please Insert Cash Before Confirming");
+			return;
+		}		
+		updateGUIItemListPayment(amount);
+	}
+	
+	/**
+	 * Simulates Collecting Change 
+	 */
+	public double collectChange() {
+		ArrayList<Coin> coinsCollected = (ArrayList<Coin>) station.coinTray.collectCoins();
+		double totalChangeCollected = 0;
+		for (Coin coin : coinsCollected) {
+			totalChangeCollected += (double) coin.getValue();
+		}
+		
+		payWindowCash.changeCollected();
+		
+		return totalChangeCollected;
+	}	
+	
+	
+	/**
+	 * Adds Listeners to all the coin dispensers
+	 * @author Jason Osmond
+	 */
+	private void attachToCoinDispensers() {
+		for (long denomination : station.coinDenominations) {
+			CoinDispenserAR coinDispenser = station.coinDispensers.get(denomination);
+			coinDispenser.attach(new CoinDispenserObs(this, denomination));
+		}
+	}
+	
+	/**
+	 * Adds Listeners to all the bank note dispensers
+	 * @author Jason Osmond
+	 */
+	private void attachToNoteDispensers() {
+		for (int denomination : station.banknoteDenominations) {
+			BanknoteDispenserAR banknoteDispenser = station.banknoteDispensers.get(denomination);
+			banknoteDispenser.attach(new BanknoteDispenserObs(this, denomination));
+		}
+	}
+	
+	/**
+	 * Probably call this with Attendant Station
+	 * @author Jason Osmond
+	 * @param amountToLoad
+	 * 		Number of coins to simulate loading
+	 */
+	public void simulateLoadAllCoinDispensers(long amountToLoad) {
+		for (long denomination: station.coinDenominations) {
+			//Get dispenser
+			CoinDispenserAR changeDispenser = 
+					station.coinDispensers.get(denomination);
+			if (changeDispenser == null)
+				continue;
+			
+			//Simulate coins
+			Coin[] coins = new Coin[(int) amountToLoad];
+			
+			for (int i = 0; i < coins.length; i++)
+				coins[i] = new Coin(currency, denomination);
+			
+			//Try to load into dispenser
+			try {
+				changeDispenser.load(coins);
+			}catch (TooMuchCashException e){
+				System.out.println(e);
+				continue;
+			}catch (NoPowerException e) {
+				System.out.println(e);
+				continue;
+			}			
+		}
+	}
+	
+	/**
+	 * Dispenses all change into the coin tray
+	 * Change returned favors larger denominations
+	 * @author Jason Osmond
+	 */
+	public void dispenseChangeDue() {
+		//Looks at each denomination and if denom is larger than change due
+		//BEST WHEN: Denominations are be sorted in DECREASING order
+		for(long denomination : station.coinDenominations) {
+			while (changeDue >= denomination 
+					|| (denomination == 0.05 && changeDue >= 0.03)){//Round to the nearest nickel
+				try {
+					CoinDispenserAR dispenser = station.coinDispensers.get(denomination);
+					dispenser.emit();
+				}catch (OutOfCashException e) {
+					e.printStackTrace();
+					break; //move to next denomination
+				} catch (TooMuchCashException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					break;
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					break;
+				}
+			}
+		}
+		if(changeDue > 0.02) { //TODO Handle if change was not properly dispensed
+			System.out.println("Insufficient Change Returned: " + changeDue);
+		}
+		else if(changeDue < -.02) {
+			System.out.println("Too Much Change Returned: " + changeDue);
+		}
+		
+		//Update GUI after dispensing
+		changeReceiptPrice(changeReturned);
+		updateGUIItemListCollectCash(changeReturned);
+			
+	}
+	
+
+	
+
+	/* Finalizes the pay by Debit sequenece (using TAP)
+	 * @author simrat_benipal
+	 * @param nothing, we can tap without PIN
+	 */
+	
+	public void payByDebitSwipe(double amountToPay) 
+	{
+		//for partial payments
+		this.amountToPay = amountToPay;
+		
+		
+		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+		try {
+			//a card has been selected because of payByDebitStart() method
+			//so just swipe the selected card
+			station.cardReader.swipe(debitCardSelected);
+			//method in CardReader.Java
+			//every station has a CardReader Object
+			//This Card Reader should be powered-up and running
+			//this call will notify that the card is swipped in the CardReaderObserver
+			
+			//if this method returned success (based on probabilities of SWIPE Failure
+			//then we execute 'notifyCardDataRead(data), method in listener (already implemented in our listener/obs) 
+			
+			//and this return CardData Object
+		} catch(BlockedCardException e) 
+		{
+			payWindowDebit.setMessage("The card has been blocked!");
+			return;
+		} catch(IllegalStateException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		} catch(ChipFailureException e) 
+		{
+			payWindowDebit.setMessage("Random Swipe Failure! Try Again!!");
+			return;
+		} catch(IOException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		}
+		//WE GET HERE, THE PAYMENT WAS PROCESSED
+		disablePayOnGui();
+	}
+	
+	
+	/**Tap and Swipe for CREDIT CARDS
+	 * @author simrat_benipal 
+	 * Iteration 2.0 
+	 */
+	public void payByCreditTap(double amountToPay) 
+	{
+		//for partial payments
+		this.amountToPay = amountToPay;
+		//check if the card has tap enabled or not
+		if(!creditCardSelected.isTapEnabled)
+		{
+			payWindowDebit.setMessage("This card cannot tap!");
+			return;
+		}
+		else
+		{
+		
+		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+		try {
+			//a card has been selected because of payByCreditStart() method
+			//so just tap the selected card
+			station.cardReader.tap(creditCardSelected); //method in CardReader.Java
+			//every station has a CardReader Object
+			//This Card Reader should be powered-up and running
+			//this call will notify that the card is tapped in the CardReaderObserver
+			
+			//if this method returned success (based on probabilities of TapFailure
+			//then we execute 'notifyCardDataRead(data), method in listener 
+			
+			//and this return CardData Object
+		} catch(BlockedCardException e) 
+		{
+			payWindowDebit.setMessage("The card has been blocked!");
+			return;
+		} catch(IllegalStateException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		} catch(ChipFailureException e) 
+		{
+			payWindowDebit.setMessage("Random Tap Failure! Try Again!!");
+			return;
+		} catch(IOException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		}
+		}
+		//WE GET HERE, THE PAYMENT WAS PROCESSED
+		disablePayOnGui();
+	}
+	
+	/**
+	 * Finalizes the pay by Debit sequenece (using TAP)
+	 * @author simrat_benipal
+	 * @param nothing, we can tap without PIN
+	 */
+	public void payByCreditSwipe(double amountToPay) 
+	{
+		//for partial payments
+		this.amountToPay = amountToPay;
+		
+		
+		
+		//Try and Catch here because a bunch of exceptions can be thrown before hitting the CardReaderListener
+		try {
+			//a card has been selected because of payByDebitStart() method
+			//so just swipe the selected card
+			station.cardReader.swipe(creditCardSelected);
+			//method in CardReader.Java
+			//every station has a CardReader Object
+			//This Card Reader should be powered-up and running
+			//this call will notify that the card is swipped in the CardReaderObserver
+			
+			//if this method returned success (based on probabilities of SWIPE Failure
+			//then we execute 'notifyCardDataRead(data), method in listener (already implemented in our listener/obs) 
+			
+			//and this return CardData Object
+		} catch(BlockedCardException e) 
+		{
+			payWindowDebit.setMessage("The card has been blocked!");
+			return;
+		} catch(IllegalStateException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		} catch(ChipFailureException e) 
+		{
+			payWindowDebit.setMessage("Random Swipe Failure! Try Again!!");
+			return;
+		} catch(IOException e) 
+		{
+			payWindowDebit.setMessage(e.getMessage());
+			return;
+		}
+		//WE GET HERE, THE PAYMENT WAS PROCESSED
+		disablePayOnGui();
+	}
+	
+		/**
 	 * send a message to the pay window for showing to the customer
 	 */
 	
@@ -468,6 +970,8 @@ public class DIYSystem {
 			payWindow.disablePaying();
 		else if (payWindowDebit != null)
 			payWindowDebit.disablePaying();
+		else if (payWindowCash != null)
+			payWindowCash.disablePaying();
 			
 	}
 	
@@ -476,6 +980,8 @@ public class DIYSystem {
 			payWindow.setMessage(msg);
 		else if (payWindowDebit != null)
 			payWindowDebit.setMessage(msg);
+		else if (payWindowCash != null)
+			payWindowCash.setMessage(msg);
 	}
 		
 	
@@ -510,6 +1016,29 @@ public class DIYSystem {
 	 */
 	public void resetReceiptPrice() {
 		amountToBePayed = 0;
+		setPriceOnGui();
+	}
+	
+	/**
+	 */
+	public void decreaseReceiptPrice(double price) {
+		amountToBePayed -= price;
+		if(amountToBePayed < 0) {
+			changeDue = -(amountToBePayed);
+		}
+		setPriceOnGui();
+	}
+	
+	public void decreaseChangeDue(double amount) {
+		changeDue -= amount;
+		changeReturned += amount;
+	}
+	public double getChangeDue() {
+		return changeDue;
+	}
+	
+	public double getAmountToPay() {;
+		return amountToPay;
 	}
 	
 	
@@ -555,6 +1084,9 @@ public class DIYSystem {
 		return station.printer;
 	}
 	
+	public Currency getCurrency() {
+		return currency;
+	}
 	
 	public void setPriceOnGui() {
 		mainWindow.setamountToBePayedLabel(amountToBePayed);
@@ -568,8 +1100,16 @@ public class DIYSystem {
 		station.scanner.enable();
 	}
 
-	public void updateGUIItemList(String desc, double price, double weight) {
+	public void updateGUIItemList(String desc, double weight, double price) {
 		mainWindow.addProductDetails(desc, price, weight);
+	}
+	
+	public void updateGUIItemListPayment(double amountPaid) {
+		mainWindow.addPaymentToItems(amountPaid);
+	}
+	
+	public void updateGUIItemListCollectCash(double amountPaid) {
+		mainWindow.addCollectCashToItems(amountPaid);
 	}
 	
 	public void updateWeightOnGUI(double weight) {
@@ -583,6 +1123,26 @@ public class DIYSystem {
 			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
 	}
 	
+	public void weightDiscrepancy(ElectronicScale baggingArea, double currentWeight) throws OverloadException {
+		//Compare current weight vs previous weight
+		double expected_weight = getCurrentExpectedWeight();
+		//double current_weight = baggingArea.getCurrentWeight();
+
+		if (expected_weight < currentWeight){
+			//Station to disabled scanning
+			station.scanner.disable();
+			//GUI to disable scanning and bagging
+			disableScanningAndBagging();
+			//Signal attendant to help
+			requestAttendant = true;
+		}
+		else if (expected_weight == currentWeight){
+			station.scanner.enable();
+			enableScanningAndBagging();
+		}
+
+	}
+	
 	public boolean get_requestAttendant(){
 		return requestAttendant;
 	}
@@ -594,6 +1154,4 @@ public class DIYSystem {
 	public void bagsRefilled() {
 		mainWindow.setMsg("");
 	}
-	
-
 }

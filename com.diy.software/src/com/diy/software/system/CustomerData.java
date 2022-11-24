@@ -34,6 +34,8 @@ public class CustomerData {
 	
 	public Customer customer;
 	private Bank custBank;
+	private double john_debit_limit = 2000;
+	private double john_interac_limit = 10;
 	
 	public CustomerData() {
 		initDefaultCustomer();
@@ -57,16 +59,19 @@ public class CustomerData {
 		//Create a new Card and store it in the waller for the customer
 		customer.wallet.cards.add(new Card("VISA", "1234567890123456", "John Doe", "909", "0000".intern(), true, true));
 		customer.wallet.cards.add(new Card("Master Card", "6543210987654321", "John Doe", "415", "1111".intern(), true, true));
-		//Creat a default bank called "Big Bank"
-		custBank = new Bank("Big Bank", 10);
-		
 		/**
 		 * @author simrat_benipal
 		 */
 		//Create a new Debit Card
 		customer.wallet.cards.add(new Card("A Debit Card", "123123123123123", "John Debit", "123", "1234".intern(), true, true));
 		customer.wallet.cards.add(new Card("Interac", "456456456456456", "John Interac", "123", "1234".intern(), true, true));	
+		//customer.wallet.cards.add(new Card("<No Chip>Interac", "456456456456420", "John Interac (Blocked)", "123", "1234".intern(), true, false));	
+		customer.wallet.cards.add(new Card("<Tap False>Interac", "456456456456421", "John Interac (Tap Blocked)", "123", "1234".intern(), false, true));	
 		/** Simrat_benipal Code ends */
+		//Creat a default bank called "Big Bank"
+		custBank = new Bank("Big Bank", 10);
+		
+
 		
 		//Setup a date to use as the expiry date for the newly created card
 		Date date = new Date();
@@ -80,8 +85,10 @@ public class CustomerData {
 		
 		/** @author simrat_benipal */
 		//Store the card information into the "Big Bank" database with a limit of 2000
-		custBank.addCardData("123123123123123", "John Debit", cal, "123", 2000);
-		custBank.addCardData("456456456456456", "John Interac", cal, "123", 10);
+		custBank.addCardData("123123123123123", "John Debit", cal, "123", john_debit_limit);
+		custBank.addCardData("456456456456456", "John Interac", cal, "123", john_interac_limit);
+		//custBank.addCardData("456456456456420", "John Interac (Blocked)", cal, "123", john_interac_limit);
+		custBank.addCardData("456456456456421", "John Interac (Tap Blocked)", cal, "123", john_interac_limit);
 		/** Simrat_benipal Code ends */
 		
 	}
@@ -96,4 +103,18 @@ public class CustomerData {
 		}
 	}
 	
+	/**
+	 * @author simrat_benipal
+	 * Getting method for debit limit
+	 */
+	public double get_john_debit_limit(){
+		return john_debit_limit;
+	}
+	/**
+	 * @author simrat_benipal
+	 * Getting method for debit limit for interac named card
+	 */
+	public double get_john_interac_limit(){
+		return john_interac_limit;
+	}
 }

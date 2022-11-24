@@ -6,8 +6,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import com.jimmyselectronics.OverloadException;
-import com.jimmyselectronics.virgilio.ElectronicScale;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -20,14 +18,10 @@ import java.awt.event.ActionEvent;
  * Attendant station GUI from iteration 1 adapted to use with iteration 2
  * 
  * @author Benjamin Niles
- * @author Quang(Brandon) Nguyen
- * @author Mai
  *
  */
 public class AttendantStation{
-
-	private ElectronicScale baggingArea;
-
+	
 	public AttendantStation(CustomerData[] c) {
 		
 		//can add multiple checkout stations
@@ -66,7 +60,6 @@ public class AttendantStation{
 	private JButton enableStationButton;
 	private JButton disableStationButton;
 	private JButton addBagButton;
-	private JButton approveWeightButton;
 	
 	private JTextArea billTextArea;
 	
@@ -146,13 +139,10 @@ public class AttendantStation{
 		enableStationButton = new JButton("unlock diy station");
 		enableStationButton.setEnabled(false);
 		disableStationButton = new JButton("lock diy station");
-		approveWeightButton = new JButton ("Approve weight change");
-		approveWeightButton.setEnabled(false);
 		addBagButton = new JButton("add bags");	
 		addBagButton.setEnabled(false);
 		alertLabel = new JLabel("");
 		//printerPanel.add(alertLabel);
-		printerPanel.add(approveWeightButton);
 		printerPanel.add(addBagButton);
 		printerPanel.add(disableStationButton);
 		printerPanel.add(enableStationButton);
@@ -165,13 +155,13 @@ public class AttendantStation{
 		frame.getContentPane().add(leftPanel);
 	}
 	public void addListeners() {
-
+		
 		currentDIY.getTextPane().addPropertyChangeListener(e->{
 			billTextArea.setText(currentDIY.getProductDetails());
 			totalLabel.setText(currentDIY.getTotalAmount());
 			//weightlabel.setText(null);
 		});
-
+		
 		addPaperButton.addActionListener(e->{
 			try {
 				system.get(diyNum).getPrinter().addPaper(500);
@@ -181,7 +171,7 @@ public class AttendantStation{
 				//e1.printStackTrace();
 			}
 		});
-
+		
 		addInkButton.addActionListener(e->{
 			try {
 				system.get(diyNum).getPrinter().addInk(500000);
@@ -191,27 +181,16 @@ public class AttendantStation{
 				//e1.printStackTrace();
 			}
 		});
-
+		
 		enableStationButton.addActionListener(e->{
 			system.get(diyNum).systemEnable();
 			enableStationButton.setEnabled(false);
 			disableStationButton.setEnabled(true);
 			addInkButton.setEnabled(false);
 			addPaperButton.setEnabled(false);
-
+			
 		});
-		approveWeightButton.addActionListener(e->{
-			try {
-				system.get(diyNum).updateExpectedWeight(system.get(diyNum).getCurrentWeight());
-			} catch (OverloadException ex) {
-				throw new RuntimeException(ex);
-			}
-			sendAlert("");
-			enableStationButton.setEnabled(true);
-			disableStationButton.setEnabled(false);
-			approveWeightButton.setEnabled(false);
-		});
-
+		
 		addBagButton.addActionListener(e->{
 			system.get(diyNum).getBagDispenserData().addBagsToDispenser(50);
 			sendAlert("");
@@ -220,15 +199,15 @@ public class AttendantStation{
 			addBagButton.setEnabled(false);
 			system.get(diyNum).bagsRefilled();
 		});
-
+		
 		disableStationButton.addActionListener(e->{
 			system.get(diyNum).systemDisable();
 			enableStationButton.setEnabled(true);
 			disableStationButton.setEnabled(false);
 		});
-
+		
 	}
-
+	
 	//updates the text in the alert label
 	public void sendAlert(String alert) {
 		alertLabel.setText(alert);
@@ -270,16 +249,6 @@ public class AttendantStation{
 			}
 		}
 	}
-
-	public void notifyWeightChange() {
-		sendAlert("Unauthorized weight change at station. Please approve");
-		approveWeightButton.setEnabled(true);
-		if (!system.get(diyNum).isEnabled()) {
-			enableStationButton.setEnabled(false);
-			disableStationButton.setEnabled(false);
-		}
-	}
-
 	
 	public DIYSystem getCurrentDIY() {
 		return system.get(diyNum);
