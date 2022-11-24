@@ -7,7 +7,7 @@ import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
 import com.jimmyselectronics.EmptyException;
-
+import java.lang.Object;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Currency;
@@ -616,14 +616,32 @@ public class DIYSystem {
 		disablePayOnGui();
 	}
 	
-	
-	public void enterMembership(String membershipNumber) {
 
-		// TODO Auto-generated method stub
+	/**
+	 * Rose
+	*/
+	public void weightDiscrepancy(ElectronicScale baggingArea, double baggingAreaCurrentWeight) throws OverloadException {
+		if (!assertEquals(baggingAreaExpectedWeight, baggingAreaCurrentWeight, 0.01)){
+			systemDisable();
+			requestAttendant = true;
+		}
+		else
+			systemEnable();
+	}
+  
+	public void enterMembership(String membershipNumber) {
+		// MembershipWindow.memberNumber.getText() == membershipNumber;
 		
+		membershipWindow = new Membership(this);
+		// Check if inputted membership number is in the MembershipDatabase
+		if (MembershipDatabase.containsValue(Integer.parseInt(membershipNumber)))
+			MembershipWindow.setmessage("Success!");
+		else
+			MembershipWindow.setmessage("Error! Try again.");
+			requestAttendant = true;
 	}
 	
-	
+  
 	/**
 	 * Finalizes the pay by Debit sequenece (using TAP)
 	 * @author simrat_benipal
@@ -1014,6 +1032,7 @@ public class DIYSystem {
 			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
 	}
 	
+
 	public boolean get_requestAttendant(){
 		return requestAttendant;
 	}
