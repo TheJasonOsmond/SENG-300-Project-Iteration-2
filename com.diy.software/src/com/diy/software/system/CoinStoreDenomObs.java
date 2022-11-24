@@ -37,7 +37,6 @@ public class CoinStoreDenomObs implements CoinStorageUnitObserver {
 		sys.decreaseReceiptPrice(denomination);
 		sys.ValidCashReceived(denomination);
 		sys.payWindowMessage("Your cash has been accepted: $" + denomination);
-		sys.updateGUIItemListPayment(denomination);
 	}
 
 	/**

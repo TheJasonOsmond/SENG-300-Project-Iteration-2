@@ -27,16 +27,17 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 
 public class PaymentCash {
-	JFrame payFrame;
-	JPanel payPanel;
-	JLabel remainingLabel, confirmLabel, cashDisplay;
-	JButton confirm, btnCoin1, btnCoin2, insertNote;
-	DIYSystem station;
+	private DIYSystem station;
+	private JFrame payFrame;
+	private JPanel payPanel;
+	private JLabel remainingLabel, confirmLabel, cashDisplay;
 	
-	private double cashReceived;
-	private double amountRemaining;
+	private JButton confirm, btncollectChange, btnCloseWindow;
+	private JButton	btnCoin1, btnCoin2; 
+	private JButton insertNote;
+	
+	private double cashReceived = 0, amountRemaining, changeDue = 0;
 	private boolean payWasSuccessful = false;
-	private JButton btnCloseWindow;
 
 	public PaymentCash(DIYSystem sys) {
 		//this is just copy paste from Payment.java for now...
@@ -97,21 +98,35 @@ public class PaymentCash {
 		confirm = new JButton("Confirm Payment Details");
 		confirm.addActionListener(e -> {
 			station.payByCash(cashReceived);
+			checkIfChangeisDue();
 		});
 		payPanel.add(confirm);
+		
+		//Collect Change
+		btncollectChange = new JButton("Collect Change");
+		btncollectChange.addActionListener(e -> {
+			station.collectChange();
+			System.out.println("Collect Change Pressed");
+			//station.payByCash(cashReceived);
+		});
+		payPanel.add(btncollectChange);
 
 		btnCloseWindow = new JButton("Exit");
 		btnCloseWindow.addActionListener(e -> {
+			if (cashReceived > 0);
+				station.updateGUIItemListPayment(cashReceived);
 			closeWindow();
 		});
 		
 		payPanel.add(btnCloseWindow);
 		payPanel.add(confirmLabel);
+		
+		disableCollectChange();
 
 		payFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		payFrame.setVisible(true);
 		payFrame.pack();
-		payFrame.setSize(400, 400);
+		payFrame.setSize(400, 600);
 	}
 
 	public void updateCashDisplay() {
@@ -135,8 +150,54 @@ public class PaymentCash {
 		return this.confirmLabel.getText();
 	}
 	
+	public void addChangeDue(double amount) {
+		if(amount > 0) { //change must be non-negative
+			changeDue += amount;			
+		}
+		
+	}
+	
+	public void deductChangeDue(double amount) {
+		if(amount >= changeDue) { //change must be non-negative
+			changeDue = 0;	
+			return;
+		}
+		changeDue -= amount;	
+	}
+	
+	
+	public void collectChange(double amountCollected) {
+		deductChangeDue(amountCollected);
+		if (changeDue == 0) {
+			closeWindow();			
+		}
+	}
+	
+	public void checkIfChangeisDue() {
+		if(changeDue > 0) {
+			enableCollectChange();
+			disableCloseWindow();
+			disablePaying();
+		}		
+	}
+	
+	private void disableCollectChange() {
+		btncollectChange.setEnabled(false);
+	}
+	private void enableCollectChange() {
+		btncollectChange.setEnabled(true);
+	}
+	
+	
+	public void disableCloseWindow() {
+		btnCloseWindow.setEnabled(false);
+	}
+		
+	
 	public void disablePaying() {
-		this.confirm.setEnabled(false);
+		confirm.setEnabled(false);
+		blockCashInsertion();
+		
 	}
 	
 	public void updatePayStatus(boolean status) {

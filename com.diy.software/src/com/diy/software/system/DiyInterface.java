@@ -78,6 +78,7 @@ public class DiyInterface extends Panel {
 	private JComboBox<?> comboBoxCredit;
 	private JComboBox<?> comboBoxDebit;
 	private JTextPane ItemList;
+	
 
 	public void initialize() {
 		/**
@@ -312,6 +313,13 @@ public class DiyInterface extends Panel {
 		ItemList.setText(itemDesc);
 	}
 	
+	public void addCollectCashToItems(double amountCollected) {
+		String itemDesc = ItemList.getText() + 
+				"***CHANGE DISTRIBUTED -> Price: $" + 
+				Double.toString(amountCollected) + "\n";
+		ItemList.setText(itemDesc);
+	}
+	
 	public String getProductDetails() {
 		return ItemList.getText();
 	}
@@ -363,6 +371,15 @@ public class DiyInterface extends Panel {
 	public void disableAddBagging() {
 //		AddBag.setEnabled(false);
 	}
+	
+	public void disableExit(){
+		ExitButton.setEnabled(false);
+	}
+	
+	public void enableExit(){
+		ExitButton.setEnabled(true);
+	}
+
 
 	private void exit() {
 		System.exit(0); 

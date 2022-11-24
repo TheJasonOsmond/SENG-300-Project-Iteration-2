@@ -103,7 +103,7 @@ public class DIYSystem {
 	private ArrayList<Long> coinDenominations = new ArrayList<Long>();
 	private long[] acceptedCoinDemominations = {1,2}; //HARDCODE ACCEPTED COINS
 	private Currency currency = Currency.getInstance(Locale.CANADA);
-//	private CoinTray coinTray;
+	private CoinTray coinTray;
 	
 	
 	
@@ -187,6 +187,7 @@ public class DIYSystem {
 		coinValidatorObs = new CoinValidatorObserverImpl(this);
 
 		
+		coinTray = new CoinTray(50);
 		//Setup Cash validators
 		SetupCoinValidator();
 		
@@ -323,6 +324,7 @@ public class DIYSystem {
 	public void enableScanningAndBagging() {
 		mainWindow.enableScanning();
 		mainWindow.enablePaying();
+		
 	}
 	
 	public boolean getWasPaymentPosted() {
@@ -660,10 +662,10 @@ public class DIYSystem {
 			coinDenominations.add(denomination);
 		coinValidator = new CoinValidator(currency, coinDenominations);
 		
-		CoinTray rejectSink = new CoinTray(100); //Rejection sink 
-		CoinTray overflowSink = new CoinTray(100); //Overflow sink
+		CoinTray rejectSink = coinTray; //Rejection sink 
+		CoinStorageUnit overflowSink = new CoinStorageUnit(100); //Overflow sink
 //		rejectSink.connect(); rejectSink.activate(); 
-//		overflowSink.connect(); overflowSink.activate();
+		overflowSink.connect(); overflowSink.activate();
 		
 		//Generate extra coin sinks for setup
 		HashMap<Long, Sink<Coin>> standardSinks = new HashMap();
@@ -673,7 +675,7 @@ public class DIYSystem {
 			 * TODO May be better to implement this as a Coin Dispenser
 			 * Then when transaction is finalized, move from dispensers to storage
 			 */
-			CoinStorageUnit coinStorage = new CoinStorageUnit(50); 
+			CoinStorageUnit coinStorage = new CoinStorageUnit(100); 
 			coinStorage.connect();
 			coinStorage.activate();
 			
@@ -691,7 +693,7 @@ public class DIYSystem {
 			System.out.println(e);
 			return;
 		}
-		coinValidator.attach(coinValidatorObs);
+		coinValidator.attach(coinValidatorObs); //coin Validator is not currently used
 		station.coinSlot.sink = coinValidator;	
 
 		station.coinSlot.connect();
@@ -730,7 +732,21 @@ public class DIYSystem {
 		}
 		System.out.println("TODO: Confirm Cash Payment of $"+ amount);
 		
+		payWindowCash.addChangeDue(1);
+		updateGUIItemListPayment(amount);
 		
+		
+	}
+	
+	public void collectChange() {
+		ArrayList<Coin> coinsCollected = (ArrayList<Coin>) coinTray.collectCoins();
+		double totalChangeCollected = 0;
+		for (Coin coin : coinsCollected) {
+			totalChangeCollected += (double) coin.getValue();
+		}
+		totalChangeCollected = 1000; //TODO Implement this
+		payWindowCash.collectChange(totalChangeCollected);
+		updateGUIItemListCollectCash(totalChangeCollected);
 	}
 	
 
@@ -1011,6 +1027,10 @@ public class DIYSystem {
 	
 	public void updateGUIItemListPayment(double amountPaid) {
 		mainWindow.addPaymentToItems(amountPaid);
+	}
+	
+	public void updateGUIItemListCollectCash(double amountPaid) {
+		mainWindow.addCollectCashToItems(amountPaid);
 	}
 	
 	public void updateWeightOnGUI(double weight) {
