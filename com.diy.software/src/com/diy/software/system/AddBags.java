@@ -102,7 +102,7 @@ public class AddBags {
 					dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 					dialog.setVisible(true);
 
-					int value1 = ((Integer)confirm_bag_amount.getValue()).intValue();
+					int value1 = (Integer) confirm_bag_amount.getValue();
 					if (value1 == JOptionPane.OK_OPTION) {
 					
 						bagDispenser.dispense(bag_purchased);
@@ -142,7 +142,7 @@ public class AddBags {
 				dialog.setVisible(true);
 				
 				// If OK pressed, close dialog and block station. Otherwise, just go back to the dialog.
-					int value = ((Integer)pane.getValue()).intValue();
+					int value = (Integer) pane.getValue();
 					if (value == JOptionPane.OK_OPTION) {
 						bagAddedSuccessful = true;
 						// Simulates customer adding their shopping bag to the bagging area.
