@@ -6,7 +6,7 @@ Functionality to do list:
 * Enter Membership Number by Typing -- Rose & Saja & Benjamin (done)
 * Add Own Bags -- Mai & Brandon (done)
 * Purchase Bags -- Mai & Brandon (done)
-* Pay with Cash -- Jason & Jesse (in-progress)
+* Pay with Cash -- Jason & Jesse (done)
 * Pay with Debit Card -- Eusa & Simrat (done)
 * Add Item [after partial payment] - Jason & Jesse (done)
 * Print Receipt (Low Paper & Low Ink) -- Benjamin & Dayee (done)
