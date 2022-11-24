@@ -541,7 +541,15 @@ public class DIYSystem {
 	public ElectronicScale getBaggingAreaRef() {
 		return baggingArea;
 	}
-
+	
+	/**
+	 * Gets a reference of the bag window
+	 * @return The reference of the bagging window
+	 */
+	public AddBags getAddBagsRef() {
+		return bagWindow;
+	}
+	
 	/**
 	 * Finalizes the pay by credit sequence
 	 * @param pin, the pin from customer input
