@@ -106,11 +106,18 @@ public class DiyInterface extends Panel {
 			}
 		});
 
-		/**placeholder for now
-		 * 
+		/**
+		 * Creates an AddBag button to allow customer to add their own bags.
 		 */
-		AddBag = new JButton("AddBag");
+		AddBag = new JButton("Add Bag(s)");
 		AddBag.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		AddBag.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Add Bag button has been pressed");
+				sysRef.addBag();
+			}
+		});
+		
 		/**
 		 * Creates Pay Now button.
 		 * Iteration II Updated PayNow to PayNowCredit (variable name change
@@ -429,6 +436,10 @@ public class DiyInterface extends Panel {
 		PayNowCredit.setEnabled(false);
 		PayNowDebit.setEnabled(false);
 		PayNowCash.setEnabled(false);
+	}
+	
+	public void enableMembership() {
+		enterMembership.setEnabled(true);
 	}
 	
 	public void disableMembership() {

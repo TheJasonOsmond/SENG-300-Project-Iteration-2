@@ -16,6 +16,7 @@ import java.util.NoSuchElementException;
 import com.diy.hardware.*;
 import com.diy.hardware.external.ProductDatabases;
 
+import com.jimmyselectronics.Item;
 import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.disenchantment.TouchScreen;
 import com.jimmyselectronics.disenchantment.TouchScreenListener;
@@ -66,9 +67,9 @@ public class DIYSystem {
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
 	private ReceiptPrinterObserver printerObs;
-	private AddBags bagWindow;
 	
 	//Cusomter IO Windows
+	private AddBags bagWindow;
 	private Payment payWindow;
 	private PaymentDebit payWindowDebit;
 	
@@ -90,6 +91,7 @@ public class DIYSystem {
 	private boolean requestAttendant = true;
 	private boolean systemEnabled = true;
 
+
 	private TouchScreen touchScreen;
 	private ElectronicScale baggingArea;
 	private BagDispenser bagDispenser;
@@ -108,8 +110,8 @@ public class DIYSystem {
 	
 	private Card debitCardSelected = null;
 	private Card creditCardSelected = null;
-	
-	
+
+
 	public DIYSystem(CustomerData c, AttendantStation a) {
 		customerData = c;
 		attendant = a;
@@ -180,7 +182,7 @@ public class DIYSystem {
 		//Setup the required observers		
 		cardReaderObs = new CardReaderObserver(this);
 		scannerObs = new BarcodeScannerObserver(this);
-		scaleObs = new ElectronicScaleObserver(this);
+		scaleObs = new ElectronicScaleObserver(this, this.attendant);
 		touchObs = new TouchScreenObserver();
 		printerObs = new ReceiptPrinterObserver(this);
 
@@ -230,6 +232,7 @@ public class DIYSystem {
 		//mainWindow.disableBagging();
 		mainWindow.disablePaying();
 		mainWindow.disableScanning();
+		mainWindow.disableMembership();
 	}
 	
 	public void systemEnable() {
@@ -248,6 +251,7 @@ public class DIYSystem {
 		//mainWindow.enableBagging();
 		mainWindow.enablePaying();
 		mainWindow.enableScanning();
+		mainWindow.enableMembership();
 	}
 	
 	public boolean isEnabled() {
@@ -303,6 +307,8 @@ public class DIYSystem {
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
 		mainWindow.enableBagging();
+		mainWindow.disableMembership();
+		mainWindow.disableAddBagging();
 		mainWindow.setMsg("Bag Your Item:");
 	}
 	
@@ -312,17 +318,23 @@ public class DIYSystem {
 		mainWindow.enablePaying();
 		mainWindow.enableScanning();
 		mainWindow.disableBagging();
+		mainWindow.enableMembership();
+		mainWindow.enableAddBagging();
 	}
 	
 	public void disableScanningAndBagging() {
 		mainWindow.disableBagging();
 		mainWindow.disableScanning();
 		mainWindow.disablePaying();
+		mainWindow.disableMembership();
+		mainWindow.disableAddBagging();
 	}
 	
 	public void enableScanningAndBagging() {
 		mainWindow.enableScanning();
 		mainWindow.enablePaying();
+		mainWindow.enableMembership();
+		mainWindow.enableAddBagging();
 	}
 	
 	public boolean getWasPaymentPosted() {
@@ -333,13 +345,17 @@ public class DIYSystem {
 		this.wasPaymentPosted = state;
 	}
 	
-	private void sendMsgToGui(String string) {
+	public void sendMsgToGui(String string) {
 		// TODO Auto-generated method stub
 		mainWindow.setMsg(string);
 	}
 
 	public double getCurrentExpectedWeight() {
 		return baggingAreaExpectedWeight;
+	}
+	public double getCurrentWeight() throws OverloadException {
+		baggingAreaCurrentWeight = baggingArea.getCurrentWeight();
+		return baggingAreaCurrentWeight;
 	}
 	
 	public double updateExpectedWeight(ElectronicScale baggingArea, double itemExpectedWeight) throws OverloadException {
@@ -488,24 +504,6 @@ public class DIYSystem {
 	}
 	
 	/**
-	 * @author brandonn38
-	 * Start the process of adding a bag
-	 */
-	public void addBag() {
-		disableScanningAndBagging();
-		bagWindow = new AddBags(this, attendant);
-	}
-	
-	public BagDispenser getBagDispenserData() {
-		return this.bagDispenser;
-	}
-	
-	public void notifyBagWeightChange(String message) {
-		//TODO What kind of item do we add here?
-		//baggingArea.add(null);
-		updateWeightOnGUI(baggingAreaCurrentWeight);
-	}
-	/**
 	 * @author Saja Abufarha
 	 * Gets error message to signals the Customer I/O regarding the weight discrepancy. 
 	 * Will be called by Roze's code
@@ -518,6 +516,31 @@ public class DIYSystem {
 
 	}
 	
+	/**
+	 * @author brandonn38
+	 * Start the process of adding a bag
+	 */
+	public void addBag() {
+		disableScanningAndBagging();
+		bagWindow = new AddBags(this, attendant);
+	}
+	
+	
+	/**
+	 * Gets the data of the bag dispenser
+	 * @return The bagDispenser data
+	 */
+	public BagDispenser getBagDispenserData() {
+		return bagDispenser;
+	}
+	
+	/**
+	 * Gets a reference of the bagging area
+	 * @return The reference of the bagging area
+	 */
+	public ElectronicScale getBaggingAreaRef() {
+		return baggingArea;
+	}
 
 	/**
 	 * Finalizes the pay by credit sequence
@@ -989,26 +1012,6 @@ public class DIYSystem {
 			payWindow.updatePayStatus(this.wasPaymentPosted);
 		else if (payWindowDebit != null)
 			payWindowDebit.updatePayStatus(this.wasPaymentPosted);
-	}
-	
-	public void weightDiscrepancy(ElectronicScale baggingArea, double currentWeight) throws OverloadException {
-		//Compare current weight vs previous weight
-		double expected_weight = getCurrentExpectedWeight();
-		//double current_weight = baggingArea.getCurrentWeight();
-
-		if (expected_weight < currentWeight){
-			//Station to disabled scanning
-			station.scanner.disable();
-			//GUI to disable scanning and bagging
-			disableScanningAndBagging();
-			//Signal attendant to help
-			requestAttendant = true;
-		}
-		else if (expected_weight == currentWeight){
-			station.scanner.enable();
-			enableScanningAndBagging();
-		}
-
 	}
 	
 	public boolean get_requestAttendant(){
