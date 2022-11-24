@@ -47,6 +47,8 @@ public class CustomerData {
 		fillShoppingCart();
 		// Adding data to the membership database
 		MemberDatabase.MEMBER_DATABASE.put(555,"J");
+		MemberDatabase.MEMBER_DATABASE.put(1234,"John Doe");
+		MemberDatabase.MEMBER_DATABASE.put(5555,"John Doe 2");
 	}
 	
 	/**
