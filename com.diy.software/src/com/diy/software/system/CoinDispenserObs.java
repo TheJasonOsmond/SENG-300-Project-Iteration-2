@@ -51,9 +51,11 @@ public class CoinDispenserObs implements CoinDispenserObserver {
 	 */
 	@Override
 	public void coinAdded(ICoinDispenser dispenser, Coin coin) {
-		sys.decreaseReceiptPrice(coin.getValue());
-		sys.ValidCashReceived(coin.getValue());
-		sys.payWindowMessage("Your coin has been accepted: $" + coin.getValue());
+		double dollarValue = DIYSystem.convertCentsToDollars(coin.getValue());
+		System.out.println("Coin Val = " + coin.getValue() + "c or $" + dollarValue);
+		sys.decreaseReceiptPrice(dollarValue);
+		sys.ValidCashReceived(dollarValue);
+		sys.payWindowMessage("Your coin has been accepted: $" + dollarValue);
 	}
 
 	/**
@@ -67,7 +69,8 @@ public class CoinDispenserObs implements CoinDispenserObserver {
 	 */
 	@Override
 	public void coinRemoved(ICoinDispenser dispenser, Coin coin) {
-		sys.decreaseChangeDue(coin.getValue());
+		double dollarValue = DIYSystem.convertCentsToDollars(coin.getValue());
+		sys.decreaseChangeDue(dollarValue);
 	}
 
 	/**

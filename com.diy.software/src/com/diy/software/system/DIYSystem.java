@@ -109,8 +109,8 @@ public class DIYSystem {
 	
 	private final Currency currency = Currency.getInstance(Locale.CANADA);
 	
-	private long[] acceptedCoinDemominations = {2l,1l}; //HARDCODE ACCEPTED COINS IN DECREASING ORDER
-	private int[] acceptedNoteDemominations = {100, 50, 20, 10, 5}; //HARDCODE ACCEPTED NOTES IN DECREASING ORDER
+	public static final long[] acceptedCoinDenominations = {200l, 100l, 25l, 10l, 5l}; //HARDCODE ACCEPTED COINS IN DECREASING ORDER
+	public static final int[] acceptedNoteDenominations = {100, 50, 20, 10, 5}; //HARDCODE ACCEPTED NOTES IN DECREASING ORDER
 	
 	private double changeDue = 0; //amount we owe customer
 	private double changeReturned = 0;
@@ -132,8 +132,8 @@ public class DIYSystem {
 		//Setup the DIY Station
 		//station = new DoItYourselfStation();
 		
-		DoItYourselfStationAR.configureCoinDenominations(acceptedCoinDemominations);
-		DoItYourselfStationAR.configureBanknoteDenominations(acceptedNoteDemominations);
+		DoItYourselfStationAR.configureCoinDenominations(acceptedCoinDenominations);
+		DoItYourselfStationAR.configureBanknoteDenominations(acceptedNoteDenominations);
 		
 		station = new DoItYourselfStationAR();
 
@@ -717,7 +717,7 @@ public class DIYSystem {
 	 * @author Jason Osmond
 	 * @param cashAmount
 	 */
-	public void ValidCashReceived(long cashAmount) {
+	public void ValidCashReceived(double cashAmount) {
 		System.out.println("Valid Cash Received = " + cashAmount); 
 		payWindowCash.cashReceived(cashAmount); //Update UI of cash Inserted
 		
@@ -734,7 +734,7 @@ public class DIYSystem {
 			payWindowCash.setMessage("Please Insert Cash Before Confirming");
 			return;
 		}		
-		updateGUIItemListPayment(amount);
+		updateGUIItemListPayment(roundToHundredth(amount));
 	}
 	
 
@@ -837,7 +837,7 @@ public class DIYSystem {
 	public void dispenseChangeDue() {
 		//Looks at each denomination and if denom is larger than change due
 		//BEST WHEN: Denominations are be sorted in DECREASING order
-		for(int denomination : acceptedNoteDemominations) {
+		for(int denomination : acceptedNoteDenominations) {
 			while (changeDue + 0.02 >= denomination){//Round to the nearest nickel
 				try {
 					BanknoteDispenserAR dispenser = station.banknoteDispensers.get(denomination);
@@ -859,8 +859,9 @@ public class DIYSystem {
 			}
 		}
 		//dispense coins
-		for(long denomination : station.coinDenominations) {
-			while (changeDue + 0.02 >= denomination){//Round to the nearest nickel
+		for(long denomination : acceptedCoinDenominations) {
+			double dollarVal = DIYSystem.convertCentsToDollars(denomination);
+			while (changeDue + 0.02 >= dollarVal){//Round to the nearest nickel
 				try {
 					CoinDispenserAR dispenser = station.coinDispensers.get(denomination);
 					dispenser.emit();
@@ -918,8 +919,9 @@ public class DIYSystem {
 		ArrayList<Coin> coinsCollected = (ArrayList<Coin>) station.coinTray.collectCoins();
 		double totalChangeCollected = 0;
 		for (Coin coin : coinsCollected) {
-			System.out.println("Collected a $"+ coin.getValue() + " coin");
-			totalChangeCollected += (double) coin.getValue();
+			double dollarValue = convertCentsToDollars(coin.getValue());
+			System.out.println("Collected a $"+ dollarValue + " coin");
+			totalChangeCollected += (double) dollarValue;
 		}
 		if (station.banknoteInput.hasDanglingBanknote()) {
 			Banknote b = CollectBanknoteFromInput();
@@ -928,7 +930,7 @@ public class DIYSystem {
 		
 		payWindowCash.changeCollected();
 		
-		return totalChangeCollected;
+		return roundToHundredth(totalChangeCollected);
 	}	
 	
 	
@@ -1116,7 +1118,7 @@ public class DIYSystem {
 	 * @return
 	 */
 	public double getReceiptPrice() {
-		return amountToBePayed;
+		return roundToHundredth(amountToBePayed);
 	}
 	
 	/**
@@ -1124,7 +1126,7 @@ public class DIYSystem {
 	 * @param price
 	 */
 	public void changeReceiptPrice(double price) {
-		amountToBePayed += price;
+		amountToBePayed = roundToHundredth(amountToBePayed + price);
 		setPriceOnGui();
 	}
 	
@@ -1140,7 +1142,7 @@ public class DIYSystem {
 	/**
 	 */
 	public void decreaseReceiptPrice(double price) {
-		amountToBePayed -= price;
+		amountToBePayed = roundToHundredth(amountToBePayed - price);
 		if(amountToBePayed < 0) {
 			changeDue = -(amountToBePayed);
 		}
@@ -1148,19 +1150,19 @@ public class DIYSystem {
 	}
 	
 	public void decreaseChangeDue(double amount) {
-		changeDue -= amount;
-		changeReturned += amount;
+		changeDue = roundToHundredth(changeDue - amount);
+		changeReturned = roundToHundredth(changeReturned + amount);
 	}
 	
 	public void resetChangeReturned() {
 		changeReturned = 0;
 	}
 	public double getChangeDue() {
-		return changeDue;
+		return roundToHundredth(changeDue);
 	}
 	
 	public double getAmountToPay() {;
-		return amountToPay;
+		return roundToHundredth(amountToPay);
 	}
 	
 	
@@ -1227,11 +1229,11 @@ public class DIYSystem {
 	}
 	
 	public void updateGUIItemListPayment(double amountPaid) {
-		mainWindow.addPaymentToItems(amountPaid);
+		mainWindow.addPaymentToItems(roundToHundredth(amountPaid));
 	}
 	
 	public void updateGUIItemListCollectCash(double amountPaid) {
-		mainWindow.addCollectCashToItems(amountPaid);
+		mainWindow.addCollectCashToItems(roundToHundredth(amountPaid));
 	}
 	
 	public void updateWeightOnGUI(double weight) {
@@ -1275,5 +1277,15 @@ public class DIYSystem {
 	
 	public void bagsRefilled() {
 		mainWindow.setMsg("");
+	}
+	
+	public static final double roundToHundredth(double input) {
+		return (double) Math.round(input * 100) / 100; //round to nears 100th (i.e. $0.0500001 -> $0.05)
+	}
+	
+	public static final double convertCentsToDollars(long longVal) {
+		double doubVal = (double) longVal / 100; // 5c = $0.05
+		doubVal = roundToHundredth(doubVal); //round to nears 100th (i.e. $0.0500001 -> $0.05)
+		return doubVal; 
 	}
 }

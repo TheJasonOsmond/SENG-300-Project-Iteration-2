@@ -5,7 +5,9 @@ import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Currency;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
@@ -16,6 +18,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+
+import com.unitedbankingservices.banknote.BanknoteDispenserAR;
+import com.unitedbankingservices.coin.Coin;
+
 import java.awt.FlowLayout;
 
 import javax.swing.BorderFactory;
@@ -35,9 +41,14 @@ public class PaymentCash {
 	private JPanel payPanel;
 	private JLabel remainingLabel, confirmLabel, cashDisplay;
 	
-	private JButton confirm, btncollectChange, btnCloseWindow;
-	private JButton	btnCoin1, btnCoin2; 
-	private JButton btnNote5, btnNote100;
+	private JButton confirm, btncollectChange;
+	private JButton	btnCoin5, btnCoin10, btnCoin25, btnCoin100, btnCoin200; 
+	private JButton btnNote5, btnNote10, btnNote20, btnNote50, btnNote100;
+	
+	private JButton[] noteButtons = {btnNote100, btnNote50, btnNote20, btnNote10, btnNote5}; //Sorted Decreasing Order, Same as denominations in DIYSTATION
+	private JButton[] coinButtons = {btnCoin200, btnCoin100, btnCoin25, btnCoin10, btnCoin5}; //Sorted Decreasing Order
+//	private Map<Long, JButton> coinButtonMap;
+//	private Map<Integer, JButton> noteButtonMap;
 	
 	private double cashReceived = 0, changeCollected = 0;
 	private boolean payWasSuccessful = false;
@@ -71,38 +82,33 @@ public class PaymentCash {
 		cashDisplay.setHorizontalAlignment(SwingConstants.CENTER);
 		payPanel.add(cashDisplay);
 		
-		//press to insert a coin
-		btnCoin1 = new JButton("Insert $1 Coin");
-		btnCoin1.addActionListener(e -> {
-			station.InsertCoin(curr, Long.valueOf(1L));
-		});
-		payPanel.add(btnCoin1);
+		//Add All Bank Note Buttons
+		for (int i = 0; i < noteButtons.length; i++) {
+			int denomination = DIYSystem.acceptedNoteDenominations[i];
+			noteButtons[i] = new JButton("Insert $" + denomination +" Bank Note");
+			noteButtons[i].addActionListener(e -> {
+				station.InsertBanknote(curr, denomination);
+			});
+			payPanel.add(noteButtons[i]);
+		}
 		
-		//Insert $2 Coin
-		btnCoin2 = new JButton("Insert $2 Coin");
-		btnCoin2.addActionListener(e -> {
-			station.InsertCoin(curr, 2l);
-		});
-		payPanel.add(btnCoin2);
+		//Add All CoinButtons
+		for (int i = 0; i < coinButtons.length; i++) {
+			long denomination = DIYSystem.acceptedCoinDenominations[i];
+			coinButtons[i] = new JButton("Insert $" + DIYSystem.convertCentsToDollars(denomination) +" Coin");
+			coinButtons[i].addActionListener(e -> {
+				station.InsertCoin(curr, denomination);
+			});
+			payPanel.add(coinButtons[i]);
+		}
+//		
+//		btnCoin200 = new JButton("Insert $" + DIYSystem.convertCentsToDollars(2) +" Coin");
+//		btnCoin200.addActionListener(e -> {
+//			station.InsertCoin(curr, 200l);
+//		});
+//		payPanel.add(btnCoin200);
 		
-		btnNote5 = new JButton("Insert $5 Banknote");
-		btnNote5.addActionListener(e -> {
-			if (station.InsertBanknote(station.getCurrency(), 5) == false) {
-				enableCollectChange();
-			}
-		});
-		payPanel.add(btnNote5);
-		
-		btnNote100 = new JButton("Insert $100 Banknote");
-		btnNote100.addActionListener(e -> {
-			station.InsertBanknote(station.getCurrency(), 100);
-		});
-		payPanel.add(btnNote100);
-		
-		
-
-		
-		//Collect Change
+		//Collect Change (starts disabled)
 		btncollectChange = new JButton("Collect Change");
 		btncollectChange.addActionListener(e -> {
 			changeCollected = station.collectChange();
@@ -110,15 +116,7 @@ public class PaymentCash {
 //			closeWindow();
 		});
 		payPanel.add(btncollectChange);
-
-//		btnCloseWindow = new JButton("Exit");
-//		btnCloseWindow.addActionListener(e -> {
-//			if (cashReceived > 0);
-//				station.updateGUIItemListPayment(cashReceived);
-//			closeWindow();
-//		});
-		
-//		payPanel.add(btnCloseWindow);
+		disableCollectChange();
 		
 		// When the Confirm button is pressed, tell the system to start the payment
 		// process
@@ -134,7 +132,6 @@ public class PaymentCash {
 		confirmLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		payPanel.add(confirmLabel);
 		
-		disableCollectChange();
 
 		payFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		payFrame.setVisible(true);
@@ -142,7 +139,7 @@ public class PaymentCash {
 		payFrame.setSize(400, 600);
 	}
 	
-	public void cashReceived(long cashAmount) {
+	public void cashReceived(double cashAmount) {
 		cashReceived += cashAmount;
 		updateCashDisplay();
 	}
@@ -178,7 +175,6 @@ public class PaymentCash {
 	public boolean checkIfChangeisDue() { //TODO Should be done in the station
 		if(station.getChangeDue() > 0) {
 			enableCollectChange();
-//			disableCloseWindow();
 			disablePaying();
 			station.dispenseChangeDue();
 			setMessage("Please Collect Change Before Proceeding");
@@ -193,11 +189,6 @@ public class PaymentCash {
 	private void enableCollectChange() {
 		btncollectChange.setEnabled(true);
 	}
-	
-	
-//	public void disableCloseWindow() {
-//		btnCloseWindow.setEnabled(false);
-//	}
 		
 	
 	public void disablePaying() {
@@ -218,18 +209,12 @@ public class PaymentCash {
 	}
 	
 	private void blockCashInsertion() {
-		btnCoin1.setEnabled(false);
-		btnCoin2.setEnabled(false);
-		btnNote5.setEnabled(false);
-		btnNote100.setEnabled(false);
-		
+		for(JButton coinButton : coinButtons)
+			coinButton.setEnabled(false);
+		for(JButton noteButton : noteButtons)
+			noteButton.setEnabled(false);
 	}
 	
-//	private void unblockCashInsertion(){
-//		btnCoin1.setEnabled(true);
-//		btnCoin2.setEnabled(true);
-//		insertNote.setEnabled(true);
-//	}
 	
 	private void closeWindow() {
 		station.enableScanningAndBagging();
