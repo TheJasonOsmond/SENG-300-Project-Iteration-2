@@ -85,7 +85,7 @@ public class CoinDispenserObs implements CoinDispenserObserver {
 	 */
 	@Override
 	public void coinsLoaded(ICoinDispenser dispenser, Coin... coins) {
-		System.out.println("Coin Dispenser $"+ denomination + " loaded with " + coins.length + " coins");
+		System.out.println("Coin Dispenser $"+ DIYSystem.convertCentsToDollars(denomination) + " loaded with " + coins.length + " coins");
 	}
 
 	/**

@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
+import com.unitedbankingservices.banknote.Banknote;
 import com.unitedbankingservices.banknote.BanknoteDispenserAR;
 import com.unitedbankingservices.coin.Coin;
 
@@ -87,7 +88,8 @@ public class PaymentCash {
 			int denomination = DIYSystem.acceptedNoteDenominations[i];
 			noteButtons[i] = new JButton("Insert $" + denomination +" Bank Note");
 			noteButtons[i].addActionListener(e -> {
-				station.InsertBanknote(curr, denomination);
+				Banknote banknote = new Banknote(curr, denomination);
+				station.InsertBanknote(banknote);
 			});
 			payPanel.add(noteButtons[i]);
 		}
@@ -97,7 +99,8 @@ public class PaymentCash {
 			long denomination = DIYSystem.acceptedCoinDenominations[i];
 			coinButtons[i] = new JButton("Insert $" + DIYSystem.convertCentsToDollars(denomination) +" Coin");
 			coinButtons[i].addActionListener(e -> {
-				station.InsertCoin(curr, denomination);
+				Coin coin = new Coin(curr, denomination);
+				station.InsertCoin(coin);
 			});
 			payPanel.add(coinButtons[i]);
 		}
@@ -152,7 +155,6 @@ public class PaymentCash {
 	}
 	
 	public void changeCollected() {
-		station.resetChangeReturned();
 		closeWindow();
 	}
 	

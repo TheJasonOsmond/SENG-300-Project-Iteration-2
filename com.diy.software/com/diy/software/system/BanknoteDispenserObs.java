@@ -67,7 +67,7 @@ public class BanknoteDispenserObs implements BanknoteDispenserObserver {
 	 */
 	@Override
 	public void banknoteRemoved(IBanknoteDispenser dispenser, Banknote banknote) {
-		sys.decreaseChangeDue(banknote.getValue());
+		sys.decreaseChangeDueUsingNotes(banknote.getValue());
 	}
 
 	/**
