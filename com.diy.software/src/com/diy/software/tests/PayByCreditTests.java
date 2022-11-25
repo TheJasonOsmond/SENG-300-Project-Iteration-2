@@ -1,8 +1,24 @@
 package com.diy.software.tests;
 
+
+import static org.junit.Assert.*;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Random;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import com.diy.hardware.BarcodedProduct;
+//import com.diy.hardware.DoItYourselfStation;
+import com.diy.hardware.DoItYourselfStationAR;
+import com.diy.hardware.external.ProductDatabases;
+import com.diy.simulation.Customer;
+import com.diy.software.system.AttendantStation;
+import com.diy.software.system.Bank;
 import ca.ucalgary.seng300.simulation.SimulationException;
 import com.diy.hardware.DoItYourselfStationAR;
-import com.diy.software.system.AttendantStation;
 import com.diy.software.system.CardReaderObserver;
 import com.diy.software.system.CustomerData;
 import com.diy.software.system.DIYSystem;
@@ -17,9 +33,7 @@ public class PayByCreditTests {
 	private static final String CORRECT_PIN = "0000";
 	private DIYSystem testSystem;
 	private CustomerData testCustomerData;
-	//private DoItYourselfStation selfCheckout;
-	private DoItYourselfStationAR selfCheckout;
-	private AttendantStation attendantStation;
+  private DoItYourselfStationAR selfCheckout;
 	private CardReaderObserver cardReaderObs;
 	
 	
@@ -28,12 +42,14 @@ public class PayByCreditTests {
 	public void setUp() throws Exception {
 		
 		testCustomerData = new CustomerData();
-		testSystem = new DIYSystem(testCustomerData, attendantStation);
+ 		CustomerData customers[] = {testCustomerData};
+ 		AttendantStation attendant = new AttendantStation(customers);
+ 		
+ 		testSystem = attendant.getCurrentDIY();
 		
 		// create listener
 		cardReaderObs = new CardReaderObserver(testSystem);
 
-		//selfCheckout = new DoItYourselfStation();
 		selfCheckout = new DoItYourselfStationAR();
 		selfCheckout.plugIn();
 		selfCheckout.turnOn();		
@@ -41,13 +57,15 @@ public class PayByCreditTests {
 		// initiate pay by credit 
 		testSystem.resetReceiptPrice();
 		testSystem.changeReceiptPrice(1.0);
-		testSystem.payByCreditStart("VISA");		
+		testSystem.payByCreditStart(", VISA");		
 		
 	}
 
 	
 	/********************************************************************** 
 	// PAY BY CREDIT TESTS  
+	 * 
+	 */
 	/********************************************************************** 
 
 	/********************************************************************** 
@@ -139,13 +157,72 @@ public class PayByCreditTests {
 	/**********************************************************************
 	 * Attempt to pay for nothing 
 	 */
-	@Test (expected = SimulationException.class)
+	@Test 
 	public void nothingOwed() {
 	
 		// should not be able to reach state where payment executes and amount owing is 0
 		testSystem.changeReceiptPrice(0.00);
 		testSystem.payByCredit(CORRECT_PIN, testSystem.getReceiptPrice());
 	}
+	
+	  /**
+     * Case where partial payment was successful
+     */
+    @Test
+    public void successfulPartialPayment() {
+    	testSystem.resetReceiptPrice();
+        testSystem.changeReceiptPrice(100.0); // Set amount to pay to $100.0
+        testSystem.payByCredit("1234",50);
+        System.out.println(testSystem.getReceiptPrice());
+        if(testSystem.getWasPaymentPosted())
+        	assertEquals(50,testSystem.getReceiptPrice(), 0.0 );
+        //we should have $50 should left to pay in the whole receipt
+        
+        
+     
+    }
+    
+    /**
+     * Case where payment was successful via tap
+     */
+    @Test
+    public void successfulPaymentTap() {
+    	testSystem.resetReceiptPrice();
+    	testSystem.changeReceiptPrice(1);
+        testSystem.payByCreditTap(testSystem.getReceiptPrice()); // Correct pin  
+       assertEquals(0, testSystem.getReceiptPrice(), 0.0); // Assert total still owed
+
+       //else payment was not posted
+       	
+        
+    }
+    
+    /**
+     * Case where partial payment was successful via tap
+     */
+    @Test
+    public void successfulPartialPaymentTap() {
+    	testSystem.resetReceiptPrice();
+        testSystem.changeReceiptPrice(100.0); // Set amount to pay to $100.0
+        testSystem.payByCreditTap(50); 
+        assertEquals(50, testSystem.getReceiptPrice(), 0.0); // Assert total should be 50
+        //remaining amount to pay should be 50
+      
+    }
+    
+    
+    /**
+     * Case where payment was successful via swipe
+     */
+    @Test
+    public void successfulPaymentSwipe() {
+        testSystem.payByCreditSwipe(testSystem.getReceiptPrice()); // Correct pin 
+        	assertEquals(0, testSystem.getReceiptPrice(), 0.0); // Assert total still owed
+        //checking if and only if the payment was posted otherwise the receitp price should be same as before
+       
+        	
+    }
+    
 	
 	
 
@@ -165,28 +242,5 @@ public class PayByCreditTests {
 		
 		// ensure the amount is still the same
 		assertEquals(2001, testSystem.getReceiptPrice(), .1);		
-	}
-		
-	
-	/**********************************************************************
-	 * Try and pay after reaching maximum bank hold
-	 */
-	@Test 
-	public void bankHoldReached() {
-			
-		// complete 11 transactions to reach maximum holds for VISA
-		for (int i = 0; i < 11; i++) {
-			
-			// set up successful transaction
-			testSystem.resetReceiptPrice();
-			testSystem.changeReceiptPrice(1.0);
-			testSystem.payByCredit(CORRECT_PIN, testSystem.getReceiptPrice());
-			//assertTrue(testSystem.getWasPaymentPosted());
-		}
-		
-		testSystem.resetReceiptPrice();
-		testSystem.changeReceiptPrice(1.0);
-		testSystem.payByCredit(CORRECT_PIN, testSystem.getReceiptPrice());
-		assertFalse(testSystem.getWasPaymentPosted());
 	}
 }
