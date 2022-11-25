@@ -1,16 +1,7 @@
 package com.diy.software.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-
-import java.util.Random;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import com.diy.hardware.BarcodedProduct;
-//import com.diy.hardware.DoItYourselfStation;
 import com.diy.hardware.DoItYourselfStationAR;
 import com.diy.hardware.external.ProductDatabases;
 import com.diy.software.system.AttendantStation;
@@ -21,14 +12,17 @@ import com.jimmyselectronics.necchi.Barcode;
 import com.jimmyselectronics.necchi.BarcodedItem;
 import com.jimmyselectronics.necchi.IllegalDigitException;
 import com.jimmyselectronics.necchi.Numeral;
+import org.junit.Before;
+import org.junit.Test;
 
-import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
+import java.util.Random;
+
+import static org.junit.Assert.*;
 
 public class ScanItemTests {
 
 	private DIYSystem testSystem;
 	private CustomerData testCustomerData;
-	//private DoItYourselfStation selfCheckout;
 	private DoItYourselfStationAR selfCheckout;
 	private AttendantStation attendantStation;
 		
@@ -44,7 +38,6 @@ public class ScanItemTests {
 		testCustomerData = new CustomerData();
 		testSystem = new DIYSystem(testCustomerData, attendantStation);
 
-		//selfCheckout = new DoItYourselfStation();
 		selfCheckout = new DoItYourselfStationAR();
 		selfCheckout.plugIn();
 		selfCheckout.turnOn();

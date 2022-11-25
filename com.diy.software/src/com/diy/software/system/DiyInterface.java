@@ -81,6 +81,7 @@ public class DiyInterface extends Panel {
 	private JComboBox<?> comboBoxCredit;
 	private JComboBox<?> comboBoxDebit;
 	private JTextPane ItemList;
+	
 
 	public void initialize() {
 		/**
@@ -178,13 +179,13 @@ public class DiyInterface extends Panel {
 		weightMSG.setFont(new Font("Tahoma", Font.BOLD, 14));
 		weightMSG.setText(" ");
 		
-		//ExitButton = new JButton("Exit");
-		//ExitButton.setFont(new Font("Tahoma", Font.PLAIN, 25));
-		//ExitButton.addActionListener(new ActionListener() {
-		//	public void actionPerformed(ActionEvent e) {
-		//		exit();
-		//	}
-		//});
+		ExitButton = new JButton("Exit");
+		ExitButton.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		ExitButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				exit();
+			}
+		});
 		/**
 		 * Creates the Item list for items scanned.
 		 */
@@ -301,8 +302,8 @@ public class DiyInterface extends Panel {
 						.addComponent(PayNowCredit, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(PayNowCash, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(ScanItem, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(AddBag, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						//.addComponent(ExitButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+//						.addComponent(AddBag, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(ExitButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(BaggingAreaButton, GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
 						.addComponent(comboBoxDebit, Alignment.TRAILING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addComponent(comboBoxCredit, Alignment.TRAILING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -362,8 +363,8 @@ public class DiyInterface extends Panel {
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addComponent(PayNowCash, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
 				.addPreferredGap(ComponentPlacement.RELATED)
-				//.addComponent(ExitButton, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
-				//.addPreferredGap(ComponentPlacement.RELATED)
+				.addComponent(ExitButton, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
+				.addPreferredGap(ComponentPlacement.RELATED)
 				.addContainerGap()));
 		this.setLayout(gl_panel);
 	}
@@ -386,6 +387,13 @@ public class DiyInterface extends Panel {
 		String itemDesc = ItemList.getText() + 
 				"***PAYMENT SUCCESSFUL -> Price: - $" + 
 				Double.toString(amountPaid) + "\n";
+		ItemList.setText(itemDesc);
+	}
+	
+	public void addCollectCashToItems(double amountCollected) {
+		String itemDesc = ItemList.getText() + 
+				"***CHANGE DISTRIBUTED -> Price: $" + 
+				Double.toString(amountCollected) + "\n";
 		ItemList.setText(itemDesc);
 	}
 	
@@ -448,12 +456,21 @@ public class DiyInterface extends Panel {
 	}
 	
 	public void enableAddBagging() {
-		AddBag.setEnabled(true);
+//		AddBag.setEnabled(true);
 	}
 	
 	public void disableAddBagging() {
-		AddBag.setEnabled(false);
+//		AddBag.setEnabled(false);
 	}
+	
+	public void disableExit(){
+		ExitButton.setEnabled(false);
+	}
+	
+	public void enableExit(){
+		ExitButton.setEnabled(true);
+	}
+
 
 	private void exit() {
 		System.exit(0); 

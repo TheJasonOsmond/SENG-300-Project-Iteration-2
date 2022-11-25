@@ -150,7 +150,7 @@ public class Payment {
 		try { //Convert to double
 			amount = Double.parseDouble(amountToPay.getText());
 			amount = (double) Math.round(amount * 100) / 100; //rounds to 100th
-			System.out.println("partial payment amount "+amount);
+			System.out.println("partial payment amount "+ amount);
 			System.out.println("total amount to pay "+station.getReceiptPrice());
 			if (amount > station.getReceiptPrice())
 			{

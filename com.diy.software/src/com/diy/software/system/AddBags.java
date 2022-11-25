@@ -27,6 +27,7 @@ public class AddBags {
 	boolean bagPurchasedSuccessful;
 	boolean bagAddedSuccessful;
 
+
 	/**
 	 * GUI for adding bags. User has a choice of adding their own bags or store bought bags.
 	 * @param sys Main DIYSystem
