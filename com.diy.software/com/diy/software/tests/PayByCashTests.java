@@ -355,7 +355,7 @@ public class PayByCashTests {
 	 * Inserting invalid coin gets rejected 
 	 * @author-name : Jason Osmond
 	 */
-	@Test
+//	@Test
 //	public void notEnoughChangeReturned()
 //	{
 //		testSystem.resetReceiptPrice();
