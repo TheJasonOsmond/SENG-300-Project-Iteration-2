@@ -82,7 +82,7 @@ public class DIYSystem {
 	private BanknoteValidatorObs banknoteValidatorObs;
 	private BanknoteStorageUnitObs banknoteStorageObs;
 	private BanknoteSlotROutputObs banknoteSlotROutputObs;
-	private AddBags bagWindow;
+	//private AddBags bagWindow;
 	
 	//Cusomter IO Windows
 	private AddBags bagWindow;

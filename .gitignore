@@ -2,3 +2,4 @@
 *.class
 com.diy.software/.classpath
 com.diy.software/.classpath
+*.iml
