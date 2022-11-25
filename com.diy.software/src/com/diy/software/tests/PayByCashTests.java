@@ -51,17 +51,29 @@ public class PayByCashTests {
 
 	@Test
 	public void successfulPayment() {
-
+		testSystem.resetReceiptPrice();
+		testSystem.changeReceiptPrice(10);
+		Currency curr = Currency.getInstance(Locale.CANADA);
+		long denomination = DIYSystem.acceptedCoinDenominations[0];
+		testSystem.InsertCoin(curr,denomination);
+		testSystem.InsertCoin(curr,denomination);
+		testSystem.InsertCoin(curr,denomination);
+		testSystem.InsertCoin(curr,denomination);
+		testSystem.InsertCoin(curr,denomination);
+		assertEquals(0.0,testSystem.getReceiptPrice(), 0.0 );
 	}
 
 
 
 
-	//@Test (expected = SimulationException.class)
+	@Test
 	public void nothingOwed() {
+		//Set amount to pay to $0
+		testSystem.resetReceiptPrice();
 		// should not be able to reach state where payment executes and amount owing is 0
 		testSystem.changeReceiptPrice(0.00);
-		//testSystem.payByCredit(CORRECT_PIN, testSystem.getReceiptPrice());
+		testSystem.payByCash(0);
+		assertEquals(0.0,testSystem.getReceiptPrice(), 0.0 );
 	}
 
 	@Test
