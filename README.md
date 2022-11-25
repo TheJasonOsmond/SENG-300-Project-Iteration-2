@@ -13,8 +13,8 @@ Functionality to do list:
 
 
 Testing to do list: 
-* Weight Discrepancy -- Rose & Saja (unknown)
-* Enter Membership Number by Typing -- Rose & Saja (unknown)
+* Weight Discrepancy -- GUI (not required??)
+* Enter Membership Number by Typing -- Rose (done)
 * Add Own Bags -- Mai & Brandon & Dayee(done)
 * Purchase Bags -- Mai & Brandon & Dayee(done) 
 * Pay with Cash -- Jason & Jesse (in-progress)
