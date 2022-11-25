@@ -62,8 +62,9 @@ public class PayByDebitTests {
     public void successfulPartialPaymentTap() {
     	testSystem.resetReceiptPrice();
         testSystem.changeReceiptPrice(100.0); // Set amount to pay to $100.0
-        testSystem.payByDebitTap(50); 
-        assertEquals(50, testSystem.getReceiptPrice(), 0.0); // Assert total should be 50
+        testSystem.payByDebitTap(50);
+        if(testSystem.getWasPaymentPosted())
+        	assertEquals(50, testSystem.getReceiptPrice(), 0.0); // Assert total should be 50
         //remaining amount to pay should be 50
       
     }
