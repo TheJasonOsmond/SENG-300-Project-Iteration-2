@@ -1395,4 +1395,3 @@ public class DIYSystem {
 		return doubVal; 
 	}
 }
-
