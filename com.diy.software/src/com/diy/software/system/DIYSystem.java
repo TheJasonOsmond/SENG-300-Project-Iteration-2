@@ -11,6 +11,7 @@ import java.lang.Object;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Currency;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import com.diy.hardware.*;
@@ -29,12 +30,21 @@ import com.jimmyselectronics.opeechee.InvalidPINException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
 
 import com.unitedbankingservices.DisabledException;
+import com.unitedbankingservices.OutOfCashException;
+import com.unitedbankingservices.Sink;
 import com.unitedbankingservices.TooMuchCashException;
 import com.unitedbankingservices.banknote.Banknote;
+import com.unitedbankingservices.banknote.BanknoteDispenserAR;
+import com.unitedbankingservices.banknote.BanknoteValidator;
 import com.unitedbankingservices.coin.Coin;
+import com.unitedbankingservices.coin.CoinDispenserAR;
+import com.unitedbankingservices.coin.CoinStorageUnit;
 import com.unitedbankingservices.coin.CoinValidator;
 
+import ca.powerutility.NoPowerException;
+
 import ca.powerutility.PowerGrid;
+
 import ca.powerutility.PowerSurge;
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
@@ -67,6 +77,12 @@ public class DIYSystem {
 	private ElectronicScaleObserver scaleObs;
 	private	TouchScreenObserver touchObs;
 	private ReceiptPrinterObserver printerObs;
+  
+	private CoinValidatorObs coinValidatorObs;
+	private BanknoteValidatorObs banknoteValidatorObs;
+	private BanknoteStorageUnitObs banknoteStorageObs;
+	private BanknoteSlotROutputObs banknoteSlotROutputObs;
+	private AddBags bagWindow;
 	
 	//Cusomter IO Windows
 	private AddBags bagWindow;
@@ -83,6 +99,7 @@ public class DIYSystem {
 	
 	//System Variables
 	private double amountToBePayed; //TOTAL AMOUNT OWED BY CUSTOMER, INCREMENTED ON SUCCESSFULL ITEM SCAN VIA BARCODESCANNEROBSERVER
+
 	private double baggingAreaCurrentWeight;
 	private double baggingAreaExpectedWeight;
 	private boolean wasSuccessScan = false;
@@ -100,13 +117,13 @@ public class DIYSystem {
 	
 	private double amountToPay;
 	
+	private final Currency currency = Currency.getInstance(Locale.CANADA);
 	
-	private ArrayList<Long> coinDenominations = new ArrayList<Long>();
-	//	private long[] acceptedCoinDemominations = {(long) 0.1,1}; //HARDCODE ACCEPTED COINS
-	//	private Currency currency = Currency.getInstance(Locale.CANADA);
-	//	private CoinValidator coinValidator;
+	public static final long[] acceptedCoinDenominations = {200l, 100l, 25l, 10l, 5l}; //HARDCODE ACCEPTED COINS IN DECREASING ORDER
+	public static final int[] acceptedNoteDenominations = {100, 50, 20, 10, 5}; //HARDCODE ACCEPTED NOTES IN DECREASING ORDER
 	
-	
+	private double changeDue = 0; //amount we owe customer
+	private double changeReturned = 0;
 	
 	private Card debitCardSelected = null;
 	private Card creditCardSelected = null;
@@ -124,6 +141,10 @@ public class DIYSystem {
 	private void initialize() {
 		//Setup the DIY Station
 		//station = new DoItYourselfStation();
+		
+		DoItYourselfStationAR.configureCoinDenominations(acceptedCoinDenominations);
+		DoItYourselfStationAR.configureBanknoteDenominations(acceptedNoteDenominations);
+		
 		station = new DoItYourselfStationAR();
 
 		station.plugIn();
@@ -185,14 +206,15 @@ public class DIYSystem {
 		scaleObs = new ElectronicScaleObserver(this, this.attendant);
 		touchObs = new TouchScreenObserver();
 		printerObs = new ReceiptPrinterObserver(this);
-
 		
-		//Setup Cash validators
-	//		for (long denom: acceptedCoinDemominations) //Could also be done in a function
-	//			coinDenominations.add(denom);
-	//		coinValidator = new CoinValidator(currency, coinDenominations);
+		coinValidatorObs = new CoinValidatorObs(this);
+		banknoteValidatorObs = new BanknoteValidatorObs(this);
+		banknoteStorageObs =  new BanknoteStorageUnitObs(this);
+		banknoteSlotROutputObs = new BanknoteSlotROutputObs(this);
 		
-		//Register the observer to the CardReader on the DIY Station
+		
+		
+		//Register the observers on the DIY Station
 		station.cardReader.register(cardReaderObs);
 		//station.baggingArea.register(scaleObs);
 		baggingArea.register(scaleObs);
@@ -200,6 +222,18 @@ public class DIYSystem {
 		//station.touchScreen.register(touchObs);
 		touchScreen.register(touchObs);
 		station.printer.register(printerObs);
+
+		//Attach Listeners to cash sinks
+		station.banknoteValidator.attach(banknoteValidatorObs);
+		station.banknoteStorage.attach(banknoteStorageObs);
+		station.banknoteOutput.attach(banknoteSlotROutputObs);
+		attachToCoinDispensers();
+		attachToNoteDispensers();
+		
+		//Setup cash payments
+//		SetupCoinValidator();
+		simulateLoadAllCoinDispensers(15);
+		simulateLoadAllNoteDispensers(15);
 		
 		//Setup the Customer and start using the DIY station
 		customerData.customer.useStation(station);
@@ -480,13 +514,13 @@ public class DIYSystem {
 	}
 
 	/**
-	 * @author Jesse Dirks
+	 * @author Jesse Dirks, Jason Osmond
 	 * Start the pay by cash process from the main window
 	 */
 	public void payByCashStart() {
-		if (amountToBePayed <= 0) { //maybe we should allow 0 cost payments and just finish the payment immediately if they pay for nothing
-			return;
-			//throw new InvalidArgumentSimulationException("cost must be greater than 0");
+		if(amountToBePayed <= 0 ) {
+			mainWindow.setMsg("Please Scan at least one item");
+			return; //TODO: display error that cant make payment on no money
 		}
 		//Customer class does not contain any cash.
 		disableScanningAndBagging();
@@ -735,41 +769,286 @@ public class DIYSystem {
 	
 	/**
 	 * Inserts a coin into the coin slot
+	 * @author Jesse Dirks, Jason Osmond
 	 */
-	public void InsertCoin(Currency curr) {
+	public void InsertCoin(Currency curr, Long denomination) { //TODO
 		
 		try {
-			Coin c = new Coin(curr, station.coinDenominations.get(0));
+			Coin c = new Coin(curr, denomination);
 			station.coinSlot.receive(c);
 		} catch(DisabledException e) {
 			payWindowCash.setMessage("The coin slot is currently disabled");
 		} catch(TooMuchCashException e) {
 			payWindowCash.setMessage("The machine is full of coins");
-		}
+		}/* catch(Throwable e) {
+			if (e instanceof PowerSurge) {
+				payWindowCash.setMessage("The system has encountered an unexpected Power surge");
+			}
+			else {
+				payWindowCash.setMessage("An unexpected error has occurred");
+			}
+		}*/
+		
 	}
 	
 	/**
 	 * Inserts a banknote into the banknote slot
+	 * @author Jesse Dirks, Jason Osmond
 	 */
-	public void InsertBanknote(Currency curr) {
+	public boolean InsertBanknote(Currency curr, int denomination) { //TODO
 		
 		try {
-			Banknote b = new Banknote(curr, station.banknoteDenominations[0]);
+			Banknote b = new Banknote(curr, denomination);
 			station.banknoteInput.receive(b);
 		} catch(DisabledException e) {
 			payWindowCash.setMessage("The banknote slot is currently disabled");
 		} catch(TooMuchCashException e) {
 			payWindowCash.setMessage(e.getMessage());
+		}/* catch(Throwable e) {
+			if (e instanceof PowerSurge) {
+				payWindowCash.setMessage("The system has encountered an unexpected Power surge");
+			}
+			else {
+				payWindowCash.setMessage("An unexpected error has occurred");
+			}
+		}*/
+		if (station.banknoteInput.hasDanglingBanknote()) {
+			payWindowCash.setMessage("Your banknote has been rejected and is dangling from the slot.");
+			return false;
+		}
+		return true;
+	}
+	
+	private int lastValidNoteValue;
+	
+	public int getLastValidNoteValue() {
+		return lastValidNoteValue;}
+	
+	public void updateLastValidNoteValue(long value){
+		lastValidNoteValue = (int) value;}
+	
+	
+	/**
+	 * Called when a denomination storage unit receives a coin
+	 * @author Jason Osmond
+	 * @param cashAmount
+	 */
+	public void ValidCashReceived(double cashAmount) {
+		System.out.println("Valid Cash Received = " + cashAmount); 
+		payWindowCash.cashReceived(cashAmount); //Update UI of cash Inserted
+		
+	}
+	
+	/**
+	 * Called when customer presses confirm in Pay with cash screen
+	 * Finalizes Pay with cash sequence
+	 * Only affects GUI, actual transaction processed when cash is inserted
+	 * @author Jason Osmond
+	 */
+	public void payByCash(double amount) {
+		if (amount <= 0) {
+			payWindowCash.setMessage("Please Insert Cash Before Confirming");
+			return;
+		}		
+		updateGUIItemListPayment(roundToHundredth(amount));
+	}
+	
+
+	
+	
+	/**
+	 * Adds Listeners to all the coin dispensers
+	 * @author Jason Osmond
+	 */
+	private void attachToCoinDispensers() {
+		for (long denomination : station.coinDenominations) {
+			CoinDispenserAR coinDispenser = station.coinDispensers.get(denomination);
+			coinDispenser.attach(new CoinDispenserObs(this, denomination));
+		}
+	}
+	
+	/**
+	 * Adds Listeners to all the bank note dispensers
+	 * @author Jason Osmond
+	 */
+	private void attachToNoteDispensers() {
+		for (int denomination : station.banknoteDenominations) {
+			BanknoteDispenserAR banknoteDispenser = station.banknoteDispensers.get(denomination);
+			banknoteDispenser.attach(new BanknoteDispenserObs(this, denomination));
+		}
+	}
+	
+	/**
+	 * Probably call this with Attendant Station
+	 * @author Jason Osmond
+	 * @param amountToLoad
+	 * 		Number of coins to simulate loading
+	 */
+	public void simulateLoadAllCoinDispensers(long amountToLoad) {
+		for (long denomination: station.coinDenominations) {
+			//Get dispenser
+			CoinDispenserAR changeDispenser = 
+					station.coinDispensers.get(denomination);
+			if (changeDispenser == null)
+				continue;
+			
+			//Simulate coins
+			Coin[] coins = new Coin[(int) amountToLoad];
+			
+			for (int i = 0; i < coins.length; i++)
+				coins[i] = new Coin(currency, denomination);
+			
+			//Try to load into dispenser
+			try {
+				changeDispenser.load(coins);
+			}catch (TooMuchCashException e){
+				System.out.println(e);
+				continue;
+			}catch (NoPowerException e) {
+				System.out.println(e);
+				continue;
+			}			
+		}
+	}
+	
+	/**
+	 * Probably call this with Attendant Station
+	 * @author Jason Osmond
+	 * @param amountToLoad
+	 * 		Number of notes to simulate loading for each denomination
+	 */
+	public void simulateLoadAllNoteDispensers(int amountToLoad) {
+		for (int denomination: station.banknoteDenominations) {
+			//Get dispenser
+			BanknoteDispenserAR noteDispenser = 
+					station.banknoteDispensers.get(denomination);
+			if (noteDispenser == null)
+				continue;
+			
+			//Simulate coins
+			Banknote[] banknotes = new Banknote[amountToLoad];
+			
+			for (int i = 0; i < banknotes.length; i++)
+				banknotes[i] = new Banknote(currency, denomination);
+			
+			//Try to load into dispenser
+			try {
+				noteDispenser.load(banknotes);
+			}catch (TooMuchCashException e){
+				System.out.println(e);
+				continue;
+			}catch (NoPowerException e) {
+				System.out.println(e);
+				continue;
+			}			
 		}
 	}
 	
 	
 	/**
-	 * Finalizes Pay with cash sequence
+	 * Dispenses all change into the coin tray
+	 * Change returned favors larger denominations
+	 * @author Jason Osmond
 	 */
-	public void payByCash(double amount) {
-		payWindowCash.setMessage("TODO:send change and print receipt");
+	public void dispenseChangeDue() {
+		//Looks at each denomination and if denom is larger than change due
+		//BEST WHEN: Denominations are be sorted in DECREASING order
+		for(int denomination : acceptedNoteDenominations) {
+			while (changeDue + 0.02 >= denomination){//Round to the nearest nickel
+				try {
+					BanknoteDispenserAR dispenser = station.banknoteDispensers.get(denomination);
+					dispenser.emit();
+				}catch (OutOfCashException e) {
+					e.printStackTrace();
+					break; //move to next denomination
+				} catch (TooMuchCashException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					break;
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					break;
+				}
+				//TODO Dispensing in this case does not 100% guarantee the customer has received the cash
+				
+			}
+		}
+		//dispense coins
+		for(long denomination : acceptedCoinDenominations) {
+			double dollarVal = DIYSystem.convertCentsToDollars(denomination);
+			while (changeDue + 0.02 >= dollarVal){//Round to the nearest nickel
+				try {
+					CoinDispenserAR dispenser = station.coinDispensers.get(denomination);
+					dispenser.emit();
+//					CollectBanknoteFromOutput();
+				}catch (OutOfCashException e) {
+//					e.printStackTrace();
+					break; //move to next denomination
+				} catch (TooMuchCashException e) {
+//					 TODO Auto-generated catch block
+//					e.printStackTrace();
+					break;
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					break;
+				}
+			}
+		}
+		if(changeDue > 0.02) { //TODO Handle if change was not properly dispensed
+			System.out.println("Insufficient Change Returned: " + changeDue);
+		}
+		else if(changeDue < -.02) {
+			System.out.println("Too Much Change Returned: " + changeDue);
+		}
+		
+		//Update GUI after dispensing
+		changeReceiptPrice(changeReturned);
+		updateGUIItemListCollectCash(changeReturned);
+			
 	}
+	
+	public Banknote CollectBanknoteFromOutput() {
+		try {
+			Banknote note = station.banknoteOutput.removeDanglingBanknote();
+			System.out.println("Collected a $"+ note.getValue() + " note");
+			return note;			
+		}catch (NullPointerSimulationException e) {
+			return null;
+		}
+	}
+	
+	public Banknote CollectBanknoteFromInput() {
+		try {
+			return station.banknoteOutput.removeDanglingBanknote();			
+		}catch (NullPointerSimulationException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Simulates Collecting Change 
+	 * @author Jason Osmond
+	 */
+	public double collectChange() {
+		ArrayList<Coin> coinsCollected = (ArrayList<Coin>) station.coinTray.collectCoins();
+		double totalChangeCollected = 0;
+		for (Coin coin : coinsCollected) {
+			double dollarValue = convertCentsToDollars(coin.getValue());
+			System.out.println("Collected a $"+ dollarValue + " coin");
+			totalChangeCollected += (double) dollarValue;
+		}
+		if (station.banknoteInput.hasDanglingBanknote()) {
+			Banknote b = CollectBanknoteFromInput();
+			totalChangeCollected += (double) b.getValue();
+		}
+		
+		payWindowCash.changeCollected();
+		
+		return roundToHundredth(totalChangeCollected);
+	}	
+	
 	
 
 	/* Finalizes the pay by Debit sequenece (using TAP)
@@ -940,6 +1219,8 @@ public class DIYSystem {
 			payWindow.setMessage(msg);
 		else if (payWindowDebit != null)
 			payWindowDebit.setMessage(msg);
+		else if (payWindowCash != null)
+			payWindowCash.setMessage(msg);
 	}
 		
 	
@@ -956,7 +1237,7 @@ public class DIYSystem {
 	 * @return
 	 */
 	public double getReceiptPrice() {
-		return amountToBePayed;
+		return roundToHundredth(amountToBePayed);
 	}
 	
 	/**
@@ -964,7 +1245,7 @@ public class DIYSystem {
 	 * @param price
 	 */
 	public void changeReceiptPrice(double price) {
-		amountToBePayed += price;
+		amountToBePayed = roundToHundredth(amountToBePayed + price);
 		setPriceOnGui();
 	}
 	
@@ -980,12 +1261,27 @@ public class DIYSystem {
 	/**
 	 */
 	public void decreaseReceiptPrice(double price) {
-		amountToBePayed -= price;
+		amountToBePayed = roundToHundredth(amountToBePayed - price);
+		if(amountToBePayed < 0) {
+			changeDue = -(amountToBePayed);
+		}
 		setPriceOnGui();
 	}
 	
+	public void decreaseChangeDue(double amount) {
+		changeDue = roundToHundredth(changeDue - amount);
+		changeReturned = roundToHundredth(changeReturned + amount);
+	}
+	
+	public void resetChangeReturned() {
+		changeReturned = 0;
+	}
+	public double getChangeDue() {
+		return roundToHundredth(changeDue);
+	}
+	
 	public double getAmountToPay() {;
-		return amountToPay;
+		return roundToHundredth(amountToPay);
 	}
 	
 	
@@ -1036,6 +1332,9 @@ public class DIYSystem {
 		return station.printer;
 	}
 	
+	public Currency getCurrency() {
+		return currency;
+	}
 	
 	public void setPriceOnGui() {
 		mainWindow.setamountToBePayedLabel(amountToBePayed);
@@ -1054,7 +1353,11 @@ public class DIYSystem {
 	}
 	
 	public void updateGUIItemListPayment(double amountPaid) {
-		mainWindow.addPaymentToItems(amountPaid);
+		mainWindow.addPaymentToItems(roundToHundredth(amountPaid));
+	}
+	
+	public void updateGUIItemListCollectCash(double amountPaid) {
+		mainWindow.addCollectCashToItems(roundToHundredth(amountPaid));
 	}
 	
 	public void updateWeightOnGUI(double weight) {
@@ -1080,4 +1383,16 @@ public class DIYSystem {
 	public void bagsRefilled() {
 		mainWindow.setMsg("");
 	}
+
+	
+	public static final double roundToHundredth(double input) {
+		return (double) Math.round(input * 100) / 100; //round to nears 100th (i.e. $0.0500001 -> $0.05)
+	}
+	
+	public static final double convertCentsToDollars(long longVal) {
+		double doubVal = (double) longVal / 100; // 5c = $0.05
+		doubVal = roundToHundredth(doubVal); //round to nears 100th (i.e. $0.0500001 -> $0.05)
+		return doubVal; 
+	}
 }
+

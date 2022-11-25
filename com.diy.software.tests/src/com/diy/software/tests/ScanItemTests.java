@@ -24,6 +24,7 @@ public class ScanItemTests {
 	private DIYSystem testSystem;
 	private CustomerData testCustomerData;
 	private DoItYourselfStationAR selfCheckout;
+	private AttendantStation attendantStation;
 		
 	private Barcode normalBarcode;
 	private Item normalItem;
@@ -35,10 +36,12 @@ public class ScanItemTests {
 	public void setUp() throws Exception {
 		
 		testCustomerData = new CustomerData();
+
  		CustomerData customers[] = {testCustomerData};
  		AttendantStation attendant = new AttendantStation(customers);
  		
  		testSystem = attendant.getCurrentDIY();
+
 		
 		// populate product database with random products
 		// Utility.fillDatbases();
