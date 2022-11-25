@@ -14,12 +14,15 @@ public class EnterMembershipTest {
 	DIYSystem diysystem;
 	DoItYourselfStationAR station;
 	MemberDatabase memberdatabase;
+	CustomerData customerData;
+	AttendantStation attendant;
 	/**
 	 * Do standard set up to get the self-checkout system in normal state
 	 * for regular operation. 
 	 */
 	@Before
 	public void setup() {
+		diysystem = new DIYSystem(customerData, attendant);
 		station = new DoItYourselfStationAR();
 		station.plugIn();
 		station.turnOn();	
