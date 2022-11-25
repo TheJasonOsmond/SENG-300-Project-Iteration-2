@@ -1,5 +1,5 @@
 package com.diy.software.tests;
-/*
+
 import com.diy.hardware.BarcodedProduct;
 //import com.diy.hardware.DoItYourselfStation;
 import com.diy.hardware.DoItYourselfStationAR;
