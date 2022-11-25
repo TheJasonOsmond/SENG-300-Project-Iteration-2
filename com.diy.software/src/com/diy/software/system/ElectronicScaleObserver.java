@@ -2,6 +2,7 @@ package com.diy.software.system;
 
 import com.jimmyselectronics.AbstractDevice;
 import com.jimmyselectronics.AbstractDeviceListener;
+import com.jimmyselectronics.OverloadException;
 import com.jimmyselectronics.virgilio.ElectronicScale;
 import com.jimmyselectronics.virgilio.ElectronicScaleListener;
 
@@ -9,9 +10,12 @@ public class ElectronicScaleObserver implements ElectronicScaleListener {
 
 	
 	private DIYSystem sysRef;
+	private AttendantStation attendantRef;
 	
-	public ElectronicScaleObserver(DIYSystem s) {
-		sysRef = s;
+	public ElectronicScaleObserver(DIYSystem s, AttendantStation a) {
+		this.sysRef = s;
+		this.attendantRef = a;
+
 	}
 
 	@Override
@@ -40,11 +44,26 @@ public class ElectronicScaleObserver implements ElectronicScaleListener {
 
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
-		//SUCCESSFULL ON ADDING ITEM TO BAGGING AREA
 		//UPDATE THE GUI THROUGH THE SYSTEM WITH THE NEW UPDATED WEIGHT
-		sysRef.bagItemSuccess(true);
-		sysRef.updateWeightOnGUI(weightInGrams);
-		sysRef.setScanStatus(false);
+
+		double expected_weight = sysRef.getCurrentExpectedWeight();
+		double current_weight = 0;
+		current_weight = expected_weight + weightInGrams;
+
+		if (expected_weight < current_weight || expected_weight > current_weight) {
+			//Disable scanning and bagging
+			sysRef.systemDisable();
+			sysRef.sendMsgToGui("Please wait for attendant.");
+			//Signal attendant to help
+			attendantRef.notifyWeightChange();
+
+		} else if (expected_weight == current_weight) {
+			//This case is for successful bagging.
+			sysRef.enableScanningAndBagging();
+			sysRef.bagItemSuccess(true);
+			sysRef.updateWeightOnGUI(weightInGrams);
+			sysRef.setScanStatus(false);
+		}
 	}
 
 	@Override
