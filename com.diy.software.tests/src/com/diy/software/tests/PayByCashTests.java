@@ -286,34 +286,7 @@ public class PayByCashTests {
 
 	}
 
-	/**
-	 * Paying for extra and then comparing the change returned is same as expected
-	 *@author-name : Simrat Benipal
-	 */
-	@Test
-	public void correctChangeReturned_note()
-	{
-		testSystem.resetReceiptPrice();
-		testSystem.changeReceiptPrice(10);
-		Currency curr = Currency.getInstance(Locale.CANADA);
-		int denomination = DIYSystem.acceptedNoteDenominations[2];
-		//public static final int[] acceptedNoteDenominations = {100, 50, 20, 10, 5}
-
-		//simulate paying by giving $2
-		testSystem.InsertBanknote(curr,denomination);
-
-		testSystem.dispenseChangeDue();
-
-		//simulating someone is collecting that change
-		double changeCollected = testSystem.collectChange();
-		//method to simulate the change is collected
-		System.out.println(changeCollected);
-		assertEquals(changeCollected, 1.75, 0.0);
-
-
-
-	}
-
+	
 
 
 
